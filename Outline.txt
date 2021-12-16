@@ -1,0 +1,53 @@
+library system : 
+ 	- add new book (datetime, by user)
+ 	- editing book (datetime, by user)
+ 	- deleting book (datetime, by user)
+    - delete all books
+ 	- categories
+ 	- search books with title & category
+ 	- users , login , signup 
+ 	- settings
+ 	- daily_activities
+ 	- reports [excel files] (admin)
+    - history (admin)
+    - import
+
+
+ 	book : 
+        - title
+ 		- category
+        - quantity
+
+
+ 	users : 
+ 		- username
+ 		- password
+
+
+ 	daily_activities : 
+ 		- book name
+        - type (returned, lent)
+        - borower (pupil)
+        - user (librarian)
+        - datetime
+
+
+    history:
+        - daily_activities
+        - filter by:
+                - datetime
+                - book
+                - category
+                - user (librarian)
+
+
+    settings:
+        - change skin            
+
+
+    settings(admin):
+        - give permissions
+
+
+ 	category : 
+ 		- name
