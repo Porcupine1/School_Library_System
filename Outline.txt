@@ -12,42 +12,35 @@ library system :
     - history (admin)
     - import
 
+History:
+    - Transaction
+    - filter by:
+            - datetime
+            - book
+            - category
+            - user (librarian)
+Settings:
+    - change_skin()
 
- 	book : 
-        - title
- 		- category
-        - quantity
+Settings(admin):
+    - give_permissions()
 
+Book : 
+    + title
+	+ category
+    + quantity
 
- 	users : 
- 		- username
- 		- password
+User : 
+	+ username
+	+ password
+    + issue_transaction()
 
+Transaction : 
+	+ book name
+    + type (returned, lent)
+    + borower (pupil)
+    + User
+    + datetime
 
- 	daily_activities : 
- 		- book name
-        - type (returned, lent)
-        - borower (pupil)
-        - user (librarian)
-        - datetime
-
-
-    history:
-        - daily_activities
-        - filter by:
-                - datetime
-                - book
-                - category
-                - user (librarian)
-
-
-    settings:
-        - change skin            
-
-
-    settings(admin):
-        - give permissions
-
-
- 	category : 
- 		- name
+Category : 
+    + name 	
