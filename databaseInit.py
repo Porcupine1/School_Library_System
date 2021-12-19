@@ -1,34 +1,3 @@
-
-
-
-
-# BOOKS
-
-
-def addBook(book_title, quantity, category=None):
-    add_book_query = f'''INSERT INTO BOOKS VALUES({book_title}, {category}, {quantity})'''
-    cursor.execute(add_book_query)
-
-
-def deleteBook(book_title):
-    delete_book_query = f'''DELETE FROM BOOKS WHERE BOOK_TITLE={book_title}'''
-    cursor.execute(delete_book_query)
-
-
-def editBook(book_title, quantity, category=None):
-    update_book_query = f'''UPDATE BOOKS SET BOOK_TITLE={book_title}, QUANTITY = {quantity}, BOOK_CATEGORY = {category} WHERE BOOK_TITLE={book_title}'''
-    cursor.execute(update_book_query)
-
-
-def returnBook(book_title, num=1):
-    update_book_query = f'''UPDATE BOOKS SET QUANTITY = QUANTITY+{num} WHERE BOOK_TITLE={book_title}'''
-    cursor.execute(update_book_query)
-
-
-def lendBook(book_title, num=1):
-    update_book_query = f'''UPDATE BOOKS SET QUANTITY = QUANTITY-{num} WHERE BOOK_TITLE={book_title}'''
-    cursor.execute(update_book_query)
-
 # USERS
 
 
