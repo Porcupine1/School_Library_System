@@ -127,7 +127,6 @@ class MainApp(QMainWindow, main):
         QWidget.__init__(self)
         self.setupUi(self)
         self.handleUiChanges()
-        self.showBooks()
         self.handleButtons()
 
     def handleUiChanges(self):
@@ -164,8 +163,10 @@ class MainApp(QMainWindow, main):
         self.history_btn.clicked.connect(self.open_history_tab)
         self.settings_btn.clicked.connect(self.open_settings_tab)
         self.add_book_btn.clicked.connect(self.addBook)
-        self.add_category_btn.clicked.connect(lambda :self.addCategory(self.add_category_le.text()))
-        self.search_category_btn.clicked.connect(self.searchCategory)
+        self.add_category_btn.clicked.connect(
+            lambda: self.addCategory(self.add_category_le.text()))
+        self.search_category_btn.clicked.connect(
+            lambda: self.searchCategory(self.add_category_le.text()))
 
         self.dashboard_btn.setObjectName('tab_btns')
         self.books_btn.setObjectName('tab_btns')
@@ -187,9 +188,6 @@ class MainApp(QMainWindow, main):
 
     def open_settings_tab(self):
         self.main_tab_widget.setCurrentIndex(4)
-
-    def showBooks(self):
-        pass
 
     def addBook(self):
 
@@ -222,16 +220,23 @@ class MainApp(QMainWindow, main):
         query.exec_(update_book_query)
 
     def addCategory(self, category_name):
+        category_name = category_name.capitalize()
+        query.exec_(
+            f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
 
+        if (query.next()):
+            self.category_info_label.setText(
+                f"{category_name} category already exists in library.")
+        else:
+            query.exec_(f"INSERT INTO CATEGORIES VALUES('{category_name}')")
+            self.category_info_label.setText(
+                f"{category_name.capitalize()} category sucssessfuly added to library.")
+            self.add_category_le.clear()
+            self.updateCategoryCombox()
 
-        query.exec_(f"INSERT INTO CATEGORIES VALUES('{category_name}')")
-        self.category_info_label.setText(
-            f"{category_name} category sucssessfuly added to library.")
-        self.updateCategoryCombox()
+    def searchCategory(self, category_name):
 
-    def searchCategory(self):
-
-        category_name = self.add_category_le.text()
+        category_name = category_name.capitalize()
         query.exec_(
             f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
 
@@ -242,9 +247,11 @@ class MainApp(QMainWindow, main):
         if data == []:
             self.category_info_label.setText(
                 f"{category_name} category does not exist in library.")
+
         else:
             self.category_info_label.setText(
                 f"{category_name} category exists in library.")
+            self.add_category_le.clear()
 
 
 if __name__ == '__main__':

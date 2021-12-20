@@ -54,7 +54,7 @@
        </rect>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="all_books_tab">
        <attribute name="title">
@@ -358,7 +358,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>TextLabel</string>
+         <string/>
         </property>
        </widget>
       </widget>
