@@ -1,5 +1,6 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QTableView, QHeaderView, QLineEdit, QMainWindow, QPushButton, QVBoxLayout, QWidget
-from PyQt5.QtSql import QSqlRelationalTableModel, QSqlRelation
+from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlRelationalTableModel, QSqlRelation, QSqlTableModel
 from PyQt5 import uic
 import hashlib
 import hmac
@@ -16,7 +17,6 @@ def initializeDatabase(exists: bool) -> None:
     Creates admin user.
     """
     if not exists:
-        cursor = sqliteConnection.cursor()
         create_users_table_query = '''CREATE TABLE IF NOT EXISTS USERS (
                                     USER_ID INTEGER PRIMARY KEY AUTOINCREMENT
                                                             NOT NULL
@@ -53,15 +53,16 @@ def initializeDatabase(exists: bool) -> None:
                                                             NOT NULL
                                     );
                                     '''
-        cursor.execute(create_users_table_query)
-        cursor.execute(create_books_table_query)
-        cursor.execute(create_transactions_table_query)
-        cursor.execute(create_categories_table_query)
+        query.exec_(create_users_table_query)
+        query.exec_(create_books_table_query)
+        query.exec_(create_transactions_table_query)
+        query.exec_(create_categories_table_query)
         hashed_user_password = str(hashPassword('admin'))
-        cursor.execute(r'INSERT INTO USERS(USER_NAME, USER_PASSWORD) VALUES("admin", "{}")'.format(
-            hashed_user_password))
-
-        cursor.close()
+        query.prepare(
+            r'''INSERT INTO USERS(USER_NAME, USER_PASSWORD) VALUES(?, ?)''')
+        query.addBindValue('admin')
+        query.addBindValue(hashed_user_password)
+        query.exec_()
 
 
 def hashPassword(password: str) -> bool:
@@ -98,12 +99,15 @@ class LoginWindow(QWidget, login):
     def handleLogin(self):
         username = self.username_le.text()
         password = self.password_le.text()
-        cursor = sqliteConnection.cursor()
-        login_query = (
-            f"SELECT user_password FROM users WHERE user_name = '{username}'")
 
-        cursor.execute(login_query)
-        data = cursor.fetchone()
+        query.setForwardOnly(True)
+        login_query = (
+            f"SELECT USER_PASSWORD FROM USERS WHERE USER_NAME = '{username}'")
+
+        query.exec_(login_query)
+        data = []
+        while (query.next()):
+            data.append((query.value(0)))
 
         try:
             if password_check(password, literal_eval(data[0])):
@@ -117,20 +121,41 @@ class LoginWindow(QWidget, login):
             self.label.setText(
                 'Make sure you enterd Your username and password correctly.')
 
-        cursor.close()
-
 
 class MainApp(QMainWindow, main):
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)
-        self.handleUi()
+        self.handleUiChanges()
         self.showBooks()
         self.handleButtons()
 
-    def handleUi(self):
+    def handleUiChanges(self):
+
         self.main_tab_widget.tabBar().setVisible(False)
         self.main_tab_widget.setObjectName('main_tab_widget')
+        self.updateCategoryCombox()
+        self.updateAllBooksTableView()
+
+    def updateCategoryCombox(self):
+        model = QSqlTableModel()
+        model.setTable('CATEGORIES')
+        column = model.fieldIndex('CATEGORY_NAME')
+        model.setEditStrategy(QSqlTableModel.OnFieldChange)
+        model.setSort(column, Qt.AscendingOrder)
+        model.select()
+        self.category_combo_box.setModel(model)
+        self.category_combo_box_2.setModel(model)
+
+    def updateAllBooksTableView(self):
+        model = QSqlRelationalTableModel()
+        model.setTable('BOOKS')
+        model.setRelation(model.fieldIndex('CATEGORY'), QSqlRelation(
+            'CATEGORIES', 'CATEGORY_NAME', 'CATEGORY_NAME'))
+        self.all_books_table_view.setModel(model)
+        self.all_books_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.
+                                                                          Stretch)
+        model.select()
 
     def handleButtons(self):
         self.dashboard_btn.clicked.connect(self.open_dashboard_tab)
@@ -138,6 +163,9 @@ class MainApp(QMainWindow, main):
         self.issue_book_btn.clicked.connect(self.open_issue_book_tab)
         self.history_btn.clicked.connect(self.open_history_tab)
         self.settings_btn.clicked.connect(self.open_settings_tab)
+        self.add_book_btn.clicked.connect(self.addBook)
+        self.add_category_btn.clicked.connect(lambda :self.addCategory(self.add_category_le.text()))
+        self.search_category_btn.clicked.connect(self.searchCategory)
 
         self.dashboard_btn.setObjectName('tab_btns')
         self.books_btn.setObjectName('tab_btns')
@@ -163,36 +191,72 @@ class MainApp(QMainWindow, main):
     def showBooks(self):
         pass
 
-    def addBook(book_title, quantity, category=None):
-        cursor = sqliteConnection.cursor()
+    def addBook(self):
+
+        book_title = self.book_title_le.text()
+        category = self.category_combo_box.currentText()
+        quantity = self.quantity_spin_box.value()
+        self.addCategory(category)
         add_book_query = f"""INSERT INTO BOOKS VALUES('{book_title}', '{category}', '{quantity}')"""
-        cursor.execute(add_book_query)
+        query.exec_(add_book_query)
+        self.updateAllBooksTableView()
 
     def deleteBook(book_title):
-        cursor = sqliteConnection.cursor()
+
         delete_book_query = f'''DELETE FROM BOOKS WHERE BOOK_TITLE={book_title}'''
-        cursor.execute(delete_book_query)
+        query.exec_(delete_book_query)
 
     def editBook(book_title, quantity, category=None):
-        cursor = sqliteConnection.cursor()
+
         update_book_query = f'''UPDATE BOOKS SET BOOK_TITLE={book_title}, QUANTITY = {quantity}, BOOK_CATEGORY = {category} WHERE BOOK_TITLE={book_title}'''
-        cursor.execute(update_book_query)
+        query.exec_(update_book_query)
 
     def returnBook(book_title, num=1):
-        cursor = sqliteConnection.cursor()
+
         update_book_query = f'''UPDATE BOOKS SET QUANTITY = QUANTITY+{num} WHERE BOOK_TITLE={book_title}'''
-        cursor.execute(update_book_query)
+        query.exec_(update_book_query)
 
     def lendBook(book_title, num=1):
-        cursor = sqliteConnection.cursor()
+
         update_book_query = f'''UPDATE BOOKS SET QUANTITY = QUANTITY-{num} WHERE BOOK_TITLE={book_title}'''
-        cursor.execute(update_book_query)
+        query.exec_(update_book_query)
+
+    def addCategory(self, category_name):
+
+
+        query.exec_(f"INSERT INTO CATEGORIES VALUES('{category_name}')")
+        self.category_info_label.setText(
+            f"{category_name} category sucssessfuly added to library.")
+        self.updateCategoryCombox()
+
+    def searchCategory(self):
+
+        category_name = self.add_category_le.text()
+        query.exec_(
+            f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
+
+        data = []
+        while (query.next()):
+            data.append(query.value(0))
+
+        if data == []:
+            self.category_info_label.setText(
+                f"{category_name} category does not exist in library.")
+        else:
+            self.category_info_label.setText(
+                f"{category_name} category exists in library.")
 
 
 if __name__ == '__main__':
-    exists = os.path.isfile('Library.db')  # Checks if database already exits
-    # Creates database and makes connection
-    sqliteConnection = sqlite3.connect('Library.db', isolation_level=None)
+    exists = os.path.isfile('Library.db')
+    database = QSqlDatabase.addDatabase("QSQLITE")
+    database.setDatabaseName("Library.db")
+
+    if not database.open():
+        print("Unable to open data source file.")
+        sys.exit(1)
+    query = QSqlQuery()
+    query.setForwardOnly(True)
     app = QApplication(sys.argv)
     style = open('themes/dark.css', 'r')
     style = style.read()
