@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QTableView, QHeaderView, QLineEdit, QMainWindow, QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QComboBox, QLabel, QMessageBox, QSpinBox, QTableView, QHeaderView, QLineEdit, QMainWindow, QPushButton, QVBoxLayout, QWidget
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlRelationalTableModel, QSqlRelation, QSqlTableModel
 from PyQt5 import uic
 import hashlib
@@ -27,11 +27,13 @@ def initializeDatabase(exists: bool) -> None:
                                 );
                                 '''
         create_books_table_query = '''CREATE TABLE IF NOT EXISTS BOOKS (
-                                    BOOK_TITLE VARCHAR PRIMARY KEY
+                                    BOOK_ID    INTEGER PRIMARY KEY AUTOINCREMENT
                                                     NOT NULL
                                                     UNIQUE,
-                                    CATEGORY    VARCHAR REFERENCES CATEGORIES (CATEGORY_NAME),
-                                    QUANTITY    INTEGER NOT NULL
+                                    BOOK_TITLE VARCHAR NOT NULL,
+                                    CATEGORY   VARCHAR,
+                                    QUANTITY   INTEGER NOT NULL,
+                                    CONSTRAINT category FOREIGN KEY(CATEGORY) REFERENCES CATEGORIES (CATEGORY_NAME)
                                 );
                                 '''
         create_transactions_table_query = '''CREATE TABLE IF NOT EXISTS TRANSACTIONS (
@@ -40,11 +42,11 @@ def initializeDatabase(exists: bool) -> None:
                                                                 UNIQUE,
                                         TYPE    TEXT    NOT NULL,
                                         CLIENT                  NOT NULL,
-                                        BOOK_ID TEXT    REFERENCES BOOKS (BOOK_TITLE) 
-                                                                NOT NULL,
-                                        USER_ID INTEGER REFERENCES Users (USER_ID) 
-                                                                NOT NULL,
-                                        DATETIME    DATETIME NOT NULL
+                                        BOOK_ID TEXT    NOT NULL,
+                                        USER_ID INTEGER NOT NULL,
+                                        DATETIME    DATETIME NOT NULL,
+                                        CONSTRAINT book FOREIGN KEY(BOOK_ID) REFERENCES BOOKS (BOOK_ID),
+                                        CONSTRAINT user FOREIGN KEY(USER_ID) REFERENCES Users (USER_ID)
                                     );
                                     '''
         create_categories_table_query = '''CREATE TABLE IF NOT EXISTS CATEGORIES (
@@ -100,11 +102,8 @@ class LoginWindow(QWidget, login):
         username = self.username_le.text()
         password = self.password_le.text()
 
-        query.setForwardOnly(True)
-        login_query = (
+        query.exec_(
             f"SELECT USER_PASSWORD FROM USERS WHERE USER_NAME = '{username}'")
-
-        query.exec_(login_query)
         data = []
         while (query.next()):
             data.append((query.value(0)))
@@ -164,7 +163,7 @@ class MainApp(QMainWindow, main):
         self.settings_btn.clicked.connect(self.open_settings_tab)
         self.add_book_btn.clicked.connect(self.addBook)
         self.add_category_btn.clicked.connect(
-            lambda: self.addCategory(self.add_category_le.text()))
+            lambda: self.addCategory(self.add_category_le.text(), self.category_info_label))
         self.search_category_btn.clicked.connect(
             lambda: self.searchCategory(self.add_category_le.text()))
 
@@ -190,14 +189,46 @@ class MainApp(QMainWindow, main):
         self.main_tab_widget.setCurrentIndex(4)
 
     def addBook(self):
+        """
+        Formasts book details and adds it to the database if it does not exist.        
+        """
 
-        book_title = self.book_title_le.text()
-        category = self.category_combo_box.currentText()
+        book_title = self.book_title_le.text().capitalize()
+        category = self.category_combo_box.currentText().capitalize()
         quantity = self.quantity_spin_box.value()
-        self.addCategory(category)
-        add_book_query = f"""INSERT INTO BOOKS VALUES('{book_title}', '{category}', '{quantity}')"""
-        query.exec_(add_book_query)
-        self.updateAllBooksTableView()
+        
+        if book_title == "":
+            QMessageBox.critical(self, 'Invalid Enrty', 'Book title is required!', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            query.exec_(
+                f"""SELECT * FROM BOOKS WHERE BOOK_TITLE = '{book_title}' AND CATEGORY = '{category}'""")
+
+            if (query.next()):
+                QMessageBox.information(
+                    self, 'Book exists', f'"{book_title}" already exists in "{category}" category', QMessageBox.Ok, QMessageBox.Ok)
+            else:
+                query.exec_(f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category}'")
+                if not (query.next()):                
+                    response = QMessageBox.question(
+                        self, 'Add Category?', 
+                        f'''"{category}" does not exist in library. Do you want add it to the library?\n\nNB: If not, "{book_title}" will not be added to library.''',
+                        QMessageBox.Yes|QMessageBox.No, QMessageBox.Yes)
+                    
+                    if response == QMessageBox.Yes:
+                        self.addCategory(category, None)
+                        query.exec_(
+                        f"INSERT INTO BOOKS(BOOK_TITLE, CATEGORY, QUANTITY) VALUES('{book_title}', '{category}', '{quantity}')")
+                        self.book_title_le.clear()
+                        self.category_combo_box.clear()
+                        self.quantity_spin_box.clear()
+                else:
+                    query.exec_(
+                        f"INSERT INTO BOOKS(BOOK_TITLE, CATEGORY, QUANTITY) VALUES('{book_title}', '{category}', '{quantity}')")
+                    self.book_title_le.clear()
+                    self.category_combo_box.clear()
+                    self.quantity_spin_box.setValue(0)
+                    
+                self.updateAllBooksTableView()
 
     def deleteBook(book_title):
 
@@ -219,39 +250,57 @@ class MainApp(QMainWindow, main):
         update_book_query = f'''UPDATE BOOKS SET QUANTITY = QUANTITY-{num} WHERE BOOK_TITLE={book_title}'''
         query.exec_(update_book_query)
 
-    def addCategory(self, category_name):
-        category_name = category_name.capitalize()
-        query.exec_(
-            f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
+    def addCategory(self, category_name: str, label: QLabel) -> None:
+        """
+        Capitalizes entered category name and adds it to database if it does not exist.
 
-        if (query.next()):
-            self.category_info_label.setText(
-                f"{category_name} category already exists in library.")
-        else:
-            query.exec_(f"INSERT INTO CATEGORIES VALUES('{category_name}')")
-            self.category_info_label.setText(
-                f"{category_name.capitalize()} category sucssessfuly added to library.")
-            self.add_category_le.clear()
-            self.updateCategoryCombox()
+        """
+        if category_name:
+            category_name = category_name.capitalize()
+            query.exec_(
+                f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
 
-    def searchCategory(self, category_name):
-
-        category_name = category_name.capitalize()
-        query.exec_(
-            f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
-
-        data = []
-        while (query.next()):
-            data.append(query.value(0))
-
-        if data == []:
-            self.category_info_label.setText(
-                f"{category_name} category does not exist in library.")
+            if (query.next() and label is not None):
+                label.setText(
+                    f'"{category_name}" category already exists in library.')
+            else:
+                query.exec_(
+                    f"INSERT INTO CATEGORIES VALUES('{category_name}')")
+                self.updateCategoryCombox()
+                if label is not None:
+                    label.setText(
+                        f'"{category_name}" category sucssessfuly added to library.')
+                    self.add_category_le.clear()
 
         else:
-            self.category_info_label.setText(
-                f"{category_name} category exists in library.")
-            self.add_category_le.clear()
+            if label is not None:
+                label.setText("NO INPUT GIVEN!")
+
+    def searchCategory(self, category_name: str) -> None:
+        """
+        Capitalizes entered category name and checks if it already exists.
+
+        """
+        if category_name:
+            category_name = category_name.capitalize()
+            query.exec_(
+                f"SELECT * FROM CATEGORIES WHERE CATEGORY_NAME = '{category_name}'")
+
+            data = []
+            while (query.next()):
+                data.append(query.value(0))
+
+            if data == []:
+                self.category_info_label.setText(
+                    f'"{category_name}" category does not exist in library.')
+
+            else:
+                self.category_info_label.setText(
+                    f'"{category_name}" category exists in library.')
+                self.add_category_le.clear()
+
+        else:
+            self.category_info_label.setText("NO INPUT GIVEN!")
 
 
 if __name__ == '__main__':
