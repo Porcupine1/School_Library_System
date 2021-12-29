@@ -195,7 +195,7 @@
     <item>
      <widget class="QTabWidget" name="main_tab_widget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -421,7 +421,7 @@
              </rect>
             </property>
             <property name="editable">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
            <widget class="QPushButton" name="delete_book_btn">
@@ -610,29 +610,247 @@
        <attribute name="title">
         <string>Issue Book</string>
        </attribute>
-       <widget class="QTabWidget" name="books_tab_widget_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>820</width>
-          <height>440</height>
-         </rect>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="tab_10">
-         <attribute name="title">
-          <string>Lend Book</string>
-         </attribute>
-        </widget>
-        <widget class="QWidget" name="tab_11">
-         <attribute name="title">
-          <string>Return Book</string>
-         </attribute>
-        </widget>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QTabWidget" name="books_tab_widget_2">
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <widget class="QWidget" name="tab_10">
+           <attribute name="title">
+            <string>Lend Book</string>
+           </attribute>
+           <widget class="QSpinBox" name="quantity_spin_box_3">
+            <property name="geometry">
+             <rect>
+              <x>180</x>
+              <y>216</y>
+              <width>250</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="book_title_le_3">
+            <property name="geometry">
+             <rect>
+              <x>180</x>
+              <y>56</y>
+              <width>250</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_16">
+            <property name="geometry">
+             <rect>
+              <x>80</x>
+              <y>56</y>
+              <width>80</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Book Title</string>
+            </property>
+           </widget>
+           <widget class="QComboBox" name="category_combo_box_3">
+            <property name="geometry">
+             <rect>
+              <x>180</x>
+              <y>136</y>
+              <width>250</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+            <property name="currentIndex">
+             <number>-1</number>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_17">
+            <property name="geometry">
+             <rect>
+              <x>80</x>
+              <y>216</y>
+              <width>80</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Quantity</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_19">
+            <property name="geometry">
+             <rect>
+              <x>80</x>
+              <y>136</y>
+              <width>80</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Category</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="lend_book_btn">
+            <property name="geometry">
+             <rect>
+              <x>180</x>
+              <y>290</y>
+              <width>120</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Lend</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_20">
+            <property name="geometry">
+             <rect>
+              <x>550</x>
+              <y>136</y>
+              <width>80</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Class</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_21">
+            <property name="geometry">
+             <rect>
+              <x>550</x>
+              <y>56</y>
+              <width>80</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Name</string>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="client_name_le">
+            <property name="geometry">
+             <rect>
+              <x>650</x>
+              <y>56</y>
+              <width>250</width>
+              <height>50</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_22">
+            <property name="geometry">
+             <rect>
+              <x>550</x>
+              <y>216</y>
+              <width>80</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>House</string>
+            </property>
+           </widget>
+           <widget class="QComboBox" name="class_combo_box">
+            <property name="geometry">
+             <rect>
+              <x>650</x>
+              <y>136</y>
+              <width>250</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+           </widget>
+           <widget class="QComboBox" name="house_combo_box">
+            <property name="geometry">
+             <rect>
+              <x>650</x>
+              <y>216</y>
+              <width>250</width>
+              <height>50</height>
+             </rect>
+            </property>
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tab_11">
+           <attribute name="title">
+            <string>Return Book</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_26">
+              <property name="text">
+               <string>House</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="class_combo_box_2">
+              <property name="editable">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_25">
+              <property name="text">
+               <string>Class</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="client_name_le_2"/>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="house_combo_box_2">
+              <property name="editable">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_24">
+              <property name="text">
+               <string>Name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" rowspan="5">
+             <widget class="QTableView" name="client_record_tv"/>
+            </item>
+            <item row="3" column="1">
+             <widget class="QPushButton" name="client_search_btn">
+              <property name="text">
+               <string>Search</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="history_tab">
        <attribute name="title">
