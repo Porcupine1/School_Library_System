@@ -6,9 +6,9 @@ import sys
 from ast import literal_eval
 
 from PyQt5 import uic
-from PyQt5.QtChart import (QBarCategoryAxis, QBarSeries, QBarSet, QChart,
-                           QChartView, QDateTimeAxis, QLineSeries, QPercentBarSeries, QValueAxis)
-from PyQt5.QtCore import QDate, QDateTime, QPoint, QRect, Qt
+from PyQt5.QtChart import (QChart,
+                           QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
+from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt
 from PyQt5.QtGui import QEnterEvent, QPainter
 from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
                          QSqlRelationalTableModel, QSqlTableModel)
@@ -22,20 +22,23 @@ from queries import *
 
 def initializeDatabase() -> None:
     """
-    Creates tables  (users, books, transactions, categories) if database was did not exist.\n
-    Creates admin user."""
-    
+    * Creates tables  (users, books, transactions, categories) if database was did not exist.\n
+    * Creates admin user."""
+
     if not database.tables().__contains__("dates"):
+        # Creates dates table starting from current date if it doesn't exist.
         today = datetime.today().date()
         query.exec_("CREATE TABLE dates (id integer primary key)")
         query.exec_("INSERT INTO dates DEFAULT VALUES")
         query.exec_("INSERT INTO dates DEFAULT VALUES")
-        query.exec_("INSERT INTO dates SELECT NULL FROM dates d1, dates d2, dates d3 , dates d4")
-        query.exec_("INSERT INTO dates SELECT NULL FROM dates d1, dates d2, dates d3 , dates d4")
+        query.exec_(
+            "INSERT INTO dates SELECT NULL FROM dates d1, dates d2, dates d3 , dates d4")
+        query.exec_(
+            "INSERT INTO dates SELECT NULL FROM dates d1, dates d2, dates d3 , dates d4")
         query.exec_("ALTER TABLE dates ADD date DATETIME")
         query.exec_(f"UPDATE dates SET date=DATE('{today}',(-1+id)||' day')")
         query.exec_("CREATE UNIQUE index ux_dates_date ON dates (date)")
-    
+
     query.exec_(create_users_table_query)
     query.exec_(create_books_table_query)
     query.exec_(create_transactions_table_query)
@@ -47,6 +50,7 @@ def initializeDatabase() -> None:
     query.exec_(create_user_permissions_table_query)
     query.exec_(create_transaction_acc_view_query)
 
+    # Creates default category, 'Unknown'.
     query.exec_("INSERT INTO categories VALUES('Unknown')")
 
     hashed_user_password = str(hashPassword('admin'))
@@ -63,7 +67,8 @@ def initializeDatabase() -> None:
 
 def hashPassword(password: str) -> bytes:
     """
-    Hashes password and concatenates with a salt.    
+    Hashes password and concatenates with a salt.
+    returns: hashed password of type bytes  
     """
     salt = os.urandom(16)
     hashed_user_password = hashlib.pbkdf2_hmac(
@@ -164,6 +169,7 @@ class MainApp(QMainWindow, main):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.user_id = user_id
         self.username = username
+        self.initDashVals()
         self.handleUi()
         self.widget_2.installEventFilter(self)
         self.main_tab_widget.installEventFilter(self)
@@ -171,12 +177,18 @@ class MainApp(QMainWindow, main):
         self.handleButtons()
         self._initDrag()
         self.setMouseTracking(True)
-        query.exec_(f"SELECT user_name FROM users")
-        self.usernames = []
-        self.edit = []
+        self.edit = []  # Contains record of book to be edited
 
+        query.exec_(f"SELECT user_name FROM users")
+        self.usernames = []  # List of existing user names
         while query.next():
             self.usernames.append(query.value(0))
+
+        query.exec_(
+            f"SELECT count(*) FROM transactions WHERE user_id={self.user_id} AND DATE(datetime)='{datetime.today().date()}'")
+        while query.next():
+            # Number of transactions performed today
+            self.today_transac_count = query.value(0)
 
     def _initDrag(self):
         # Set the default value of mouse tracking judgment trigger
@@ -266,6 +278,7 @@ class MainApp(QMainWindow, main):
         self._right_drag = False
 
     def handleUi(self):
+        """Handles everything that deals with changes to the interface."""
         self.username_label_3.setText(self.username)
         centerWindow(self)
         self.title_bar_pos = 917
@@ -296,6 +309,7 @@ class MainApp(QMainWindow, main):
         self.transactionGraph()
 
     def handlePermissions(self):
+        """Checks user's permissions to appropriately alter what is accessible by the user."""
         tabs = self.main_tabs.findChildren(QPushButton)
         others = [self.add_book_tab, self.edit_book_btn, self.delete_book_btn, self.add_category_btn,
                   self.lend_book_tab, self.return_book_btn, self.create_user_tab, self.delete_user_btn,
@@ -319,12 +333,52 @@ class MainApp(QMainWindow, main):
                 else:
                     if index == 15:
                         self.delete_user_btn.setVisible(False)
-                        index += 1
                     else:
                         other.setEnabled(False)
-                index += 1
+                    index += 1
 
+    def initDashVals(self):
+        """Calculates the number of total books lent and retrieved all times and current
+        date, as well as the outstanding books: books that have not yet been retrieved
+        """
+        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND'")
+        while query.next():
+            total_lent = query.value(0)
+            
+        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE'")
+        while query.next():
+            total_retrieved = query.value(0)
+            
+        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND' AND date(datetime) = date('now', 'localtime')")
+        while query.next():
+            lent_today = query.value(0)
+            
+        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE' AND date(datetime) = date('now', 'localtime')")
+        while query.next():
+            retrieved_today = query.value(0)
+            
+        self.total_lent_val.setText(str(total_lent))
+        self.total_retrieved_val.setText(str(total_retrieved))
+        self.lent_today_val.setText(str(lent_today))
+        self.retrieved_today_val.setText(str(retrieved_today))
+        self.outstanding_val.setText(str(total_lent - total_retrieved))
+    
+    @staticmethod
+    def increase_dash_val(label, quantity):
+        """Increase dashboard value by a certain quantity
+        """
+        val = int(label.text()) + quantity
+        label.setText(str(val))
+        
+    @staticmethod
+    def decrease_dash_val(label, quantity):
+        """Decrerase dashboard value by a certain quantity
+        """
+        val = int(label.text()) - quantity
+        label.setText(str(val))
+    
     def setupCategoryComboBox(self):
+        """Loads categories from category table as items in the combo-box"""
         self.category_cb_model = QSqlTableModel()
         self.category_cb_model.setTable('categories')
         column = self.category_cb_model.fieldIndex('category')
@@ -335,12 +389,17 @@ class MainApp(QMainWindow, main):
         self.category_combo_box_2.setModel(self.category_cb_model)
         self.category_combo_box_3.setModel(self.category_cb_model)
 
+        # Give default values
         index = self.category_combo_box.findText("Unknown")
         self.category_combo_box.setCurrentIndex(index)
         self.category_combo_box_2.setCurrentIndex(index)
         self.category_combo_box_3.setCurrentIndex(index)
 
+    def booksTableSort(self):
+        self.book_table_model.setQuery(
+            QSqlQuery("SELECT * FROM books ORDER BY category, book_title"))
     def setupTableView(self):
+        """Loads and displays all books from books table, and sorts them first according to category the book-title"""
         self.book_table_model = QSqlRelationalTableModel()
         self.book_table_model.setTable('books')
         self.book_table_model.setRelation(self.book_table_model.fieldIndex('category'), QSqlRelation(
@@ -349,11 +408,12 @@ class MainApp(QMainWindow, main):
         self.all_books_table_view.horizontalHeader(
         ).setSectionResizeMode(QHeaderView.Stretch)
         self.book_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
-        self.book_table_model.setQuery(
-            QSqlQuery("SELECT * FROM books ORDER BY book_title, category"))
         self.all_books_table_view.hideColumn(0)
+        self.booksTableSort()
+        
 
     def setupClientRecordView(self):
+        """Creates table to load books a client has not returned."""
         self.client_record_table_model = QSqlTableModel()
         self.client_record_table_model.setTable('client_record_vw')
         self.client_record_tv.setModel(self.client_record_table_model)
@@ -361,7 +421,12 @@ class MainApp(QMainWindow, main):
         for column_hidden in (0, 1, 2):
             self.client_record_tv.hideColumn(column_hidden)
 
-    def updateCategoryList(self, data):
+    def updateCategoryList(self, data: list):
+        """Updates the list of categories of book searched by user
+
+        Args:
+            data (list): book record [book_id, book_title, category, quantity]
+        """
         self.category_lw.clear()
         query.exec_(
             f"SELECT category FROM books WHERE book_title = '{data[0][1]}'")
@@ -374,6 +439,8 @@ class MainApp(QMainWindow, main):
                 f'"{data[0][1]}" did not appear in any category.')
 
     def showHistory(self):
+        """Loads and displays history of user activities"""
+        
         self.history_table_model = QSqlTableModel()
         self.history_table_model.setTable('history')
         self.history_tv.setModel(self.history_table_model)
@@ -385,10 +452,14 @@ class MainApp(QMainWindow, main):
         self.history_table_model.select()
 
     def showClientRecord(self, fname: str, lname: str, class_: str, house: str):
+        """Loads and displays books a client has not returned"""
+
+        self.client_info_label.setText(
+            f"{fname} {lname}\t{class_}\t{house}")  # Displays client information
+
         for column_hidden in (0, 1, 2):
-            self.client_record_tv.setColumnHidden(column_hidden, False)
-            self.client_info_label.setText(
-                f"{fname} {lname}\t{class_}\t{house}")
+            self.client_record_tv.setColumnHidden(
+                column_hidden, False)  # Hides uneccessary columns
 
         self.client_record_table_model.setQuery(
             QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
@@ -399,10 +470,14 @@ class MainApp(QMainWindow, main):
 
     @staticmethod
     def formatText(text: str) -> str:
+        """Cleans user input by removing trailing whitespaces 
+        and capitalizes first letter of each word"""
+
         return text.strip().title()
 
     @staticmethod
     def clear_book_entry(title_le, category_cb, quantity_sb):
+        """Gives book input fields their default values"""
         title_le.clear()
         index = category_cb.findText("Unknown")
         category_cb.setCurrentIndex(index)
@@ -410,16 +485,21 @@ class MainApp(QMainWindow, main):
 
     @staticmethod
     def clear_client_entry(fname_le, lname_le, class_cb, house_cb):
+        """Gives client input fields their default values"""
         fname_le.clear()
         lname_le.clear()
         class_cb.setCurrentIndex(-1)
         house_cb.setCurrentIndex(-1)
 
-
     def loadTransactionData(self) -> list[list, list]:
+        """Loads transactions from transaction_acc_vw and returns them according to type.
+
+        Returns:
+            list[list, list]: [[[lent_quantities], [lent_dates]], [[retrieved_quantities], [retrieved_dates]]]
+        """
         query.exec_("SELECT * FROM transaction_acc_vw")
-        lend_xy = [[],[]]
-        retrieve_xy = [[],[]]
+        lend_xy = [[], []]
+        retrieve_xy = [[], []]
         while query.next():
             if query.value(1) == 'RETRIEVE':
                 retrieve_xy[0].append(query.value(2))
@@ -437,61 +517,48 @@ class MainApp(QMainWindow, main):
 
     def transactionGraph(self):
         l, r = self.loadTransactionData()
-        set0 = QBarSet('Lend')
-        set1 = QBarSet('Retrieve')
-        
-        set0.append(l[1])
-        set1.append(r[1])
-        
-        series = QBarSeries()
-        series.append(set0)
-        series.append(set1)
-        
         l_series = QLineSeries()
         r_series = QLineSeries()
-        l_series.setName('Lent')        
+        l_series.setName('Lent')
         r_series.setName('Retrieved')
-        
+
         for i in range(len(l[0])):
-            y,m,d=[int(d) for d in l[0][i].split('-')]
+            y, m, d = [int(d) for d in l[0][i].split('-')]
             date = QDateTime()
-            date.setDate(QDate(y,m,d))
+            date.setDate(QDate(y, m, d))
             l_series.append(date.toMSecsSinceEpoch(), l[1][i])
 
         for i in range(len(r[0])):
-            y,m,d=[int(d) for d in r[0][i].split('-')]
+            y, m, d = [int(d) for d in r[0][i].split('-')]
             date = QDateTime()
-            date.setDate(QDate(y,m,d))
+            date.setDate(QDate(y, m, d))
             r_series.append(date.toMSecsSinceEpoch(), r[1][i])
-        
+
         self.chart = QChart()
         self.chart.addSeries(l_series)
         self.chart.addSeries(r_series)
-        self.chart.addSeries(series)
-        
+
         self.axis_x = QDateTimeAxis()
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
         l_series.attachAxis(self.axis_x)
         r_series.attachAxis(self.axis_x)
         self.axis_x.setTickCount(len(set(l[0]+r[0])))
         self.axis_x.setFormat('dd MMM')
-        
+
         self.axis_y = QValueAxis()
         self.chart.addAxis(self.axis_y, Qt.AlignLeft)
         l_series.attachAxis(self.axis_y)
         r_series.attachAxis(self.axis_y)
-        series.attachAxis(self.axis_y)
         self.axis_y.setTickType(0)
-        self.axis_y.setMax(max(max(l[1]), max(r[1])))
-        self.axis_y.setTickInterval(2)
-        
-        
+        self.axis_y.setMax(max(max(l[1]), max(r[1]))+2)
+        self.axis_y.setTickInterval(4)
+
         self.chart_view = QChartView(self.chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
         self.report_layout.addChildWidget(self.chart_view)
 
     def categorySelected(self):
-        book_title = self.edit_extra_label.text().split(' ')[0].strip('"')
+        book_title = self.edit_extra_label.text().split('"')[1]
         category = self.category_lw.selectedItems()[0].data(0)
         self.searchBook(book_title, category)
 
@@ -504,54 +571,6 @@ class MainApp(QMainWindow, main):
         self.book_title_category_label.setText(
             f'"{book_title}" | "{category}"')
         self.quantity_spin_box_4.setMaximum(quantity)
-
-    def completeBookEdit(self, book_title, category, quantity):
-
-        query.exec_(
-            f"UPDATE books SET book_title='{book_title}', category='{category}', quantity={quantity} WHERE book_id={int(self.edit[0][0])}")
-        query.exec_(
-            f"""INSERT INTO history(user_name, [action], [table]) 
-            VALUES('{self.username}', 'EDITED FROM "{self.edit[0][1]}, {self.edit[0][2]}, {self.edit[0][3]}" TO "{book_title}, {category}, {quantity}"', 'books')""")
-        self.history_table_model.submitAll()
-        QMessageBox.information(
-            self, 'Changes Successful', 'Book successfully edited!', QMessageBox.Ok, QMessageBox.Ok)
-
-        self.book_table_model.submitAll()
-        self.category_cb_model.submitAll()
-        self.edit = []
-        self.clear_book_entry(
-            self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
-        index = self.category_combo_box.findText("Unknown")
-        self.category_combo_box.setCurrentIndex(index)
-        self.category_combo_box_3.setCurrentIndex(index)
-        self.edit_info_label.clear()
-        self.edit_extra_label.clear()
-        self.category_lw.clear()
-
-    def completeLendBook(self, book_id, quantity):
-        client_id = self.addClient(self.formatText(self.fname_le.text()), self.formatText(self.lname_le.text()),
-                                   self.class_combo_box.currentText(
-                                   ), self.house_combo_box.currentText())
-
-        if client_id:
-            query.exec_(
-                f"""INSERT INTO client_records(client_id, book_id, quantity, returned) VALUES({client_id}, {book_id}, {quantity}, FALSE)""")
-
-            if query.lastError().isValid():
-                query.exec_(
-                    f"""UPDATE client_records SET quantity=quantity+{quantity}, returned=FALSE WHERE client_id={client_id} AND book_id={book_id}""")
-
-            query.exec_(
-                f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id) 
-                VALUES({client_id}, {book_id}, {quantity}, 'LEND', {self.user_id})""")
-            query.exec_(
-                f"""UPDATE books SET quantity=quantity-{quantity} WHERE book_id={book_id}""")
-            self.book_table_model.submitAll()
-
-            self.clear_book_entry(
-                self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
-            self.clear_client_entry(
-                self.fname_le, self.lname_le, self.class_combo_box, self.house_combo_box)
 
     def handleButtons(self):
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
@@ -717,7 +736,7 @@ class MainApp(QMainWindow, main):
 
     def createUser(self):
         name = self.formatText(self.fname_le_3.text()) + \
-               " " + self.formatText(self.lname_le_3.text())
+            " " + self.formatText(self.lname_le_3.text())
         username = self.username_le.text()
         password = self.password_le.text()
 
@@ -901,6 +920,7 @@ class MainApp(QMainWindow, main):
                 f"INSERT INTO books(book_title, category, quantity) VALUES('{book_title}', '{category}', {quantity})")
 
             self.book_table_model.submitAll()
+            self.booksTableSort()
             if query.lastError().isValid():
                 QMessageBox.information(
                     self, 'Book exists', f'"{book_title}" already exists in "{category}" category', QMessageBox.Ok,
@@ -945,13 +965,36 @@ class MainApp(QMainWindow, main):
                 self.edit = []
                 self.updateCategoryList([(None, book_title, None, None)])
                 self.book_table_model.submitAll()
-
+                self.booksTableSort()
         if found == 'Try different category':
             QMessageBox.information(
                 self, 'Book Not found', f'"{book_title}" is not in "{category}" category.\n\nTry different category.',
                 QMessageBox.Ok, QMessageBox.Ok)
 
     def editBook(self, book_title, category, quantity):
+        def completeBookEdit(book_title, category, quantity):
+
+            query.exec_(
+                f"UPDATE books SET book_title='{book_title}', category='{category}', quantity={quantity} WHERE book_id={int(self.edit[0][0])}")
+            query.exec_(
+                f"""INSERT INTO history(user_name, [action], [table]) 
+                VALUES('{self.username}', 'EDITED FROM "{self.edit[0][1]}, {self.edit[0][2]}, {self.edit[0][3]}" TO "{book_title}, {category}, {quantity}"', 'books')""")
+            self.history_table_model.submitAll()
+            QMessageBox.information(
+                self, 'Changes Successful', 'Book successfully edited!', QMessageBox.Ok, QMessageBox.Ok)
+
+            self.book_table_model.submitAll()
+            self.booksTableSort()
+            self.category_cb_model.submitAll()
+            self.edit = []
+            self.clear_book_entry(
+                self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
+            index = self.category_combo_box.findText("Unknown")
+            self.category_combo_box.setCurrentIndex(index)
+            self.category_combo_box_3.setCurrentIndex(index)
+            self.edit_info_label.clear()
+            self.edit_extra_label.clear()
+            self.category_lw.clear()
         if not self.edit:
             QMessageBox.information(
                 self, 'Search First',
@@ -969,9 +1012,9 @@ class MainApp(QMainWindow, main):
                         self, 'Exists', f'"{book_title}" already exists in "{category}".', QMessageBox.Ok,
                         QMessageBox.Ok)
                 else:
-                    self.completeBookEdit(book_title, category, quantity)
+                    completeBookEdit(book_title, category, quantity)
             else:
-                self.completeBookEdit(book_title, category, quantity)
+                completeBookEdit(book_title, category, quantity)
 
     def addClient(self, fname, lname, class_, house):
         if fname == "" or lname == "" or class_ == "" or house == "":
@@ -1022,13 +1065,28 @@ class MainApp(QMainWindow, main):
                     returned=(case when quantity-{quantity}=0 then TRUE else FALSE END) 
                     WHERE client_id={client_id} AND book_id={book_id}""")
 
-            query.exec_(
-                f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id)
-                VALUES({client_id}, {book_id}, {quantity}, 'RETRIEVE', {self.user_id})""")
+            if self.today_transac_count > 0:
+                query.exec_(
+                    f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id)
+                    VALUES({client_id}, {book_id}, {quantity}, 'RETRIEVE', {self.user_id})""")
+                self.today_transac_count += 1
+
+            else:
+                # If no transaction have been performed today, perform transaction and an obligatory zero quantity transaction of day
+                query.exec_(
+                    f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id)
+                    VALUES({client_id}, {book_id}, {quantity}, 'RETRIEVE', {self.user_id})""")
+                query.exec_(
+                    f"""INSERT INTO transactions(type, user_id)
+                    VALUES('LEND', {self.user_id})""")  # Zero quantity transaction of day
+                self.today_transac_count += 1  # Increase transaction count, exclusive of zero quantity transaction of day
 
             query.exec_(
                 f"""UPDATE books SET quantity=quantity+{quantity} WHERE book_id={book_id}""")
 
+            self.increase_dash_val(self.retrieved_today_val, quantity)
+            self.increase_dash_val(self.total_retrieved_val, quantity)
+            self.decrease_dash_val(self.outstanding_val, quantity)
             self.book_table_model.submitAll()
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
@@ -1040,7 +1098,46 @@ class MainApp(QMainWindow, main):
                                     AND RETURNED=FALSE"""))
 
     def lendBook(self, book_title, category, quantity):
+        def completeLendBook(book_id, quantity):
+            client_id = self.addClient(self.formatText(self.fname_le.text()), self.formatText(self.lname_le.text()),
+                                       self.class_combo_box.currentText(
+            ), self.house_combo_box.currentText())
 
+            if client_id:
+                query.exec_(
+                    f"""INSERT INTO client_records(client_id, book_id, quantity, returned) VALUES({client_id}, {book_id}, {quantity}, FALSE)""")
+
+                if query.lastError().isValid():
+                    query.exec_(
+                        f"""UPDATE client_records SET quantity=quantity+{quantity}, returned=FALSE WHERE client_id={client_id} AND book_id={book_id}""")
+
+                if self.today_transac_count > 0:
+                    query.exec_(
+                        f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id) 
+                        VALUES({client_id}, {book_id}, {quantity}, 'LEND', {self.user_id})""")
+                    self.today_transac_count += 1
+
+                else:
+                    # If no transaction have been performed today, perform transaction and an obligatory zero quantity transaction of day
+                    query.exec_(
+                        f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id) 
+                        VALUES({client_id}, {book_id}, {quantity}, 'LEND', {self.user_id})""")
+                    query.exec_(
+                        f"""INSERT INTO transactions(type, user_id) 
+                            VALUES('RETRIEVE', {self.user_id})""")  # Zero quantity transaction of day
+                    self.today_transac_count += 1  # Increase transaction count, exclusive of zero quantity transaction of day
+
+                query.exec_(
+                    f"""UPDATE books SET quantity=quantity-{quantity} WHERE book_id={book_id}""")
+                self.increase_dash_val(self.lent_today_val,quantity)
+                self.increase_dash_val(self.total_lent_val,quantity)
+                self.increase_dash_val(self.outstanding_val,quantity)
+                self.book_table_model.submitAll()
+                self.booksTableSort()
+                self.clear_book_entry(
+                    self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
+                self.clear_client_entry(
+                    self.fname_le, self.lname_le, self.class_combo_box, self.house_combo_box)
         query.exec_(
             f"""SELECT * FROM books WHERE book_title='{book_title}' AND category='{category}'""")
         data = {}
@@ -1069,10 +1166,10 @@ class MainApp(QMainWindow, main):
                                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                 if response == QMessageBox.Yes:
                     quantity = int(data['quantity'])
-                    self.completeLendBook(int(data['book_id']), quantity)
+                    completeLendBook(int(data['book_id']), quantity)
 
             else:
-                self.completeLendBook(data['book_id'], quantity)
+                completeLendBook(data['book_id'], quantity)
 
     def addCategory(self, category: str, label: QLabel or None) -> str or None:
         """

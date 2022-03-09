@@ -33,9 +33,9 @@ create_client_records_table_query = '''CREATE TABLE IF NOT EXISTS client_records
                                         CONSTRAINT book FOREIGN KEY(book_id) REFERENCES books (book_id)
                             );'''
 create_transactions_table_query = '''CREATE TABLE IF NOT EXISTS transactions (
-                                    client_id   INTEGER NOT NULL,
-                                    book_id INTEGER    NOT NULL,
-                                    quantity INTEGER NOT NULL,
+                                    client_id   INTEGER,
+                                    book_id INTEGER,
+                                    quantity INTEGER DEFAULT (0),
                                     type    VARCHAR(30)    NOT NULL,
                                     user_id INTEGER NOT NULL,
                                     datetime    datetime NOT NULL
@@ -60,8 +60,9 @@ create_client_record_view_query = '''CREATE VIEW IF NOT EXISTS client_record_vw 
                                                 books ON client_records.book_id = books.book_id;'''
                                                 
 create_transaction_acc_view_query = '''CREATE VIEW IF NOT EXISTS transaction_acc_vw AS
-                                        SELECT coalesce(sum(quantity), 0) AS QUANTITY,type AS TYPE, date
-                                        FROM dates
+                                        SELECT coalesce(sum(quantity), 0) AS QUANTITY,
+                                        type AS TYPE, 
+                                        date FROM dates
                                             LEFT JOIN
                                             transactions ON date(transactions.datetime) = dates.date
                                         WHERE date <= date('now', 'localtime') 
