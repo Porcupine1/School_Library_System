@@ -9,13 +9,14 @@ from PyQt5 import uic
 from PyQt5.QtChart import (QChart,
                            QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
 from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt
-from PyQt5.QtGui import QEnterEvent, QPainter
+from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon
 from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
                          QSqlRelationalTableModel, QSqlTableModel)
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton,
                              QWidget)
+from pandas import date_range
 
 from queries import *
 
@@ -92,11 +93,14 @@ def btn_close_clicked(self):
 
 def btn_max_clicked(self):
     if self.isMaximized():
+        self.max_btn.setIcon(QIcon(QPixmap("./icons/maximize.png")))
         self.showNormal()
         self.title_bar.move(self.title_bar_pos, 0)
 
     else:
+        QPushButton().setIcon(QIcon())
         self.title_bar.move(screen_width - 283, 0)
+        self.max_btn.setIcon(QIcon(QPixmap("./icons/restore_down.png")))
         self.showMaximized()
 
 
@@ -178,7 +182,6 @@ class MainApp(QMainWindow, main):
         self._initDrag()
         self.setMouseTracking(True)
         self.edit = []  # Contains record of book to be edited
-
         query.exec_(f"SELECT user_name FROM users")
         self.usernames = []  # List of existing user names
         while query.next():
@@ -372,7 +375,7 @@ class MainApp(QMainWindow, main):
         
     @staticmethod
     def decrease_dash_val(label, quantity):
-        """Decrerase dashboard value by a certain quantity
+        """Decrease dashboard value by a certain quantity
         """
         val = int(label.text()) - quantity
         label.setText(str(val))
@@ -459,7 +462,7 @@ class MainApp(QMainWindow, main):
 
         for column_hidden in (0, 1, 2):
             self.client_record_tv.setColumnHidden(
-                column_hidden, False)  # Hides uneccessary columns
+                column_hidden, False)  # Hides unnecessary columns
 
         self.client_record_table_model.setQuery(
             QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
@@ -516,23 +519,26 @@ class MainApp(QMainWindow, main):
         return lend_xy, retrieve_xy
 
     def transactionGraph(self):
-        l, r = self.loadTransactionData()
+        """Creates transactions graph and populates it with
+        data from the loadTransactionData function.
+        """
+        def appendTransDataToSeries(trans_data, series):
+            """Traverses over transactions' dates, sets to a DateTime format
+            then adds each to the lent series"""
+            for i in range(len(trans_data[0])):
+                year, month, date_ = [int(data) for data in trans_data[0][i].split('-')]
+                date = QDateTime()
+                date.setDate(QDate(year, month, date_))
+                series.append(date.toMSecsSinceEpoch(), trans_data[1][i])
+            
+        lent_trans, retrieved_trans = self.loadTransactionData() #Gets transactions from database by type
         l_series = QLineSeries()
         r_series = QLineSeries()
         l_series.setName('Lent')
         r_series.setName('Retrieved')
 
-        for i in range(len(l[0])):
-            y, m, d = [int(d) for d in l[0][i].split('-')]
-            date = QDateTime()
-            date.setDate(QDate(y, m, d))
-            l_series.append(date.toMSecsSinceEpoch(), l[1][i])
-
-        for i in range(len(r[0])):
-            y, m, d = [int(d) for d in r[0][i].split('-')]
-            date = QDateTime()
-            date.setDate(QDate(y, m, d))
-            r_series.append(date.toMSecsSinceEpoch(), r[1][i])
+        appendTransDataToSeries(lent_trans, l_series)
+        appendTransDataToSeries(retrieved_trans, r_series)
 
         self.chart = QChart()
         self.chart.addSeries(l_series)
@@ -542,7 +548,7 @@ class MainApp(QMainWindow, main):
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
         l_series.attachAxis(self.axis_x)
         r_series.attachAxis(self.axis_x)
-        self.axis_x.setTickCount(len(set(l[0]+r[0])))
+        self.axis_x.setTickCount(10)
         self.axis_x.setFormat('dd MMM')
 
         self.axis_y = QValueAxis()
@@ -550,7 +556,7 @@ class MainApp(QMainWindow, main):
         l_series.attachAxis(self.axis_y)
         r_series.attachAxis(self.axis_y)
         self.axis_y.setTickType(0)
-        self.axis_y.setMax(max(max(l[1]), max(r[1]))+2)
+        self.axis_y.setMax(max(max(lent_trans[1]), max(retrieved_trans[1]))+2)
         self.axis_y.setTickInterval(4)
 
         self.chart_view = QChartView(self.chart)
@@ -558,11 +564,20 @@ class MainApp(QMainWindow, main):
         self.report_layout.addChildWidget(self.chart_view)
 
     def categorySelected(self):
+        """Searches for a book of the category selected. User can only select 
+        the category when she/he had first searched for the book in another category.
+        A list of other category that the book appears in is shown after the search.
+        """
         book_title = self.edit_extra_label.text().split('"')[1]
         category = self.category_lw.selectedItems()[0].data(0)
         self.searchBook(book_title, category)
 
     def bookSelected(self):
+        """
+        * Displays book to be returned and its Category.
+        * It gets the quantity of the book borrowed and sets it as the maximum number of the
+        book to be returned by the client
+        """
         row = self.client_record_tv.currentIndex().row()
         book_title = self.client_record_tv.currentIndex().sibling(row, 0).data()
         category = self.client_record_tv.currentIndex().sibling(row, 1).data()
@@ -573,6 +588,8 @@ class MainApp(QMainWindow, main):
         self.quantity_spin_box_4.setMaximum(quantity)
 
     def handleButtons(self):
+        """Connects buttons to functions that are invoked when the buttons are triggered"""
+        
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
         self.min_btn.clicked.connect(lambda: btn_min_clicked(self))
         self.max_btn.clicked.connect(lambda: btn_max_clicked(self))
@@ -674,6 +691,13 @@ class MainApp(QMainWindow, main):
     def loadUserPermssions(self):
         username = self.username_le_2.text().strip()
         permissions = self.tab_permissions.children() + self.other_permissions.children()
+        
+        if username[-1] == "s":
+            """Check if the last letter of the usernae is 's', if so then don't add 's' after
+            apostrophe"""
+            self.username_label_2.setText(f"{username}' permissions.")
+        else:
+            self.username_label_2.setText(f"{username}'s permissions.")
 
         query.exec_(
             f"""SELECT * FROM user_permissions WHERE user_name='{username}'""")

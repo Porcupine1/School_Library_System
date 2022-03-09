@@ -308,7 +308,7 @@
        <item row="0" column="1">
         <widget class="QTabWidget" name="main_tab_widget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>6</number>
          </property>
          <property name="usesScrollButtons">
           <bool>true</bool>
@@ -1920,7 +1920,7 @@
                </property>
                <property name="geometry">
                 <rect>
-                 <x>183</x>
+                 <x>210</x>
                  <y>10</y>
                  <width>75</width>
                  <height>26</height>
@@ -1936,8 +1936,8 @@
                </property>
                <property name="geometry">
                 <rect>
-                 <x>10</x>
-                 <y>11</y>
+                 <x>20</x>
+                 <y>10</y>
                  <width>167</width>
                  <height>24</height>
                 </rect>
@@ -1949,14 +1949,14 @@
               <widget class="QLabel" name="username_label_2">
                <property name="geometry">
                 <rect>
-                 <x>40</x>
+                 <x>20</x>
                  <y>40</y>
-                 <width>151</width>
+                 <width>161</width>
                  <height>31</height>
                 </rect>
                </property>
                <property name="text">
-                <string>TextLabel</string>
+                <string/>
                </property>
               </widget>
              </widget>
@@ -2032,7 +2032,17 @@
                </rect>
               </property>
               <property name="text">
-               <string>_</string>
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/icons/minimize.png</normaloff>:/icons/icons/minimize.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
               </property>
              </widget>
              <widget class="QPushButton" name="close_btn">
@@ -2045,7 +2055,11 @@
                </rect>
               </property>
               <property name="text">
-               <string>X</string>
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/icons/close.png</normaloff>:/icons/icons/close.png</iconset>
               </property>
              </widget>
              <widget class="QPushButton" name="max_btn">
@@ -2058,7 +2072,17 @@
                </rect>
               </property>
               <property name="text">
-               <string>O</string>
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/icons/maximize.png</normaloff>:/icons/icons/maximize.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
               </property>
              </widget>
             </widget>

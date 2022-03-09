@@ -9,5 +9,9 @@
     <file>icons/reports.png</file>
     <file>icons/settings.png</file>
     <file>icons/today.png</file>
+    <file>icons/close.png</file>
+    <file>icons/restore_down.png</file>
+    <file>icons/minimize.png</file>
+    <file>icons/maximize.png</file>
   </qresource>
 </RCC>

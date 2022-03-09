@@ -5,11 +5,7 @@ QWidget{
 QMainWindow QLineEdit, QComboBox, QSpinBox{
     background-color: #5c5b5b;
 }
-#title_bar QPushButton{
-    height: 30px;
-    width: 30px;
-    background-color: red;
-}
+
 #main_tabs QPushButton{
     border: 0px;
     text-align: left;
