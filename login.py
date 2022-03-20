@@ -695,9 +695,9 @@ class MainApp(QMainWindow, main):
         if username[-1] == "s":
             """Check if the last letter of the usernae is 's', if so then don't add 's' after
             apostrophe"""
-            self.username_label_2.setText(f"{username}' permissions.")
+            self.permission_gb.setTitle(f"{username}' permissions")
         else:
-            self.username_label_2.setText(f"{username}'s permissions.")
+            self.permission_gb.setTitle(f"{username}'s permissions")
 
         query.exec_(
             f"""SELECT * FROM user_permissions WHERE user_name='{username}'""")
@@ -718,7 +718,7 @@ class MainApp(QMainWindow, main):
     def giveUserPermissions(self):
         username = self.username_label.text()
         permissions = self.tab_permissions.children() + self.other_permissions.children()
-
+        self.permission_gb.setTitle(f"User Permissions")
         query.prepare(
             "INSERT INTO user_permissions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
         query.addBindValue(username)

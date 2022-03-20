@@ -1617,14 +1617,19 @@
               <attribute name="title">
                <string>Permissions</string>
               </attribute>
-              <widget class="QGroupBox" name="gridGroupBox">
+              <widget class="QGroupBox" name="permission_gb">
                <property name="geometry">
                 <rect>
                  <x>20</x>
-                 <y>70</y>
+                 <y>60</y>
                  <width>651</width>
                  <height>321</height>
                 </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
                </property>
                <property name="title">
                 <string>User Permissions</string>
@@ -1878,41 +1883,15 @@
                </property>
                <property name="geometry">
                 <rect>
-                 <x>9</x>
-                 <y>433</y>
-                 <width>75</width>
-                 <height>26</height>
+                 <x>20</x>
+                 <y>380</y>
+                 <width>151</width>
+                 <height>51</height>
                 </rect>
                </property>
                <property name="text">
                 <string>Apply</string>
                </property>
-              </widget>
-              <widget class="QWidget" name="verticalLayoutWidget">
-               <property name="geometry">
-                <rect>
-                 <x>750</x>
-                 <y>152</y>
-                 <width>1755</width>
-                 <height>458</height>
-                </rect>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_4">
-                <item>
-                 <widget class="QCheckBox" name="checkBox_21">
-                  <property name="text">
-                   <string>Admin Permissions</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBox_22">
-                  <property name="text">
-                   <string>Standard Permissions</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
               </widget>
               <widget class="QPushButton" name="load_permissions_btn">
                <property name="enabled">
@@ -1952,12 +1931,38 @@
                  <x>20</x>
                  <y>40</y>
                  <width>161</width>
-                 <height>31</height>
+                 <height>21</height>
                 </rect>
                </property>
                <property name="text">
                 <string/>
                </property>
+              </widget>
+              <widget class="QWidget" name="verticalLayoutWidget">
+               <property name="geometry">
+                <rect>
+                 <x>700</x>
+                 <y>160</y>
+                 <width>206</width>
+                 <height>131</height>
+                </rect>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
+                <item>
+                 <widget class="QCheckBox" name="checkBox_21">
+                  <property name="text">
+                   <string>Admin Permissions</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_22">
+                  <property name="text">
+                   <string>Standard Permissions</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </widget>
             </widget>
@@ -2151,7 +2156,7 @@
  </tabstops>
  <resources>
   <include location="icons.qrc"/>
-  <include location="C:/Users/thoma/.designer/backup/icons.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>
