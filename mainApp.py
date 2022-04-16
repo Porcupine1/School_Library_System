@@ -10,13 +10,12 @@ from PyQt5.QtChart import (QChart,
                            QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
 from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt
 from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon
-from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
+from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation, 
                          QSqlRelationalTableModel, QSqlTableModel)
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton,
                              QWidget)
-from pandas import date_range
 
 from queries import *
 
@@ -95,11 +94,13 @@ def btn_max_clicked(self):
     if self.isMaximized():
         self.max_btn.setIcon(QIcon(QPixmap("./icons/maximize.png")))
         self.showNormal()
+        self.title_bar_2.resize(self.widget_2.width(), 40)
         self.title_bar.move(self.title_bar_pos, 0)
 
     else:
         QPushButton().setIcon(QIcon())
         self.title_bar.move(screen_width - 283, 0)
+        self.title_bar_2.resize(screen_width - 178, 40)
         self.max_btn.setIcon(QIcon(QPixmap("./icons/restore_down.png")))
         self.showMaximized()
 
@@ -122,13 +123,13 @@ class LoginWindow(QWidget, login):
         QWidget.__init__(self)
         self.setupUi(self)
         centerWindow(self)
-        self.setFixedSize(400, 500)
         initializeDatabase()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
         self.min_btn.clicked.connect(lambda: btn_min_clicked(self))
         self.login_btn.clicked.connect(self.handleLogin)
         self.show_password_cb.stateChanged.connect(self.showPassword)
+        self.label.setVisible(False)
 
     def showPassword(self, state):
         if state == Qt.Checked:
@@ -151,18 +152,18 @@ class LoginWindow(QWidget, login):
             if password_check(password, literal_eval(data[1])):
                 self.username_le.clear()
                 self.show_password_cb.setChecked(False)
-                self.label.clear()
+                self.label.setVisible(False)
                 self.main_window = MainApp(data[0], username)
                 self.close()
                 self.main_window.show()
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action]) VALUES('{username}', 'LOGGED IN')""")
             else:
-                self.label.setText(
-                    'Make sure you entered Your username and password correctly.')
+                self.label.setVisible(True)
+                self.label.adjustSize()
         except IndexError:
-            self.label.setText(
-                'Make sure you entered Your username and password correctly.')
+            self.label.setVisible(True)
+            self.label.adjustSize()
 
 
 class MainApp(QMainWindow, main):
@@ -248,10 +249,12 @@ class MainApp(QMainWindow, main):
             self.setCursor(Qt.ArrowCursor)
 
         # When the left mouse button click and meet the requirements of the click area, different window adjustments are realized
-        # There is no definition of the left and top five directions, mainly because the implementation is not difficult, but the effect is very poor. When dragging and dropping, the window flickers, and then study whether there is a better implementation
+        # There is no definition of the left and top five directions, mainly because the implementation is not difficult, but the effect is very poor.
+        # When dragging and dropping, the window flickers, and then study whether there is a better implementation
         if Qt.LeftButton and self._right_drag:
             # Right adjust window width
             self.resize(QMouseEvent.pos().x(), self.height())
+            self.title_bar_2.resize(self.widget_2.width(), 40)
             self.title_bar.move(self.widget_2.width() - 105, 0)
             self.title_bar_pos = self.widget_2.width() - 105
 
@@ -270,7 +273,6 @@ class MainApp(QMainWindow, main):
             if self.isMaximized():
                 btn_max_clicked(self)
             self.move(QMouseEvent.globalPos() - self.move_DragPosition)
-
             QMouseEvent.accept()
 
     def mouseReleaseEvent(self, QMouseEvent):
@@ -1266,9 +1268,11 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     screen_width = QDesktopWidget().screenGeometry().width()
     screen_height = QDesktopWidget().screenGeometry().height()
-    style = open('themes/dark.css', 'r')
-    style = style.read()
-    app.setStyleSheet(style)
+    main_style = open('themes/main.css', 'r')
+    login_style = open('themes/login.css', 'r')
+    main_style = main_style.read()
+    login_style = login_style.read()
+    app.setStyleSheet(main_style + login_style)
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())
