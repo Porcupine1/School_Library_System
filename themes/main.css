@@ -3,10 +3,10 @@ QWidget {
     color: white;
 }
 
-QMainWindow QLineEdit,
+QLineEdit,
 QComboBox,
 QSpinBox {
-    background-color: #5c5b5b;
+    background-color: #2d344171;
 }
 .alert {
     padding: 4px 2px;
@@ -71,10 +71,20 @@ QSpinBox {
 #main_tabs QPushButton:hover {
     background-color:rgba(128, 128, 128, 0.603);
 }
-
+.dash_holder{
+    background-color: #393E46;
+    border: 1px solid #00FFF5;
+    border-radius: 5px;
+}
+.dash_holder > QLabel{
+    border-radius: 5px;
+}
+#books_tab_widget{
+    border: 0px;
+}
 QLineEdit{
     border: 1px solid silver;
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 10px;
 }
 

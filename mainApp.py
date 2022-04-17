@@ -349,24 +349,39 @@ class MainApp(QMainWindow, main):
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND'")
         while query.next():
             total_lent = query.value(0)
+            if total_lent =='':
+                total_lent = 0
             
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE'")
         while query.next():
             total_retrieved = query.value(0)
+            if total_retrieved =='':
+                total_retrieved = 0
             
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND' AND date(datetime) = date('now', 'localtime')")
         while query.next():
             lent_today = query.value(0)
-            
+            if lent_today =='':
+                lent_today = 0
+                
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE' AND date(datetime) = date('now', 'localtime')")
         while query.next():
             retrieved_today = query.value(0)
+            if retrieved_today =='':
+                retrieved_today = 0
+                
+        query.exec_("SELECT count(*) FROM users")
+        while query.next():
+            users_val = query.value(0)
+            if users_val =='':
+                users_val = 0
             
         self.total_lent_val.setText(str(total_lent))
         self.total_retrieved_val.setText(str(total_retrieved))
         self.lent_today_val.setText(str(lent_today))
         self.retrieved_today_val.setText(str(retrieved_today))
         self.outstanding_val.setText(str(total_lent - total_retrieved))
+        self.users_val.setText(str(users_val))
     
     @staticmethod
     def increase_dash_val(label, quantity):

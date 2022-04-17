@@ -28,7 +28,7 @@
      <x>278</x>
      <y>120</y>
      <width>400</width>
-     <height>300</height>
+     <height>321</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -38,7 +38,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>239</y>
+      <y>260</y>
       <width>200</width>
       <height>31</height>
      </rect>
@@ -76,7 +76,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>167</y>
+      <y>180</y>
       <width>200</width>
       <height>50</height>
      </rect>
