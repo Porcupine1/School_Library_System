@@ -1,4 +1,4 @@
-QWidget {
+QWidget{
     background-color: #222831;
     color: white;
 }
@@ -87,4 +87,3 @@ QLineEdit{
     border-radius: 5px;
     padding: 10px;
 }
-

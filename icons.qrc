@@ -13,5 +13,7 @@
     <file>icons/restore_down.png</file>
     <file>icons/minimize.png</file>
     <file>icons/maximize.png</file>
+    <file>icons/add_user.png</file>
+    <file>icons/delete.png</file>
   </qresource>
 </RCC>

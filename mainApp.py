@@ -560,6 +560,7 @@ class MainApp(QMainWindow, main):
         self.chart = QChart()
         self.chart.addSeries(l_series)
         self.chart.addSeries(r_series)
+        self.chart.setTheme(2)#Dark Theme
 
         self.axis_x = QDateTimeAxis()
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
@@ -578,7 +579,7 @@ class MainApp(QMainWindow, main):
 
         self.chart_view = QChartView(self.chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
-        self.report_layout.addChildWidget(self.chart_view)
+        self.report_layout.addWidget(self.chart_view)
 
     def categorySelected(self):
         """Searches for a book of the category selected. User can only select 
