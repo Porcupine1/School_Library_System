@@ -15,7 +15,7 @@ from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton,
-                             QWidget)
+                             QWidget, QVBoxLayout)
 
 from queries import *
 
@@ -311,13 +311,13 @@ class MainApp(QMainWindow, main):
         self.setupClientRecordView()
         self.showUsers()
         self.showHistory()
-        self.transactionGraph()
+        self.plotTransactionGraph()
 
     def handlePermissions(self):
         """Checks user's permissions to appropriately alter what is accessible by the user."""
         tabs = self.main_tabs.findChildren(QPushButton)
         others = [self.add_book_tab, self.edit_book_btn, self.delete_book_btn, self.add_category_btn,
-                  self.lend_book_tab, self.return_book_btn, self.create_user_tab, self.delete_user_btn,
+                  self.lend_book_tab, self.retrieve_book_btn, self.create_user_tab, self.delete_user_btn,
                   self.permissions_tab]
         query.exec_(
             f"""SELECT * FROM user_permissions WHERE user_name='{self.username}'""")
@@ -331,16 +331,14 @@ class MainApp(QMainWindow, main):
                 index += 1
             for other in others:
                 if query.value(index) == 1:
-                    if index == 15:
-                        index += 1
-                    else:
+                    if index != 15:
                         other.setEnabled(True)
                 else:
                     if index == 15:
                         self.delete_user_btn.setVisible(False)
                     else:
                         other.setEnabled(False)
-                    index += 1
+                index += 1
 
     def initDashVals(self):
         """Calculates the number of total books lent and retrieved all times and current
@@ -535,7 +533,7 @@ class MainApp(QMainWindow, main):
 
         return lend_xy, retrieve_xy
 
-    def transactionGraph(self):
+    def plotTransactionGraph(self):
         """Creates transactions graph and populates it with
         data from the loadTransactionData function.
         """
@@ -653,7 +651,7 @@ class MainApp(QMainWindow, main):
                                           self.formatText(self.lname_le_2.text(
                                           )), self.class_combo_box_2.currentText(),
                                           self.house_combo_box_2.currentText()))
-        self.return_book_btn.clicked.connect(
+        self.retrieve_book_btn.clicked.connect(
             lambda: self.retrieveBook(self.book_title_category_label.text(), self.quantity_spin_box_4.value()))
         self.password_le_2.textChanged.connect(self.confirmPassword)
         self.password_le.textChanged.connect(self.confirmPassword)
@@ -1138,7 +1136,10 @@ class MainApp(QMainWindow, main):
                                     AND client_class='{client_class}' 
                                     AND client_house='{client_house}'
                                     AND RETURNED=FALSE"""))
-
+            self.report_layout.findchildren().clear()
+            
+            self.plotTransactionGraph()#Update graph
+            
     def lendBook(self, book_title, category, quantity):
         def completeLendBook(book_id, quantity):
             client_id = self.addClient(self.formatText(self.fname_le.text()), self.formatText(self.lname_le.text()),
@@ -1180,6 +1181,13 @@ class MainApp(QMainWindow, main):
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
                 self.clear_client_entry(
                     self.fname_le, self.lname_le, self.class_combo_box, self.house_combo_box)
+                
+                # close chart
+                self.chart.close()
+                self.chart_view.close()
+                self.plotTransactionGraph()#Recreate graph
+
+                
         query.exec_(
             f"""SELECT * FROM books WHERE book_title='{book_title}' AND category='{category}'""")
         data = {}

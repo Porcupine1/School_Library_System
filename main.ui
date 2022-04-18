@@ -1011,11 +1011,20 @@
            </disabled>
           </palette>
          </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
          <property name="currentIndex">
           <number>0</number>
          </property>
+         <property name="elideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
          <property name="usesScrollButtons">
           <bool>true</bool>
+         </property>
+         <property name="tabsClosable">
+          <bool>false</bool>
          </property>
          <property name="tabBarAutoHide">
           <bool>false</bool>
@@ -1653,7 +1662,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="all_books_tab">
               <attribute name="title">
@@ -2487,6 +2496,9 @@
                     </disabled>
                    </palette>
                   </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -2717,7 +2729,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="lend_book_tab">
               <attribute name="title">
@@ -3373,9 +3385,9 @@
                </property>
               </widget>
              </widget>
-             <widget class="QWidget" name="return_book_tab">
+             <widget class="QWidget" name="retrieve_book_tab">
               <attribute name="title">
-               <string>Return Book</string>
+               <string>Retrieve Book</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_4">
                <property name="leftMargin">
@@ -3938,7 +3950,7 @@
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="return_book_btn">
+                  <widget class="QPushButton" name="retrieve_book_btn">
                    <property name="minimumSize">
                     <size>
                      <width>100</width>
@@ -3958,7 +3970,7 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>Return</string>
+                    <string>Retrieve</string>
                    </property>
                   </widget>
                  </item>
