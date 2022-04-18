@@ -1136,9 +1136,10 @@ class MainApp(QMainWindow, main):
                                     AND client_class='{client_class}' 
                                     AND client_house='{client_house}'
                                     AND RETURNED=FALSE"""))
-            self.report_layout.findchildren().clear()
-            
-            self.plotTransactionGraph()#Update graph
+            # close chart
+            self.chart.close()
+            self.chart_view.close()
+            self.plotTransactionGraph()#Recreate graph
             
     def lendBook(self, book_title, category, quantity):
         def completeLendBook(book_id, quantity):
