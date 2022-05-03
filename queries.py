@@ -17,10 +17,11 @@ create_books_table_query = '''CREATE TABLE IF NOT EXISTS books (
                             '''
 create_clients_table_query = '''CREATE TABLE IF NOT EXISTS clients (
                                     client_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-                                    client_name VARCHAR(30)    NOT NULL,
+                                    client_first_name VARCHAR(30)    NOT NULL,
+                                    client_last_name VARCHAR(30)    NOT NULL,
                                     client_class    VARCHAR(4)    NOT NULL,
                                     client_house    VARCHAR(4)    NOT NULL,
-                                    UNIQUE (client_name, client_class, client_house)
+                                    UNIQUE (client_first_name, client_last_name, client_class, client_house)
                                     );'''
 create_client_records_table_query = '''CREATE TABLE IF NOT EXISTS client_records (
                                         client_id  INTEGER  NOT NULL,
@@ -46,9 +47,10 @@ create_transactions_table_query = '''CREATE TABLE IF NOT EXISTS transactions (
 create_categories_table_query = '''CREATE TABLE IF NOT EXISTS categories (
                                 category VARCHAR PRIMARY KEY);'''
 create_client_record_view_query = '''CREATE VIEW IF NOT EXISTS client_record_vw AS
-                                        SELECT  client_name AS CLIENT_NAME,
-                                                client_class AS CLIENT_CLASS,
-                                                client_house AS CLIENT_HOUSE,
+                                        SELECT  client_first_name AS FIRST_NAME,
+                                                client_last_name AS LAST_NAME,
+                                                client_class AS CLASS,
+                                                client_house AS HOUSE,
                                                 books.book_title AS BOOK_TITLE,
                                                 books.category AS CATEGORY,
                                                 client_records.quantity AS OWING_QUANTITY,

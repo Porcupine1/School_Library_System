@@ -1012,7 +1012,7 @@
           </palette>
          </property>
          <property name="autoFillBackground">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="currentIndex">
           <number>0</number>
@@ -2729,7 +2729,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="lend_book_tab">
               <attribute name="title">
@@ -7036,6 +7036,7 @@
   <include location="icons.qrc"/>
   <include location="icons.qrc"/>
   <include location="icons.qrc"/>
+  <include location="C:/Users/thoma/.designer/backup/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

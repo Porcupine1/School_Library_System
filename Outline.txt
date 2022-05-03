@@ -38,7 +38,7 @@ User :
 Transaction : 
 	+ book name
     + type (returned, lent)
-    + borower (pupil)
+    + borrower (pupil)
     + User
     + datetime
 

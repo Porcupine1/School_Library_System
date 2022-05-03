@@ -10,12 +10,12 @@ from PyQt5.QtChart import (QChart,
                            QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
 from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt
 from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon
-from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation, 
-                         QSqlRelationalTableModel, QSqlTableModel)
+from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
+                         QSqlRelationalTableModel, QSqlTableModel, QSqlQueryModel)
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton,
-                             QWidget, QVBoxLayout)
+                             QWidget, QCompleter)
 
 from queries import *
 
@@ -194,6 +194,48 @@ class MainApp(QMainWindow, main):
             # Number of transactions performed today
             self.today_transac_count = query.value(0)
 
+        self.book_title_model = QSqlQueryModel()
+        self.book_title_model.setQuery(
+            "SELECT book_title FROM books")  # all book titles
+
+        # auto completes book title entires
+        self.book_title_completer = QCompleter()
+        self.book_title_completer.setModel(self.book_title_model)
+        self.book_title_completer.setCaseSensitivity(
+            Qt.CaseInsensitive)  # makes title entries case insensitive
+        # serches by checking if entry is contained in any title
+        self.book_title_completer.setFilterMode(Qt.MatchFlag.MatchContains)
+
+        self.book_title_le_2.setCompleter(self.book_title_completer)
+        self.book_title_le_3.setCompleter(self.book_title_completer)
+        # book title auto completion end
+        
+        self.first_name_model = QSqlQueryModel()
+        self.first_name_model.setQuery(
+            "SELECT client_first_name FROM clients")  # client first names
+        
+        # auto completes first entires
+        self.first_name_completer = QCompleter()
+        self.first_name_completer.setModel(self.first_name_model)
+        self.first_name_completer.setCaseSensitivity(
+            Qt.CaseInsensitive)  # makes title entries case insensitive
+        
+        self.fname_le.setCompleter(self.first_name_completer)
+        self.fname_le_2.setCompleter(self.first_name_completer)
+        
+        self.last_name_model = QSqlQueryModel()
+        self.last_name_model.setQuery(
+            "SELECT client_last_name FROM clients")  # all client last names
+        
+        # auto completes first entires
+        self.last_name_completer = QCompleter()
+        self.last_name_completer.setModel(self.last_name_model)
+        self.last_name_completer.setCaseSensitivity(
+            Qt.CaseInsensitive)  # makes title entries case insensitive
+        
+        self.lname_le.setCompleter(self.last_name_completer)
+        self.lname_le_2.setCompleter(self.last_name_completer)
+        
     def _initDrag(self):
         # Set the default value of mouse tracking judgment trigger
         self._move_drag = False
@@ -347,54 +389,57 @@ class MainApp(QMainWindow, main):
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND'")
         while query.next():
             total_lent = query.value(0)
-            if total_lent =='':
+            if total_lent == '':
                 total_lent = 0
-            
-        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE'")
+
+        query.exec_(
+            "SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE'")
         while query.next():
             total_retrieved = query.value(0)
-            if total_retrieved =='':
+            if total_retrieved == '':
                 total_retrieved = 0
-            
-        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND' AND date(datetime) = date('now', 'localtime')")
+
+        query.exec_(
+            "SELECT sum(quantity) FROM transactions WHERE type='LEND' AND date(datetime) = date('now', 'localtime')")
         while query.next():
             lent_today = query.value(0)
-            if lent_today =='':
+            if lent_today == '':
                 lent_today = 0
-                
-        query.exec_("SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE' AND date(datetime) = date('now', 'localtime')")
+
+        query.exec_(
+            "SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE' AND date(datetime) = date('now', 'localtime')")
         while query.next():
             retrieved_today = query.value(0)
-            if retrieved_today =='':
+            if retrieved_today == '':
                 retrieved_today = 0
-                
+
         query.exec_("SELECT count(*) FROM users")
         while query.next():
             users_val = query.value(0)
-            if users_val =='':
+            if users_val == '':
                 users_val = 0
-            
+
         self.total_lent_val.setText(str(total_lent))
         self.total_retrieved_val.setText(str(total_retrieved))
         self.lent_today_val.setText(str(lent_today))
         self.retrieved_today_val.setText(str(retrieved_today))
         self.outstanding_val.setText(str(total_lent - total_retrieved))
         self.users_val.setText(str(users_val))
-    
+
     @staticmethod
     def increase_dash_val(label, quantity):
         """Increase dashboard value by a certain quantity
         """
         val = int(label.text()) + quantity
         label.setText(str(val))
-        
+
     @staticmethod
     def decrease_dash_val(label, quantity):
         """Decrease dashboard value by a certain quantity
         """
         val = int(label.text()) - quantity
         label.setText(str(val))
-    
+
     def setupCategoryComboBox(self):
         """Loads categories from category table as items in the combo-box"""
         self.category_cb_model = QSqlTableModel()
@@ -414,8 +459,12 @@ class MainApp(QMainWindow, main):
         self.category_combo_box_3.setCurrentIndex(index)
 
     def booksTableSort(self):
+        """
+        Sorts the book table data first by category then book title
+        """
         self.book_table_model.setQuery(
             QSqlQuery("SELECT * FROM books ORDER BY category, book_title"))
+
     def setupTableView(self):
         """Loads and displays all books from books table, and sorts them first according to category the book-title"""
         self.book_table_model = QSqlRelationalTableModel()
@@ -428,7 +477,6 @@ class MainApp(QMainWindow, main):
         self.book_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.all_books_table_view.hideColumn(0)
         self.booksTableSort()
-        
 
     def setupClientRecordView(self):
         """Creates table to load books a client has not returned."""
@@ -458,7 +506,7 @@ class MainApp(QMainWindow, main):
 
     def showHistory(self):
         """Loads and displays history of user activities"""
-        
+
         self.history_table_model = QSqlTableModel()
         self.history_table_model.setTable('history')
         self.history_tv.setModel(self.history_table_model)
@@ -473,7 +521,7 @@ class MainApp(QMainWindow, main):
         """Loads and displays books a client has not returned"""
 
         self.client_info_label.setText(
-            f"{fname} {lname}\t{class_}\t{house}")  # Displays client information
+            f"{fname}\t{lname}\t{class_}\t{house}")  # Displays client information
 
         for column_hidden in (0, 1, 2):
             self.client_record_tv.setColumnHidden(
@@ -481,9 +529,10 @@ class MainApp(QMainWindow, main):
 
         self.client_record_table_model.setQuery(
             QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
-                        WHERE client_name='{fname} {lname}' 
-                        AND client_class='{class_}' 
-                        AND client_house='{house}'
+                        WHERE first_name='{fname}'
+                        AND last_name='{lname}'
+                        AND class='{class_}' 
+                        AND house='{house}'
                         AND RETURNED=FALSE"""))
 
     @staticmethod
@@ -541,12 +590,14 @@ class MainApp(QMainWindow, main):
             """Traverses over transactions' dates, sets to a DateTime format
             then adds each to the lent series"""
             for i in range(len(trans_data[0])):
-                year, month, date_ = [int(data) for data in trans_data[0][i].split('-')]
+                year, month, date_ = [int(data)
+                                      for data in trans_data[0][i].split('-')]
                 date = QDateTime()
                 date.setDate(QDate(year, month, date_))
                 series.append(date.toMSecsSinceEpoch(), trans_data[1][i])
-            
-        lent_trans, retrieved_trans = self.loadTransactionData() #Gets transactions from database by type
+
+        # Gets transactions from database by type
+        lent_trans, retrieved_trans = self.loadTransactionData()
         l_series = QLineSeries()
         r_series = QLineSeries()
         l_series.setName('Lent')
@@ -558,7 +609,7 @@ class MainApp(QMainWindow, main):
         self.chart = QChart()
         self.chart.addSeries(l_series)
         self.chart.addSeries(r_series)
-        self.chart.setTheme(2)#Dark Theme
+        self.chart.setTheme(2)  # Dark Theme
 
         self.axis_x = QDateTimeAxis()
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
@@ -605,7 +656,7 @@ class MainApp(QMainWindow, main):
 
     def handleButtons(self):
         """Connects buttons to functions that are invoked when the buttons are triggered"""
-        
+
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
         self.min_btn.clicked.connect(lambda: btn_min_clicked(self))
         self.max_btn.clicked.connect(lambda: btn_max_clicked(self))
@@ -707,7 +758,7 @@ class MainApp(QMainWindow, main):
     def loadUserPermssions(self):
         username = self.username_le_2.text().strip()
         permissions = self.tab_permissions.children() + self.other_permissions.children()
-        
+
         if username[-1] == "s":
             """Check if the last letter of the usernae is 's', if so then don't add 's' after
             apostrophe"""
@@ -981,6 +1032,8 @@ class MainApp(QMainWindow, main):
                         QMessageBox.Ok)
             self.clear_book_entry(
                 self.book_title_le, self.category_combo_box, self.quantity_spin_box)
+            # updates book title completer
+            self.book_title_model.setQuery("SELECT book_title FROM books")
 
     def deleteBook(self, book_title: str, category: str):
 
@@ -1062,18 +1115,20 @@ class MainApp(QMainWindow, main):
                 self, 'Invalid', 'Fill out all entries.', QMessageBox.Ok, QMessageBox.Ok)
 
         else:
-            name = fname + ' ' + lname
             query.exec_(
-                f"""INSERT INTO clients(client_name, client_class, client_house) VALUES('{name}', '{class_}', '{house}')""")
+                f"""INSERT INTO clients(client_first_name, client_last_name, client_class, client_house) VALUES('{fname}', '{lname}', '{class_}', '{house}')""")
 
             if query.lastError().isValid() is False:
                 query.exec_(
-                    f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'ADDED "{name}, {class_}, {house}"', 'clients')""")
+                    f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'ADDED "{fname} {lname}, {class_}, {house}"', 'clients')""")
                 self.history_table_model.submitAll()
 
             query.exec_(
-                f"""SELECT client_id FROM clients WHERE client_name = '{name}' AND client_class = '{class_}' AND client_house = '{house}'""")
+                f"""SELECT client_id FROM clients WHERE client_first_name = '{fname}' AND client_last_name = '{lname}' AND client_class = '{class_}' AND client_house = '{house}'""")
 
+            self.first_name_model.setQuery("SELECT client_first_name FROM clients") #updates clients' first name completer
+            self.last_name_model.setQuery("SELECT client_last_name FROM clients") #updates clients' last name completer
+            
             while query.next():
                 client_id = query.value(0)
                 return client_id
@@ -1084,12 +1139,12 @@ class MainApp(QMainWindow, main):
                                     'You have not selected a book to retrieve.\nFirst search for student, then select a book to retrieve.',
                                     QMessageBox.Ok, QMessageBox.Ok)
         else:
-            client_name, client_class, client_house = self.client_info_label.text().split('\t')
+            fname, lname, class_, house = self.client_info_label.text().split('\t')
             book_title, category = book.split(' | ')
             book_title = book_title.strip('"')
             category = category.strip('"')
             query.exec_(
-                f"""SELECT client_id FROM clients WHERE client_name='{client_name}' AND client_class='{client_class}' AND client_house='{client_house}'""")
+                f"""SELECT client_id FROM clients WHERE client_first_name='{fname}' AND client_last_name='{lname}' AND client_class='{class_}' AND client_house='{house}'""")
 
             while query.next():
                 client_id = query.value(0)
@@ -1131,16 +1186,17 @@ class MainApp(QMainWindow, main):
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
             self.client_record_table_model.setQuery(
-                QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
-                                    WHERE client_name='{client_name}' 
-                                    AND client_class='{client_class}' 
-                                    AND client_house='{client_house}'
-                                    AND RETURNED=FALSE"""))
+            QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
+                        WHERE first_name='{fname}'
+                        AND last_name='{lname}'
+                        AND class='{class_}' 
+                        AND house='{house}'
+                        AND RETURNED=FALSE"""))
             # close chart
             self.chart.close()
             self.chart_view.close()
-            self.plotTransactionGraph()#Recreate graph
-            
+            self.plotTransactionGraph()  # Recreate graph
+
     def lendBook(self, book_title, category, quantity):
         def completeLendBook(book_id, quantity):
             client_id = self.addClient(self.formatText(self.fname_le.text()), self.formatText(self.lname_le.text()),
@@ -1173,22 +1229,21 @@ class MainApp(QMainWindow, main):
 
                 query.exec_(
                     f"""UPDATE books SET quantity=quantity-{quantity} WHERE book_id={book_id}""")
-                self.increase_dash_val(self.lent_today_val,quantity)
-                self.increase_dash_val(self.total_lent_val,quantity)
-                self.increase_dash_val(self.outstanding_val,quantity)
+                self.increase_dash_val(self.lent_today_val, quantity)
+                self.increase_dash_val(self.total_lent_val, quantity)
+                self.increase_dash_val(self.outstanding_val, quantity)
                 self.book_table_model.submitAll()
                 self.booksTableSort()
                 self.clear_book_entry(
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
                 self.clear_client_entry(
                     self.fname_le, self.lname_le, self.class_combo_box, self.house_combo_box)
-                
+
                 # close chart
                 self.chart.close()
                 self.chart_view.close()
-                self.plotTransactionGraph()#Recreate graph
+                self.plotTransactionGraph()  # Recreate graph
 
-                
         query.exec_(
             f"""SELECT * FROM books WHERE book_title='{book_title}' AND category='{category}'""")
         data = {}
