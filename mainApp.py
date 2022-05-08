@@ -349,11 +349,12 @@ class MainApp(QMainWindow, main):
         self.house_combo_box_2.setCurrentIndex(-1)
         self.main_tab_widget.tabBar().setVisible(False)
         self.setupCategoryComboBox()
-        self.setupTableView()
+        self.setupBooksTableView()
         self.setupClientRecordView()
         self.showUsers()
         self.showHistory()
         self.plotTransactionGraph()
+        self.setupTransactionsTableView()
 
     def handlePermissions(self):
         """Checks user's permissions to appropriately alter what is accessible by the user."""
@@ -465,7 +466,7 @@ class MainApp(QMainWindow, main):
         self.book_table_model.setQuery(
             QSqlQuery("SELECT * FROM books ORDER BY category, book_title"))
 
-    def setupTableView(self):
+    def setupBooksTableView(self):
         """Loads and displays all books from books table, and sorts them first according to category the book-title"""
         self.book_table_model = QSqlRelationalTableModel()
         self.book_table_model.setTable('books')
@@ -477,7 +478,30 @@ class MainApp(QMainWindow, main):
         self.book_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.all_books_table_view.hideColumn(0)
         self.booksTableSort()
-
+    
+    def setTransactionTableQuery(self):
+        """set the transaction table model query
+        """
+        self.transactions_table_model.setQuery(QSqlQuery('''SELECT
+                                                    coalesce(name, 'USER ID '||users.user_id) AS user,
+                                                    book_title || ', ' || category AS book,
+                                                    transactions.type, 
+                                                    transactions.quantity,
+                                                    client_first_name || ' ' || client_last_name AS client,
+                                                    datetime
+                                                    from transactions INNER JOIN clients ON transactions.client_id == clients.client_id
+                                                    INNER JOIN books ON books.book_id == transactions.book_id
+                                                    INNER JOIN users ON users.user_id == transactions.user_id'''))
+    def setupTransactionsTableView(self):
+        """Creates a table with all user transactions
+        """
+        self.transactions_table_model = QSqlTableModel()
+        self.transactions_table_view.setModel(self.transactions_table_model)
+        self.setTransactionTableQuery()
+        self.transactions_table_view.horizontalHeader(
+        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.transactions_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
+        
     def setupClientRecordView(self):
         """Creates table to load books a client has not returned."""
         self.client_record_table_model = QSqlTableModel()
@@ -517,6 +541,16 @@ class MainApp(QMainWindow, main):
         self.history_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.history_table_model.select()
 
+    def setClientRecordTableQuery(self, fname, lname, class_, house):
+        """ sets the client record table model query
+        """
+        self.client_record_table_model.setQuery(
+            QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
+                        WHERE first_name='{fname}'
+                        AND last_name='{lname}'
+                        AND class='{class_}' 
+                        AND house='{house}'
+                        AND RETURNED=FALSE"""))
     def showClientRecord(self, fname: str, lname: str, class_: str, house: str):
         """Loads and displays books a client has not returned"""
 
@@ -527,13 +561,7 @@ class MainApp(QMainWindow, main):
             self.client_record_tv.setColumnHidden(
                 column_hidden, False)  # Hides unnecessary columns
 
-        self.client_record_table_model.setQuery(
-            QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
-                        WHERE first_name='{fname}'
-                        AND last_name='{lname}'
-                        AND class='{class_}' 
-                        AND house='{house}'
-                        AND RETURNED=FALSE"""))
+        self.setClientRecordTableQuery(fname, lname, class_, house)
 
     @staticmethod
     def formatText(text: str) -> str:
@@ -1183,15 +1211,10 @@ class MainApp(QMainWindow, main):
             self.increase_dash_val(self.total_retrieved_val, quantity)
             self.decrease_dash_val(self.outstanding_val, quantity)
             self.book_table_model.submitAll()
+            self.setTransactionTableQuery()
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
-            self.client_record_table_model.setQuery(
-            QSqlQuery(f"""SELECT BOOK_TITLE, CATEGORY, OWING_QUANTITY, RETURNED FROM client_record_vw 
-                        WHERE first_name='{fname}'
-                        AND last_name='{lname}'
-                        AND class='{class_}' 
-                        AND house='{house}'
-                        AND RETURNED=FALSE"""))
+            self.setClientRecordTableQuery(fname, lname, class_, house)
             # close chart
             self.chart.close()
             self.chart_view.close()
@@ -1233,6 +1256,7 @@ class MainApp(QMainWindow, main):
                 self.increase_dash_val(self.total_lent_val, quantity)
                 self.increase_dash_val(self.outstanding_val, quantity)
                 self.book_table_model.submitAll()
+                self.setTransactionTableQuery()
                 self.booksTableSort()
                 self.clear_book_entry(
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
@@ -1356,3 +1380,4 @@ if __name__ == '__main__':
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())
+    
