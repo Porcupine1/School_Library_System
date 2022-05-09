@@ -49,6 +49,31 @@ def initializeDatabase() -> None:
     query.exec_(create_history_table_query)
     query.exec_(create_user_permissions_table_query)
     query.exec_(create_transaction_acc_view_query)
+    query.exec_(create_classes_table_query)
+    query.exec_(create_houses_table_query)
+    
+    #check for classes in classes table
+    query.exec_('SELECT COUNT(*) FROM classes')
+    while query.next():
+        #if no class in classes table, insert default ones from classes.txt
+        if query.value(0) == 0:
+            with open('classes.txt') as fh:
+                classes = fh.readlines()
+                for class_ in classes:
+                    class_ = class_.strip('\n') #removes \n at the end of each class
+                    query.exec_(f'INSERT INTO classes VALUES("{class_}")')
+            
+    #check for classes in #removes \n at the end of each houses table
+    query.exec_('SELECT COUNT(*) FROM houses')
+    while query.next():
+        #if no class in houses table, insert default ones from houses.txt
+        if query.value(0) == 0:
+            with open('houses.txt') as fh:
+                houses = fh.readlines()
+                for house in houses:
+                    house = house.strip('\n') #removes \n at the end of each house
+                    query.exec_(f'INSERT INTO houses VALUES("{house}")')
+
 
     # Creates default category, 'Unknown'.
     query.exec_("INSERT INTO categories VALUES('Unknown')")
@@ -330,19 +355,9 @@ class MainApp(QMainWindow, main):
         centerWindow(self)
         self.title_bar_pos = 917
         self.setMaximumSize(screen_width, screen_height)
-        classes = ['8A1', '8A2', '8A3', '8A4', '9B1', '9B2', '9B3', '9B4', '10C1', '10C2', '10C3', '10C4', '10C5',
-                   '10C6', '11D1', '11D2', '11D3', '11D4', '11D5', '11D6', '12E1', '12E2', '12E3', '12E4', '12E5',
-                   '12E6']
-        houses = ['H1WA', 'H1WB', 'H1WC', 'H1WD', 'H2WA', 'H2WB', 'H2WC', 'H2WD', 'H3WA', 'H3WB', 'H3WC', 'H3WD',
-                  'H4WA',
-                  'H4WB', 'H4WC', 'H4WD', 'H5WA', 'H5WB', 'H5WC', 'H5WD', 'H6WB', 'H6WC', 'H6WD', 'H7WB', 'H7WC',
-                  'H7WD',
-                  'H8WA', 'H8WB', 'H8WC', 'H8WD']
         self.handlePermissions()
-        self.class_combo_box.addItems(classes)
-        self.house_combo_box.addItems(houses)
-        self.class_combo_box_2.addItems(classes)
-        self.house_combo_box_2.addItems(houses)
+        self.setupHouseComboBox()
+        self.setupClassComboBox()
         self.class_combo_box.setCurrentIndex(-1)
         self.house_combo_box.setCurrentIndex(-1)
         self.class_combo_box_2.setCurrentIndex(-1)
@@ -458,7 +473,27 @@ class MainApp(QMainWindow, main):
         self.category_combo_box.setCurrentIndex(index)
         self.category_combo_box_2.setCurrentIndex(index)
         self.category_combo_box_3.setCurrentIndex(index)
-
+        
+    def setupClassComboBox(self):
+        """Loads houses from houses table as items in the combo-box
+        """
+        self.classes_cb_model = QSqlTableModel()
+        self.classes_cb_model.setTable('classes')
+        self.classes_cb_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
+        self.classes_cb_model.select()
+        self.class_combo_box.setModel(self.classes_cb_model)
+        self.class_combo_box_2.setModel(self.classes_cb_model)
+        
+    def setupHouseComboBox(self):
+        """Loads houses from houses table as items in the combo-box
+        """
+        self.houses_cb_model = QSqlTableModel()
+        self.houses_cb_model.setTable('houses')
+        self.houses_cb_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
+        self.houses_cb_model.select()
+        self.house_combo_box.setModel(self.houses_cb_model)
+        self.house_combo_box_2.setModel(self.houses_cb_model)
+        
     def booksTableSort(self):
         """
         Sorts the book table data first by category then book title
@@ -1146,10 +1181,11 @@ class MainApp(QMainWindow, main):
             query.exec_(
                 f"""INSERT INTO clients(client_first_name, client_last_name, client_class, client_house) VALUES('{fname}', '{lname}', '{class_}', '{house}')""")
 
+            # if query is successful
             if query.lastError().isValid() is False:
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'ADDED "{fname} {lname}, {class_}, {house}"', 'clients')""")
-                self.history_table_model.submitAll()
+                self.history_table_model.submitAll() 
 
             query.exec_(
                 f"""SELECT client_id FROM clients WHERE client_first_name = '{fname}' AND client_last_name = '{lname}' AND client_class = '{class_}' AND client_house = '{house}'""")

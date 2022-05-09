@@ -8,7 +8,7 @@ library system :
  	- users , login , signup 
  	- settings
  	- daily_activities
- 	- reports [excel files] (admin)
+ 	- reports [graph and table]
     - history (admin)
     - import
 

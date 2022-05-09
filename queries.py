@@ -21,7 +21,9 @@ create_clients_table_query = '''CREATE TABLE IF NOT EXISTS clients (
                                     client_last_name VARCHAR(30)    NOT NULL,
                                     client_class    VARCHAR(4)    NOT NULL,
                                     client_house    VARCHAR(4)    NOT NULL,
-                                    UNIQUE (client_first_name, client_last_name, client_class, client_house)
+                                    UNIQUE (client_first_name, client_last_name, client_class, client_house),
+                                    CONSTRAINT client_class FOREIGN KEY(client_class) REFERENCES classes (class),
+                                    CONSTRAINT client_house FOREIGN KEY(client_house) REFERENCES houses (house)
                                     );'''
 create_client_records_table_query = '''CREATE TABLE IF NOT EXISTS client_records (
                                         client_id  INTEGER  NOT NULL,
@@ -102,3 +104,11 @@ create_user_permissions_table_query = '''CREATE TABLE IF NOT EXISTS user_permiss
                                             CONSTRAINT user FOREIGN KEY(user_name)REFERENCES users (user_name) 
                                         );'''
 
+create_houses_table_query = '''CREATE TABLE IF NOT EXISTS houses (
+                                    house VARCHAR UNIQUE ON CONFLICT IGNORE
+                                );
+                                '''
+
+create_classes_table_query = '''CREATE TABLE IF NOT EXISTS classes (
+                                    class VARCHAR UNIQUE ON CONFLICT IGNORE
+                                );'''
