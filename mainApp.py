@@ -15,7 +15,7 @@ from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton,
-                             QWidget, QCompleter)
+                             QWidget, QCompleter, QCheckBox)
 
 from queries import *
 
@@ -620,7 +620,15 @@ class MainApp(QMainWindow, main):
         lname_le.clear()
         class_cb.setCurrentIndex(-1)
         house_cb.setCurrentIndex(-1)
-
+    
+    @staticmethod
+    def changeProperty(widget, property, value):
+        """Changes the value of a property of a object
+        """
+        widget.setProperty(property, value)
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
+        
     def loadTransactionData(self) -> list[list, list]:
         """Loads transactions from transaction_acc_vw and returns them according to type.
 
@@ -795,7 +803,7 @@ class MainApp(QMainWindow, main):
         event.accept()
 
     def checkPermissions(self, cb):
-        permissions = self.tab_permissions.children() + self.other_permissions.children()
+        permissions = self.tab_permissions.findChildren(QCheckBox) + self.other_permissions.findChildren(QCheckBox)
         if cb.text() == 'Admin Permissions':
             for permission in permissions:
                 permission.setChecked(True)
@@ -812,15 +820,18 @@ class MainApp(QMainWindow, main):
         if username in self.usernames:
             self.load_permissions_btn.setEnabled(True)
             self.username_label_2.clear()
+            self.changeProperty(self.username_label_2, "class", None)
         elif not username:
             self.username_label_2.clear()
+            self.changeProperty(self.username_label_2, "class", None)
         else:
             self.username_label_2.setText(f'"{username}" is not a user.')
+            self.changeProperty(self.username_label_2, "class", "alert-danger")
             self.load_permissions_btn.setEnabled(False)
 
     def loadUserPermssions(self):
         username = self.username_le_2.text().strip()
-        permissions = self.tab_permissions.children() + self.other_permissions.children()
+        permissions = self.tab_permissions.findChildren(QCheckBox) + self.other_permissions.findChildren(QCheckBox)
 
         if username[-1] == "s":
             """Check if the last letter of the usernae is 's', if so then don't add 's' after
@@ -847,7 +858,7 @@ class MainApp(QMainWindow, main):
 
     def giveUserPermissions(self):
         username = self.username_label.text()
-        permissions = self.tab_permissions.children() + self.other_permissions.children()
+        permissions = self.tab_permissions.findChildren(QCheckBox) + self.other_permissions.findChildren(QCheckBox)
         self.permission_gb.setTitle(f"User Permissions")
         query.prepare(
             "INSERT INTO user_permissions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -916,7 +927,8 @@ class MainApp(QMainWindow, main):
         self.password_le.clear()
         self.password_le_2.clear()
         self.username_taken_le.clear()
-
+        self.changeProperty(self.username_taken_le, "class", None)
+        
     def userSelected(self):
         row = self.users_tv.currentIndex().row()
         username = self.users_tv.currentIndex().sibling(row, 1).data()
@@ -950,12 +962,15 @@ class MainApp(QMainWindow, main):
 
         if not username:
             self.username_taken_le.setText(f'"NO VALID INPUT GIVEN"')
+            self.changeProperty(self.username_taken_le, "class", "alert-danger")
             self.create_user_btn.setEnabled(False)
         elif username in self.usernames:
             self.username_taken_le.setText(f'"{username}" is already taken.')
+            self.changeProperty(self.username_taken_le, "class", "alert-warning")
             self.create_user_btn.setEnabled(False)
         else:
             self.username_taken_le.clear()
+            self.changeProperty(self.username_taken_le, "class", None)
             self.confirmCreateUser()
 
     def confirmPassword(self):
@@ -964,14 +979,17 @@ class MainApp(QMainWindow, main):
 
         if not password1 and not password2:
             self.conf_password_info_le.setText("NO INPUT GIVEN")
+            self.changeProperty(self.conf_password_info_le, "class", "alert-danger")
             self.create_user_btn.setEnabled(False)
 
         elif password1 == password2:
             self.conf_password_info_le.setText("Passwords match!")
+            self.changeProperty(self.conf_password_info_le, "class", "alert-success")
             self.confirmCreateUser()
 
         else:
             self.conf_password_info_le.setText("Passwords do not match!")
+            self.changeProperty(self.conf_password_info_le, "class", "alert-danger")
             self.create_user_btn.setEnabled(False)
 
     def confirmCreateUser(self):
@@ -1006,6 +1024,7 @@ class MainApp(QMainWindow, main):
     def showBookSearchResults(self, data):
         self.edit = data
         self.edit_info_label.setText(f'"{data[0][1]}" found!')
+        self.changeProperty(self.edit_info_label, "class", "alert-success")
         self.book_title_le_2.setText(data[0][1])
         self.category_combo_box_2.setCurrentIndex(
             self.category_combo_box_2.findText(data[0][2]))
@@ -1016,7 +1035,13 @@ class MainApp(QMainWindow, main):
         self.updateCategoryList(data)
 
     def searchBook(self, book_title: str, category=None):
-
+        """
+        Checks if no book title input is given. If yes and error message is displayed.
+        Else, is checks for book title in inputted category and returns true if yes.
+        Else, it checks if it is at all in any category (in the database) if yes, returns
+        'Try different category' (leting the user know that it appeared in another category).
+        Else, returns false (it is not in the database)
+        """
         if book_title == "":
             QMessageBox.critical(
                 self, 'Invalid Entry', 'Book title is required!', QMessageBox.Ok, QMessageBox.Ok)
@@ -1031,6 +1056,7 @@ class MainApp(QMainWindow, main):
                     1), query.value(2), query.value(3)]
                 data.append(tuple(row))
 
+            # if book is not in inputted category, check if it is at all in the database
             if not data:
                 query.exec_(
                     f"SELECT * FROM books WHERE book_title = '{book_title}'")
@@ -1039,10 +1065,10 @@ class MainApp(QMainWindow, main):
                         1), query.value(2), query.value(3)]
                     data.append(tuple(row))
 
+                #if book is not in database, let the user know (returns false)
                 if not data:
                     QMessageBox.information(
                         self, 'Not Found', f'"{book_title}" not found.', QMessageBox.Ok, QMessageBox.Ok)
-                    self.edit_info_label.clear()
                     self.edit_extra_label.clear()
                     self.clear_book_entry(
                         self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
@@ -1051,6 +1077,7 @@ class MainApp(QMainWindow, main):
                     self.edit_extra_label.setText(
                         f'"{book_title}" did not appear in any category.')
                     self.edit_info_label.setText(f'"{book_title}" not found.')
+                    self.changeProperty(self.edit_info_label, "class", "alert-danger")
                     return False
 
                 else:
@@ -1096,7 +1123,7 @@ class MainApp(QMainWindow, main):
             self.clear_book_entry(
                 self.book_title_le, self.category_combo_box, self.quantity_spin_box)
             # updates book title completer
-            self.book_title_model.setQuery("SELECT book_title FROM books")
+            self.book_title_model.setQuery("SELECT book_title FROM books") #update book title completer data
 
     def deleteBook(self, book_title: str, category: str):
 
@@ -1113,6 +1140,7 @@ class MainApp(QMainWindow, main):
                     f"""DELETE FROM books WHERE book_title='{book_title}' AND category='{category}'""")
                 self.edit_info_label.setText(
                     f'"{book_title}" deleted from "{category}" category.')
+                self.changeProperty(self.edit_info_label, "class", "alert-success")
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'DELETED "{book_title}, {category}"', 'books')""")
                 self.history_table_model.submitAll()
@@ -1120,8 +1148,9 @@ class MainApp(QMainWindow, main):
                     self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
                 self.edit = []
                 self.updateCategoryList([(None, book_title, None, None)])
-                self.book_table_model.submitAll()
+                self.book_table_model.submitAll()#update all books table
                 self.booksTableSort()
+                self.book_title_model.setQuery("SELECT book_title FROM books") #update book title completer data
         if found == 'Try different category':
             QMessageBox.information(
                 self, 'Book Not found', f'"{book_title}" is not in "{category}" category.\n\nTry different category.',
@@ -1149,8 +1178,10 @@ class MainApp(QMainWindow, main):
             self.category_combo_box.setCurrentIndex(index)
             self.category_combo_box_3.setCurrentIndex(index)
             self.edit_info_label.clear()
+            self.changeProperty(self.edit_info_label, "class", None)
             self.edit_extra_label.clear()
             self.category_lw.clear()
+            
         if not self.edit:
             QMessageBox.information(
                 self, 'Search First',
@@ -1386,14 +1417,17 @@ class MainApp(QMainWindow, main):
             if not data:
                 self.category_info_label.setText(
                     f'"{category}" category does not exist in library.')
+                self.changeProperty(self.category_info_label, "class", "alert-warning")
 
             else:
                 self.category_info_label.setText(
                     f'"{category}" category exists in library.')
+                self.changeProperty(self.category_info_label, "class", "alert-success")
                 self.add_category_le.clear()
 
         else:
             self.category_info_label.setText("NO INPUT GIVEN!")
+            self.changeProperty(self.category_info_label, "class", "alert-danger")
 
 
 if __name__ == '__main__':
