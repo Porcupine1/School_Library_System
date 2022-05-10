@@ -1,6 +1,5 @@
-#password_le,
-#username_le {
-    color: silver;
+#Login{
+    background-color: #222831;
 }
 #login_btn{
     color: #222831;

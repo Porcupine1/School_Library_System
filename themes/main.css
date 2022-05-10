@@ -1,12 +1,11 @@
-QWidget{
+#centralwidget{
     background-color: #222831;
-    color: white;
 }
-
 QLineEdit,
 QComboBox,
 QSpinBox {
     background-color: #2d344171;
+    color: white;
 }
 .alert {
     padding: 4px 2px;
@@ -23,6 +22,12 @@ QSpinBox {
     color: #0f5132;
     background-color: #d1e7dd;
     border-color: #badbcc
+}
+
+.alert-warning {
+    color: #513f0f;
+    background-color: #e7e2d1;
+    border-color: #dbd9ba
 }
 
 .btn-primary {
@@ -78,6 +83,7 @@ QSpinBox {
 }
 .dash_holder > QLabel{
     border-radius: 5px;
+    background-color: #444a53;
 }
 #books_tab_widget{
     border: 0px;
@@ -86,4 +92,37 @@ QLineEdit{
     border: 1px solid silver;
     border-radius: 5px;
     padding: 10px;
+}
+
+#books_tab_widget::pane,
+#books_tab_widget_2::pane,
+#history_tab_widget::pane,
+#users_tab_widget::pane {
+  border: 0px;
+  top:-1px; 
+  background-color: #303946;
+  border-radius: 5px;
+} 
+
+QTabBar::tab {
+  background: #282f3a; 
+  border: 0px;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 1px;
+  color: silver;
+} 
+
+QTabBar::tab:selected { 
+  background-color: #303946; 
+  margin-bottom: -5px;
+  border: 0px;
+  color: white;
+}
+
+#main_tab_widget::pane{
+    background-color: #282f3a;
+    border: 0px;
+    border-radius: 10px;
+    padding: 5px;
 }
