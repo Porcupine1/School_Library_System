@@ -145,3 +145,13 @@ QTabBar::tab:selected {
     border-radius: 10px;
     padding: 5px;
 }
+
+.settings_header{
+    font-size: 20px;
+}
+
+Line{
+    background-color: #00FFF5;
+    height: 1px;
+    border: 0px;
+}

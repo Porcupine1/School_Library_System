@@ -543,7 +543,7 @@ class MainApp(QMainWindow, main):
         self.client_record_table_model.setTable('client_record_vw')
         self.client_record_tv.setModel(self.client_record_table_model)
         self.client_record_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        for column_hidden in (0, 1, 2):
+        for column_hidden in (0, 1, 2, 3):
             self.client_record_tv.hideColumn(column_hidden)
 
     def updateCategoryList(self, data: list):
@@ -592,7 +592,7 @@ class MainApp(QMainWindow, main):
         self.client_info_label.setText(
             f"{fname}\t{lname}\t{class_}\t{house}")  # Displays client information
 
-        for column_hidden in (0, 1, 2):
+        for column_hidden in (0, 1, 2, 3):
             self.client_record_tv.setColumnHidden(
                 column_hidden, False)  # Hides unnecessary columns
 
@@ -914,11 +914,11 @@ class MainApp(QMainWindow, main):
         query.exec_()
         self.users_table_model.submitAll()
         query.exec_(
-            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'ADDED "{name}, {username}."', 'users')""")
+            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'ADDED "{name}, {username}"', 'users')""")
         query.exec_(
             f"INSERT INTO user_permissions VALUES('{username}',1,1,1,1,0,1,0,1,1,0,1,1,1,0,0,0)")
         query.exec_(
-            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'GAVE "{username} Standard permissions."', 'user_permissions')""")
+            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'GAVE "{username} Standard permissions"', 'user_permissions')""")
         self.usernames.append(username)
         self.history_table_model.submitAll()
         self.fname_le_3.clear()
@@ -948,11 +948,11 @@ class MainApp(QMainWindow, main):
             query.exec_(f"DELETE FROM users WHERE user_name='{username}'")
             self.users_table_model.submitAll()
             query.exec_(
-                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'DELETED "{username}."', 'users')""")
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'DELETED "{username}"', 'users')""")
             query.exec_(
                 f"DELETE FROM user_permissions WHERE user_name='{username}'")
             query.exec_(
-                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'REMOVED "{username} permissions."', 'user_permissions')""")
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'REMOVED "{username} permissions"', 'user_permissions')""")
             self.usernames.remove(username)
             self.history_table_model.submitAll()
             self.username_label.clear()
