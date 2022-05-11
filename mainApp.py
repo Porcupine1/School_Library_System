@@ -826,7 +826,7 @@ class MainApp(QMainWindow, main):
             self.changeProperty(self.username_label_2, "class", None)
         else:
             self.username_label_2.setText(f'"{username}" is not a user.')
-            self.changeProperty(self.username_label_2, "class", "alert-danger")
+            self.changeProperty(self.username_label_2, "class", "alert alert-danger")
             self.load_permissions_btn.setEnabled(False)
 
     def loadUserPermssions(self):
@@ -928,6 +928,9 @@ class MainApp(QMainWindow, main):
         self.password_le_2.clear()
         self.username_taken_le.clear()
         self.changeProperty(self.username_taken_le, "class", None)
+        self.username_le.setStyleSheet("border-color: silver;")
+        self.password_le.setStyleSheet("border-color: silver;")
+        self.password_le_2.setStyleSheet("border-color: silver;")
         
     def userSelected(self):
         row = self.users_tv.currentIndex().row()
@@ -958,41 +961,67 @@ class MainApp(QMainWindow, main):
                 self, 'Operation Successful', 'Deleted user successfully.', QMessageBox.Ok, QMessageBox.Ok)
 
     def usernameConfirm(self):
+        """checks username line edit for inputted text. if none is give, lets the user know a response is given (red
+        border around the line edit and some explanation text). if the entered username is already taken, a response
+        is given (orange border around the line edit and some explanation text). Else, a green border is set around
+        the line edit.
+        """
         username = self.username_le.text().strip()
 
+        #if not input is given
         if not username:
             self.username_taken_le.setText(f'"NO VALID INPUT GIVEN"')
-            self.changeProperty(self.username_taken_le, "class", "alert-danger")
-            self.create_user_btn.setEnabled(False)
+            self.changeProperty(self.username_taken_le, "class", "alert alert-danger")
+            self.username_le.setStyleSheet("border-color: crimson;") # set border color to red
+            self.create_user_btn.setEnabled(False) 
+        
+        #if username is already taken
         elif username in self.usernames:
             self.username_taken_le.setText(f'"{username}" is already taken.')
-            self.changeProperty(self.username_taken_le, "class", "alert-warning")
+            self.changeProperty(self.username_taken_le, "class", "alert alert-warning")
+            self.username_le.setStyleSheet("border-color: orange;") # set border color to red
             self.create_user_btn.setEnabled(False)
+            
         else:
             self.username_taken_le.clear()
             self.changeProperty(self.username_taken_le, "class", None)
+            self.username_le.setStyleSheet("border-color: lime;")
             self.confirmCreateUser()
 
     def confirmPassword(self):
+        """Checks if both passeord line edits text match. If not a response is given (red
+        border around the line edit and some explanation text) for both no entry and entry mismatch.
+        Else, a different response is given (green border around the line edit and some explanation text)
+        """
         password1 = self.password_le.text()
         password2 = self.password_le_2.text()
 
+        #if not input is given in both line edits
         if not password1 and not password2:
             self.conf_password_info_le.setText("NO INPUT GIVEN")
-            self.changeProperty(self.conf_password_info_le, "class", "alert-danger")
+            self.changeProperty(self.conf_password_info_le, "class", "alert alert-danger")
+            self.password_le_2.setStyleSheet("border-color: crimson;")
+            self.password_le.setStyleSheet("border-color: silver;")
             self.create_user_btn.setEnabled(False)
 
+        #if both passwords match
         elif password1 == password2:
             self.conf_password_info_le.setText("Passwords match!")
-            self.changeProperty(self.conf_password_info_le, "class", "alert-success")
+            self.changeProperty(self.conf_password_info_le, "class", "alert alert-success")
+            self.password_le.setStyleSheet("border-color: lime;")
+            self.password_le_2.setStyleSheet("border-color: lime;")
             self.confirmCreateUser()
 
         else:
             self.conf_password_info_le.setText("Passwords do not match!")
-            self.changeProperty(self.conf_password_info_le, "class", "alert-danger")
+            self.changeProperty(self.conf_password_info_le, "class", "alert alert-danger")
+            self.password_le_2.setStyleSheet("border-color: crimson;")
+            self.password_le.setStyleSheet("border-color: silver;")
             self.create_user_btn.setEnabled(False)
 
     def confirmCreateUser(self):
+        """Enables the create user button 
+        """
         username = self.username_le.text().strip()
         password1 = self.password_le.text()
         password2 = self.password_le_2.text()
@@ -1024,7 +1053,7 @@ class MainApp(QMainWindow, main):
     def showBookSearchResults(self, data):
         self.edit = data
         self.edit_info_label.setText(f'"{data[0][1]}" found!')
-        self.changeProperty(self.edit_info_label, "class", "alert-success")
+        self.changeProperty(self.edit_info_label, "class", "alert alert-success")
         self.book_title_le_2.setText(data[0][1])
         self.category_combo_box_2.setCurrentIndex(
             self.category_combo_box_2.findText(data[0][2]))
@@ -1077,7 +1106,7 @@ class MainApp(QMainWindow, main):
                     self.edit_extra_label.setText(
                         f'"{book_title}" did not appear in any category.')
                     self.edit_info_label.setText(f'"{book_title}" not found.')
-                    self.changeProperty(self.edit_info_label, "class", "alert-danger")
+                    self.changeProperty(self.edit_info_label, "class", "alert alert-danger")
                     return False
 
                 else:
@@ -1140,7 +1169,7 @@ class MainApp(QMainWindow, main):
                     f"""DELETE FROM books WHERE book_title='{book_title}' AND category='{category}'""")
                 self.edit_info_label.setText(
                     f'"{book_title}" deleted from "{category}" category.')
-                self.changeProperty(self.edit_info_label, "class", "alert-success")
+                self.changeProperty(self.edit_info_label, "class", "alert alert-success")
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'DELETED "{book_title}, {category}"', 'books')""")
                 self.history_table_model.submitAll()
@@ -1417,17 +1446,17 @@ class MainApp(QMainWindow, main):
             if not data:
                 self.category_info_label.setText(
                     f'"{category}" category does not exist in library.')
-                self.changeProperty(self.category_info_label, "class", "alert-warning")
+                self.changeProperty(self.category_info_label, "class", "alert alert-warning")
 
             else:
                 self.category_info_label.setText(
                     f'"{category}" category exists in library.')
-                self.changeProperty(self.category_info_label, "class", "alert-success")
+                self.changeProperty(self.category_info_label, "class", "alert alert-success")
                 self.add_category_le.clear()
 
         else:
             self.category_info_label.setText("NO INPUT GIVEN!")
-            self.changeProperty(self.category_info_label, "class", "alert-danger")
+            self.changeProperty(self.category_info_label, "class", "alert alert-danger")
 
 
 if __name__ == '__main__':
