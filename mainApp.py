@@ -8,14 +8,14 @@ from ast import literal_eval
 from PyQt5 import uic
 from PyQt5.QtChart import (QChart,
                            QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
-from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt
-from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon
+from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt, QRegularExpression
+from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon, QColor
 from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
                          QSqlRelationalTableModel, QSqlTableModel, QSqlQueryModel)
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton,
-                             QWidget, QCompleter, QCheckBox)
+                             QWidget, QCompleter, QCheckBox, QGraphicsDropShadowEffect, QFrame, QSpinBox, QComboBox, QTabWidget)
 
 from queries import *
 
@@ -155,6 +155,9 @@ class LoginWindow(QWidget, login):
         self.login_btn.clicked.connect(self.handleLogin)
         self.show_password_cb.stateChanged.connect(self.showPassword)
         self.label.setVisible(False)
+        for child in self.widget.findChildren((QLineEdit, QSpinBox, QComboBox)):
+            shadow = QGraphicsDropShadowEffect(blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
+            child.setGraphicsEffect(shadow)
 
     def showPassword(self, state):
         if state == Qt.Checked:
@@ -370,6 +373,34 @@ class MainApp(QMainWindow, main):
         self.showHistory()
         self.plotTransactionGraph()
         self.setupTransactionsTableView()
+        self.change_username_le.setPlaceholderText(self.username)
+        
+        #add shadows to all LineEdits, SpinBoxes and ComboBoxes
+        for child in self.main_tab_widget.findChildren((QPushButton, QLineEdit, QSpinBox, QComboBox)):
+            shadow = QGraphicsDropShadowEffect(blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
+            child.setGraphicsEffect(shadow)
+        self.category_combo_box.lineEdit().setGraphicsEffect(None)
+            
+        #add shadows to dashboard holders (frames)
+        for child in self.dashboard_tab.findChildren(QFrame, QRegularExpression('frame')):
+            shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=0, yOffset=5, color=QColor('black'))
+            child.setGraphicsEffect(shadow)
+        
+        #add shadows to dashboard holders' (frames) children
+        for child in self.dashboard_tab.findChildren(QLabel):
+            shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=0, yOffset=2, color=QColor('black'))
+            child.setGraphicsEffect(shadow)
+        
+        #add shadow the main tab widget
+        self.main_tab_widget.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=30, xOffset=0, yOffset=10, color=QColor('black')))
+        
+        #add shadows to main tab buttons
+        for child in self.main_tabs.findChildren(QPushButton):
+            shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=0, yOffset=4, color=QColor('black'))
+            child.setGraphicsEffect(shadow)
+            
+        
+            
 
     def handlePermissions(self):
         """Checks user's permissions to appropriately alter what is accessible by the user."""
@@ -928,9 +959,9 @@ class MainApp(QMainWindow, main):
         self.password_le_2.clear()
         self.username_taken_le.clear()
         self.changeProperty(self.username_taken_le, "class", None)
-        self.username_le.setStyleSheet("border-color: silver;")
-        self.password_le.setStyleSheet("border-color: silver;")
-        self.password_le_2.setStyleSheet("border-color: silver;")
+        self.username_le.setStyleSheet("border-color: #394453;")
+        self.password_le.setStyleSheet("border-color: #394453;")
+        self.password_le_2.setStyleSheet("border-color: #394453;")
         
     def userSelected(self):
         row = self.users_tv.currentIndex().row()
@@ -1001,7 +1032,7 @@ class MainApp(QMainWindow, main):
             self.conf_password_info_le.setText("NO INPUT GIVEN")
             self.changeProperty(self.conf_password_info_le, "class", "alert alert-danger")
             self.password_le_2.setStyleSheet("border-color: crimson;")
-            self.password_le.setStyleSheet("border-color: silver;")
+            self.password_le.setStyleSheet("border-color: #394453;")
             self.create_user_btn.setEnabled(False)
 
         #if both passwords match
@@ -1016,7 +1047,7 @@ class MainApp(QMainWindow, main):
             self.conf_password_info_le.setText("Passwords do not match!")
             self.changeProperty(self.conf_password_info_le, "class", "alert alert-danger")
             self.password_le_2.setStyleSheet("border-color: crimson;")
-            self.password_le.setStyleSheet("border-color: silver;")
+            self.password_le.setStyleSheet("border-color: #394453;")
             self.create_user_btn.setEnabled(False)
 
     def confirmCreateUser(self):

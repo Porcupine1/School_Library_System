@@ -5,12 +5,19 @@
 QLineEdit,
 QComboBox,
 QSpinBox {
-    background-color: #2d344171;
+    background-color: #394453;
     color: white;
+    border: 1px solid #394453;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+
+#edit_extra_label{
+    padding-left: 10px;
 }
 
 .alert {
-    padding: 5px 2px;
+    padding: 5px;
     margin-bottom: 4px;
     border: 1px solid transparent;
     border-radius: 3px;
@@ -64,7 +71,7 @@ QSpinBox {
     border: 0px;
     border-radius: 5px;
     text-align: left;
-    padding: 20px;
+    padding: 10px;
     background-color: #393E46;
 }
 
@@ -93,8 +100,8 @@ QSpinBox {
 }
 
 .dash_holder {
-    background-color: #393E46;
-    border: 1px solid #00FFF5;
+    background-color: #303946;
+    border: 0px;
     border-radius: 5px;
 }
 
@@ -105,12 +112,6 @@ QSpinBox {
 
 #books_tab_widget {
     border: 0px;
-}
-
-QLineEdit {
-    border: 1px solid silver;
-    border-radius: 5px;
-    padding: 10px;
 }
 
 #books_tab_widget::pane,
@@ -150,8 +151,7 @@ QTabBar::tab:selected {
     font-size: 20px;
 }
 
-Line{
+QFrame[frameShape="4"]{
     background-color: #00FFF5;
-    height: 1px;
     border: 0px;
 }
