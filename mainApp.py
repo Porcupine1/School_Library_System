@@ -54,27 +54,25 @@ def initializeDatabase() -> None:
 
     # check for classes in classes table
     query.exec_('SELECT COUNT(*) FROM classes')
-    while query.next():
-        # if no class in classes table, insert default ones from classes.txt
-        if query.value(0) == 0:
-            with open('classes.txt') as fh:
-                classes = fh.readlines()
-                for class_ in classes:
-                    # removes \n at the end of each class
-                    class_ = class_.strip('\n')
-                    query.exec_(f'INSERT INTO classes VALUES("{class_}")')
+    # if no class in classes table, insert default ones from classes.txt
+    if query.next():
+        with open('classes.txt') as fh:
+            classes = fh.readlines()
+            for class_ in classes:
+                # removes \n at the end of each class
+                class_ = class_.strip('\n')
+                query.exec_(f'INSERT INTO classes VALUES("{class_}")')
 
-    # check for classes in #removes \n at the end of each houses table
+    # check for houses in houses table
     query.exec_('SELECT COUNT(*) FROM houses')
-    while query.next():
-        # if no class in houses table, insert default ones from houses.txt
-        if query.value(0) == 0:
-            with open('houses.txt') as fh:
-                houses = fh.readlines()
-                for house in houses:
-                    # removes \n at the end of each house
-                    house = house.strip('\n')
-                    query.exec_(f'INSERT INTO houses VALUES("{house}")')
+    # if no house in houses table, insert default ones from houses.txt
+    if query.next():
+        with open('houses.txt') as fh:
+            houses = fh.readlines()
+            for house in houses:
+                # removes \n at the end of each house
+                house = house.strip('\n')
+                query.exec_(f'INSERT INTO houses VALUES("{house}")')
 
     # Creates default category, 'Unknown'.
     query.exec_("INSERT INTO categories VALUES('Unknown')")
@@ -82,18 +80,17 @@ def initializeDatabase() -> None:
     #check if any user exits
     query.exec_("SELECT COUNT(*) FROM users")
     # if no user exists, create admin user
-    while query.next():
-        if query.value(0) == 0:
-            hashed_user_password = str(hashPassword('admin'))
-            query.prepare('INSERT INTO users(user_name, user_password) VALUES(?, ?)')
-            query.addBindValue('admin')
-            query.addBindValue(hashed_user_password)
-            query.exec_()
+    if query.next():
+        hashed_user_password = str(hashPassword('admin'))
+        query.prepare('INSERT INTO users(user_name, user_password) VALUES(?, ?)')
+        query.addBindValue('admin')
+        query.addBindValue(hashed_user_password)
+        query.exec_()
 
-            query.exec_("SELECT user_name FROM user_permissions WHERE user_name='admin'")
-            if not query.next():
-                query.exec_(
-                    "INSERT INTO user_permissions VALUES('admin',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)")
+        query.exec_("SELECT user_name FROM user_permissions WHERE user_name='admin'")
+        if not query.next():
+            query.exec_(
+                "INSERT INTO user_permissions VALUES('admin',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)")
 
 
 def hashPassword(password: str) -> bytes:
@@ -225,7 +222,7 @@ class MainApp(QMainWindow, main):
 
         query.exec_(
             f"SELECT count(*) FROM transactions WHERE user_id={self.user_id} AND DATE(datetime)='{datetime.today().date()}'")
-        while query.next():
+        if query.next():
             # Number of transactions performed today
             self.today_transac_count = query.value(0)
 
@@ -443,34 +440,34 @@ class MainApp(QMainWindow, main):
         date, as well as the outstanding books: books that have not yet been retrieved
         """
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND'")
-        while query.next():
+        if query.next():
             total_lent = query.value(0)
             if total_lent == '':
                 total_lent = 0
 
         query.exec_(
             "SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE'")
-        while query.next():
+        if query.next():
             total_retrieved = query.value(0)
             if total_retrieved == '':
                 total_retrieved = 0
 
         query.exec_(
             "SELECT sum(quantity) FROM transactions WHERE type='LEND' AND date(datetime) = date('now', 'localtime')")
-        while query.next():
+        if query.next():
             lent_today = query.value(0)
             if lent_today == '':
                 lent_today = 0
 
         query.exec_(
             "SELECT sum(quantity) FROM transactions WHERE type='RETRIEVE' AND date(datetime) = date('now', 'localtime')")
-        while query.next():
+        if query.next():
             retrieved_today = query.value(0)
             if retrieved_today == '':
                 retrieved_today = 0
 
         query.exec_("SELECT count(*) FROM users")
-        while query.next():
+        if query.next():
             users_val = query.value(0)
             if users_val == '':
                 users_val = 0
@@ -521,6 +518,8 @@ class MainApp(QMainWindow, main):
         self.classes_cb_model.setTable('classes')
         self.classes_cb_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.classes_cb_model.select()
+        column = self.classes_cb_model.fieldIndex('class')
+        self.classes_cb_model.setSort(column, Qt.AscendingOrder)
         self.class_combo_box.setModel(self.classes_cb_model)
         self.class_combo_box_2.setModel(self.classes_cb_model)
 
@@ -531,6 +530,8 @@ class MainApp(QMainWindow, main):
         self.houses_cb_model.setTable('houses')
         self.houses_cb_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.houses_cb_model.select()
+        column = self.houses_cb_model.fieldIndex('house')
+        self.houses_cb_model.setSort(column, Qt.AscendingOrder)
         self.house_combo_box.setModel(self.houses_cb_model)
         self.house_combo_box_2.setModel(self.houses_cb_model)
 
@@ -838,7 +839,145 @@ class MainApp(QMainWindow, main):
         #if don't passwords match
         else:
             QMessageBox.information(self, 'Error',"Passwords don't match!")
+    
+    def addClass(self):
+        """Adds class to classes table
+        """
+        class_name = self.add_class_le.text().strip().upper()
+        
+        #if input is given
+        if class_name:
+            query.exec_(f"INSERT INTO classes VALUES('{class_name}')")
+            QMessageBox.information(self, 'Added',"Class successfully added.")
+            query.exec_(
+            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Added {class_name}', 'classes')""")
+            self.add_class_le.clear()
             
+            self.classes_cb_model.submitAll()
+            self.history_table_model.submitAll()
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given")
+    
+    def deleteClass(self):
+        class_name = self.delete_class_le.text().strip().upper()
+        
+        #if input is given
+        if class_name:
+            #check if class inputted exits
+            query.exec_(f"SELECT * FROM classes WHERE class='{class_name}'")
+            #if inputted class exists
+            if query.next():
+                query.exec_(f"DELETE FROM classes WHERE class='{class_name}'")
+                print('delete:   ',query.lastError().text())
+                print('delete:   ',query.lastError().driverText())
+                print('delete:   ',query.lastError().databaseText())
+                QMessageBox.information(self, 'Deleted',"Class successfully deleted.")
+                query.exec_(
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Deleted {class_name}', 'classes')""")
+                self.delete_class_le.clear()
+                print('delete:   ',query.lastError().text())
+                print('delete:   ',query.lastError().driverText())
+                print('delete:   ',query.lastError().databaseText())
+                self.classes_cb_model.submitAll()
+                self.history_table_model.submitAll()
+            else:
+                QMessageBox.information(self, 'Error',f"{class_name} does not exists in classes.")
+                self.delete_class_le.clear()
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given")
+    
+    def changeClassName(self):
+        current_class_name = self.current_class_name.text().strip().upper()
+        new_class_name = self.new_class_name.text().strip().upper()
+        
+        #if line edits are filled out
+        if new_class_name and current_class_name:
+            #check if class inputted exits
+            query.exec_(f"SELECT * FROM classes WHERE class='{current_class_name}'")
+            #if inputted class exists
+            if query.next():
+                query.exec_(f"UPDATE classes SET class='{new_class_name}' WHERE class='{current_class_name}'")
+                QMessageBox.information(self, 'Changed',"Class name successfully changed.")
+                query.exec_(
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Changed {current_class_name} to {new_class_name}', 'classes')""")
+
+                self.current_class_name.clear()
+                self.new_class_name.clear()
+                self.classes_cb_model.submitAll()
+                self.history_table_model.submitAll()
+            else:
+                QMessageBox.information(self, 'Error',f"{current_class_name} does not exists in classes.")
+                self.current_class_name.clear()
+                self.new_class_name.clear()
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given in one or both input fields.")
+    
+    def addHouse(self):
+        """Adds house to houses table
+        """
+        house_name = self.add_house_le.text().strip().upper()
+        
+        #if input is given
+        if house_name:
+            query.exec_(f"INSERT INTO houses VALUES('{house_name}')")
+            QMessageBox.information(self, 'Added',"House successfully added.")
+            query.exec_(
+            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Added {house_name}', 'houses')""")
+            self.add_house_le.clear()
+            
+            self.houses_cb_model.submitAll()
+            self.history_table_model.submitAll()
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given")
+    
+    def deleteHouse(self):
+        house_name = self.delete_house_le.text().strip().upper()
+        
+        #if input is given
+        if house_name:
+            #check if house inputted exits
+            query.exec_(f"SELECT * FROM houses WHERE house='{house_name}'")
+            #if inputted house exists
+            if query.next():
+                query.exec_(f"DELETE FROM houses WHERE house='{house_name}'")
+                QMessageBox.information(self, 'Deleted',"House successfully deleted.")
+                query.exec_(
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Deleted {house_name}', 'houses')""")
+                self.delete_house_le.clear()
+                self.houses_cb_model.submitAll()
+                self.history_table_model.submitAll()
+            else:
+                QMessageBox.information(self, 'Error',f"{house_name} does not exists in houses.")
+                self.delete_house_le.clear()
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given")
+    
+    def changeHouseName(self):
+        current_house_name = self.current_house_name.text().strip().upper()
+        new_house_name = self.new_house_name.text().strip().upper()
+        
+        #if line edits are filled out
+        if new_house_name and current_house_name:
+            #check if house inputted exits
+            query.exec_(f"SELECT * FROM houses WHERE house='{current_house_name}'")
+            #if inputted house exists
+            if query.next():
+                query.exec_(f"UPDATE houses SET house='{new_house_name}' WHERE house='{current_house_name}'")
+                QMessageBox.information(self, 'Changed',"House name successfully changed.")
+                query.exec_(
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Changed {current_house_name} to {new_house_name}', 'houses')""")
+
+                self.current_house_name.clear()
+                self.new_house_name.clear()
+                self.houses_cb_model.submitAll()
+                self.history_table_model.submitAll()
+            else:
+                QMessageBox.information(self, 'Error',f"{current_house_name} does not exists in houses.")
+                self.current_house_name.clear()
+                self.new_house_name.clear()
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given in one or both input fields.")
+
     def handleButtons(self):
         """Connects buttons to functions that are invoked when the buttons are triggered"""
 
@@ -910,11 +1049,23 @@ class MainApp(QMainWindow, main):
         self.show_password_cb_2.stateChanged.connect(
             lambda: self.showPassword(self.change_password_le, self.change_password_le_2, self.show_password_cb_2.checkState()))
         
-        #settings connections
+        ############settings connections START#############
+        #user connections
         self.change_username_btn.clicked.connect(self.changeUsername)
         self.change_password_le.textChanged.connect(self.confirmPassword_change)
         self.change_password_le_2.textChanged.connect(self.confirmPassword_change)
         self.change_password_btn.clicked.connect(self.changePassword)
+        
+        #class connections
+        self.add_class_btn.clicked.connect(self.addClass)
+        self.delete_class_btn.clicked.connect(self.deleteClass)
+        self.change_class_name_btn.clicked.connect(self.changeClassName)
+        
+        #house connections
+        self.add_house_btn.clicked.connect(self.addHouse)
+        self.delete_house_btn.clicked.connect(self.deleteHouse)
+        self.change_house_name_btn.clicked.connect(self.changeHouseName)
+        ############settings connections END#############
 
     def handleLogout(self):
         self.close()
@@ -1558,6 +1709,7 @@ class MainApp(QMainWindow, main):
                 if label is not None:
                     label.setText(
                         f'"{category}" category already exists in library.')
+                    self.changeProperty(label, "class", "alert alert-warning")
                 return 'exists'
             else:
                 query.exec_(
@@ -1567,11 +1719,13 @@ class MainApp(QMainWindow, main):
             if label is not None:
                 label.setText(
                     f'"{category}" category successfully added to library.')
+                self.changeProperty(label, "class", "alert alert-success")
                 self.add_category_le.clear()
 
         else:
             if label is not None:
                 label.setText("NO INPUT GIVEN!")
+                self.changeProperty(label, "class", "alert alert-danger")
         query.clear()
 
     def searchCategory(self, category: str) -> None:

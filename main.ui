@@ -1857,7 +1857,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>3</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="all_books_tab">
               <attribute name="title">
@@ -3475,7 +3475,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="lend_book_tab">
               <attribute name="title">
@@ -5607,7 +5607,7 @@
             <number>10</number>
            </property>
            <item row="10" column="7">
-            <widget class="QPushButton" name="pushButton_4">
+            <widget class="QPushButton" name="change_house_name_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5633,7 +5633,7 @@
             </spacer>
            </item>
            <item row="10" column="4">
-            <widget class="QLineEdit" name="lineEdit_8">
+            <widget class="QLineEdit" name="current_house_name">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5649,7 +5649,7 @@
             </widget>
            </item>
            <item row="10" column="6">
-            <widget class="QLineEdit" name="lineEdit_10">
+            <widget class="QLineEdit" name="new_house_name">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5772,7 +5772,7 @@
             </widget>
            </item>
            <item row="8" column="4" colspan="3">
-            <widget class="QLineEdit" name="lineEdit_6">
+            <widget class="QLineEdit" name="add_house_le">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5841,7 +5841,7 @@
             </widget>
            </item>
            <item row="5" column="4" colspan="3">
-            <widget class="QLineEdit" name="lineEdit_4">
+            <widget class="QLineEdit" name="delete_class_le">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5857,7 +5857,7 @@
             </widget>
            </item>
            <item row="4" column="7">
-            <widget class="QPushButton" name="pushButton_6">
+            <widget class="QPushButton" name="add_class_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5930,7 +5930,7 @@
             </widget>
            </item>
            <item row="6" column="4">
-            <widget class="QLineEdit" name="lineEdit_5">
+            <widget class="QLineEdit" name="current_class_name">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5959,7 +5959,7 @@
             </widget>
            </item>
            <item row="4" column="4" colspan="3">
-            <widget class="QLineEdit" name="lineEdit_3">
+            <widget class="QLineEdit" name="add_class_le">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -5975,7 +5975,7 @@
             </widget>
            </item>
            <item row="6" column="7">
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="change_class_name_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6045,7 +6045,7 @@
             </widget>
            </item>
            <item row="6" column="6">
-            <widget class="QLineEdit" name="lineEdit_9">
+            <widget class="QLineEdit" name="new_class_name">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6061,7 +6061,7 @@
             </widget>
            </item>
            <item row="8" column="7">
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="add_house_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6087,7 +6087,7 @@
             </widget>
            </item>
            <item row="9" column="7">
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="delete_house_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6120,7 +6120,7 @@
             </widget>
            </item>
            <item row="5" column="7">
-            <widget class="QPushButton" name="pushButton_5">
+            <widget class="QPushButton" name="delete_class_btn">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -6443,9 +6443,9 @@
                 <colorrole role="WindowText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>192</red>
-                   <green>192</green>
-                   <blue>192</blue>
+                   <red>255</red>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>
@@ -6454,9 +6454,9 @@
                 <colorrole role="WindowText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>192</red>
-                   <green>192</green>
-                   <blue>192</blue>
+                   <red>255</red>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>
@@ -6618,7 +6618,7 @@
             </widget>
            </item>
            <item row="9" column="4" colspan="3">
-            <widget class="QLineEdit" name="lineEdit_7">
+            <widget class="QLineEdit" name="delete_house_le">
              <property name="minimumSize">
               <size>
                <width>100</width>
@@ -6641,9 +6641,9 @@
                 <colorrole role="WindowText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>192</red>
-                   <green>192</green>
-                   <blue>192</blue>
+                   <red>255</red>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>
@@ -6652,9 +6652,9 @@
                 <colorrole role="WindowText">
                  <brush brushstyle="SolidPattern">
                   <color alpha="255">
-                   <red>192</red>
-                   <green>192</green>
-                   <blue>192</blue>
+                   <red>255</red>
+                   <green>255</green>
+                   <blue>255</blue>
                   </color>
                  </brush>
                 </colorrole>
@@ -10593,6 +10593,7 @@
   <include location="icons.qrc"/>
   <include location="icons.qrc"/>
   <include location="icons.qrc"/>
+  <include location="C:/Users/thoma/.designer/backup/icons.qrc"/>
  </resources>
  <connections/>
 </ui>
