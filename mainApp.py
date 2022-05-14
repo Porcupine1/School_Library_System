@@ -51,43 +51,49 @@ def initializeDatabase() -> None:
     query.exec_(create_transaction_acc_view_query)
     query.exec_(create_classes_table_query)
     query.exec_(create_houses_table_query)
-    
-    #check for classes in classes table
+
+    # check for classes in classes table
     query.exec_('SELECT COUNT(*) FROM classes')
     while query.next():
-        #if no class in classes table, insert default ones from classes.txt
+        # if no class in classes table, insert default ones from classes.txt
         if query.value(0) == 0:
             with open('classes.txt') as fh:
                 classes = fh.readlines()
                 for class_ in classes:
-                    class_ = class_.strip('\n') #removes \n at the end of each class
+                    # removes \n at the end of each class
+                    class_ = class_.strip('\n')
                     query.exec_(f'INSERT INTO classes VALUES("{class_}")')
-            
-    #check for classes in #removes \n at the end of each houses table
+
+    # check for classes in #removes \n at the end of each houses table
     query.exec_('SELECT COUNT(*) FROM houses')
     while query.next():
-        #if no class in houses table, insert default ones from houses.txt
+        # if no class in houses table, insert default ones from houses.txt
         if query.value(0) == 0:
             with open('houses.txt') as fh:
                 houses = fh.readlines()
                 for house in houses:
-                    house = house.strip('\n') #removes \n at the end of each house
+                    # removes \n at the end of each house
+                    house = house.strip('\n')
                     query.exec_(f'INSERT INTO houses VALUES("{house}")')
-
 
     # Creates default category, 'Unknown'.
     query.exec_("INSERT INTO categories VALUES('Unknown')")
 
-    hashed_user_password = str(hashPassword('admin'))
-    query.prepare('INSERT INTO users(user_name, user_password) VALUES(?, ?)')
-    query.addBindValue('admin')
-    query.addBindValue(hashed_user_password)
-    query.exec_()
+    #check if any user exits
+    query.exec_("SELECT COUNT(*) FROM users")
+    # if no user exists, create admin user
+    while query.next():
+        if query.value(0) == 0:
+            hashed_user_password = str(hashPassword('admin'))
+            query.prepare('INSERT INTO users(user_name, user_password) VALUES(?, ?)')
+            query.addBindValue('admin')
+            query.addBindValue(hashed_user_password)
+            query.exec_()
 
-    query.exec_("SELECT user_name FROM user_permissions WHERE user_name='admin'")
-    if not query.next():
-        query.exec_(
-            "INSERT INTO user_permissions VALUES('admin',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)")
+            query.exec_("SELECT user_name FROM user_permissions WHERE user_name='admin'")
+            if not query.next():
+                query.exec_(
+                    "INSERT INTO user_permissions VALUES('admin',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)")
 
 
 def hashPassword(password: str) -> bytes:
@@ -156,7 +162,8 @@ class LoginWindow(QWidget, login):
         self.show_password_cb.stateChanged.connect(self.showPassword)
         self.label.setVisible(False)
         for child in self.widget.findChildren((QLineEdit, QSpinBox, QComboBox)):
-            shadow = QGraphicsDropShadowEffect(blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
+            shadow = QGraphicsDropShadowEffect(
+                blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
             child.setGraphicsEffect(shadow)
 
     def showPassword(self, state):
@@ -237,33 +244,33 @@ class MainApp(QMainWindow, main):
         self.book_title_le_2.setCompleter(self.book_title_completer)
         self.book_title_le_3.setCompleter(self.book_title_completer)
         # book title auto completion end
-        
+
         self.first_name_model = QSqlQueryModel()
         self.first_name_model.setQuery(
             "SELECT client_first_name FROM clients")  # client first names
-        
+
         # auto completes first entires
         self.first_name_completer = QCompleter()
         self.first_name_completer.setModel(self.first_name_model)
         self.first_name_completer.setCaseSensitivity(
             Qt.CaseInsensitive)  # makes title entries case insensitive
-        
+
         self.fname_le.setCompleter(self.first_name_completer)
         self.fname_le_2.setCompleter(self.first_name_completer)
-        
+
         self.last_name_model = QSqlQueryModel()
         self.last_name_model.setQuery(
             "SELECT client_last_name FROM clients")  # all client last names
-        
+
         # auto completes first entires
         self.last_name_completer = QCompleter()
         self.last_name_completer.setModel(self.last_name_model)
         self.last_name_completer.setCaseSensitivity(
             Qt.CaseInsensitive)  # makes title entries case insensitive
-        
+
         self.lname_le.setCompleter(self.last_name_completer)
         self.lname_le_2.setCompleter(self.last_name_completer)
-        
+
     def _initDrag(self):
         # Set the default value of mouse tracking judgment trigger
         self._move_drag = False
@@ -374,33 +381,35 @@ class MainApp(QMainWindow, main):
         self.plotTransactionGraph()
         self.setupTransactionsTableView()
         self.change_username_le.setPlaceholderText(self.username)
-        
-        #add shadows to all LineEdits, SpinBoxes and ComboBoxes
+
+        # add shadows to all LineEdits, SpinBoxes and ComboBoxes
         for child in self.main_tab_widget.findChildren((QPushButton, QLineEdit, QSpinBox, QComboBox)):
-            shadow = QGraphicsDropShadowEffect(blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
+            shadow = QGraphicsDropShadowEffect(
+                blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
             child.setGraphicsEffect(shadow)
         self.category_combo_box.lineEdit().setGraphicsEffect(None)
-            
-        #add shadows to dashboard holders (frames)
+
+        # add shadows to dashboard holders (frames)
         for child in self.dashboard_tab.findChildren(QFrame, QRegularExpression('frame')):
-            shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=0, yOffset=5, color=QColor('black'))
+            shadow = QGraphicsDropShadowEffect(
+                blurRadius=15, xOffset=0, yOffset=5, color=QColor('black'))
             child.setGraphicsEffect(shadow)
-        
-        #add shadows to dashboard holders' (frames) children
+
+        # add shadows to dashboard holders' (frames) children
         for child in self.dashboard_tab.findChildren(QLabel):
-            shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=0, yOffset=2, color=QColor('black'))
+            shadow = QGraphicsDropShadowEffect(
+                blurRadius=5, xOffset=0, yOffset=2, color=QColor('black'))
             child.setGraphicsEffect(shadow)
-        
-        #add shadow the main tab widget
-        self.main_tab_widget.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=30, xOffset=0, yOffset=10, color=QColor('black')))
-        
-        #add shadows to main tab buttons
+
+        # add shadow the main tab widget
+        self.main_tab_widget.setGraphicsEffect(QGraphicsDropShadowEffect(
+            blurRadius=30, xOffset=0, yOffset=10, color=QColor('black')))
+
+        # add shadows to main tab buttons
         for child in self.main_tabs.findChildren(QPushButton):
-            shadow = QGraphicsDropShadowEffect(blurRadius=15, xOffset=0, yOffset=4, color=QColor('black'))
+            shadow = QGraphicsDropShadowEffect(
+                blurRadius=15, xOffset=0, yOffset=4, color=QColor('black'))
             child.setGraphicsEffect(shadow)
-            
-        
-            
 
     def handlePermissions(self):
         """Checks user's permissions to appropriately alter what is accessible by the user."""
@@ -504,7 +513,7 @@ class MainApp(QMainWindow, main):
         self.category_combo_box.setCurrentIndex(index)
         self.category_combo_box_2.setCurrentIndex(index)
         self.category_combo_box_3.setCurrentIndex(index)
-        
+
     def setupClassComboBox(self):
         """Loads houses from houses table as items in the combo-box
         """
@@ -514,7 +523,7 @@ class MainApp(QMainWindow, main):
         self.classes_cb_model.select()
         self.class_combo_box.setModel(self.classes_cb_model)
         self.class_combo_box_2.setModel(self.classes_cb_model)
-        
+
     def setupHouseComboBox(self):
         """Loads houses from houses table as items in the combo-box
         """
@@ -524,7 +533,7 @@ class MainApp(QMainWindow, main):
         self.houses_cb_model.select()
         self.house_combo_box.setModel(self.houses_cb_model)
         self.house_combo_box_2.setModel(self.houses_cb_model)
-        
+
     def booksTableSort(self):
         """
         Sorts the book table data first by category then book title
@@ -544,7 +553,7 @@ class MainApp(QMainWindow, main):
         self.book_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.all_books_table_view.hideColumn(0)
         self.booksTableSort()
-    
+
     def setTransactionTableQuery(self):
         """set the transaction table model query
         """
@@ -558,6 +567,7 @@ class MainApp(QMainWindow, main):
                                                     from transactions INNER JOIN clients ON transactions.client_id == clients.client_id
                                                     INNER JOIN books ON books.book_id == transactions.book_id
                                                     INNER JOIN users ON users.user_id == transactions.user_id'''))
+
     def setupTransactionsTableView(self):
         """Creates a table with all user transactions
         """
@@ -566,8 +576,9 @@ class MainApp(QMainWindow, main):
         self.setTransactionTableQuery()
         self.transactions_table_view.horizontalHeader(
         ).setSectionResizeMode(QHeaderView.Stretch)
-        self.transactions_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
-        
+        self.transactions_table_model.setEditStrategy(
+            QSqlTableModel.OnManualSubmit)
+
     def setupClientRecordView(self):
         """Creates table to load books a client has not returned."""
         self.client_record_table_model = QSqlTableModel()
@@ -617,6 +628,7 @@ class MainApp(QMainWindow, main):
                         AND class='{class_}' 
                         AND house='{house}'
                         AND RETURNED=FALSE"""))
+
     def showClientRecord(self, fname: str, lname: str, class_: str, house: str):
         """Loads and displays books a client has not returned"""
 
@@ -651,7 +663,7 @@ class MainApp(QMainWindow, main):
         lname_le.clear()
         class_cb.setCurrentIndex(-1)
         house_cb.setCurrentIndex(-1)
-    
+
     @staticmethod
     def changeProperty(widget, property, value):
         """Changes the value of a property of a object
@@ -659,7 +671,7 @@ class MainApp(QMainWindow, main):
         widget.setProperty(property, value)
         widget.style().unpolish(widget)
         widget.style().polish(widget)
-        
+
     def loadTransactionData(self) -> list[list, list]:
         """Loads transactions from transaction_acc_vw and returns them according to type.
 
@@ -756,6 +768,77 @@ class MainApp(QMainWindow, main):
             f'"{book_title}" | "{category}"')
         self.quantity_spin_box_4.setMaximum(quantity)
 
+    def changeUsername(self):
+        """Changes username of the user currently logged in
+        *changes username label text to new username
+        *changes change username line edit placeholder text to new username
+        """
+        new_username = self.change_username_le.text().strip()
+        old_username = self.username
+        if new_username:
+            query.exec_(f"UPDATE users SET user_name='{new_username}' WHERE user_id={self.user_id}")
+            
+            self.change_username_le.setPlaceholderText(new_username)
+            self.username_label_3.setText(new_username)
+            self.username = new_username
+            query.exec_(
+            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{old_username}', 'Changed user_name to "{self.username}"', 'users')""")
+            self.history_table_model.submitAll()
+            
+            QMessageBox.information(self, 'Changed', "Successfully Changed username.")
+        else:
+            QMessageBox.information(self, 'Error',"No valid input given")
+
+        self.change_username_le.clear()
+        
+    def confirmPassword_change(self):
+        password1 = self.change_password_le.text()
+        password2 = self.change_password_le_2.text()
+
+        # if not input is given in both line edits
+        if not password1 and not password2:
+
+            self.change_password_le_2.setStyleSheet("border-color: crimson;")
+            self.change_password_le.setStyleSheet("border-color: #394453;")
+
+        # if both passwords match
+        elif password1 == password2:
+            self.change_password_le.setStyleSheet("border-color: lime;")
+            self.change_password_le_2.setStyleSheet("border-color: lime;")
+
+        else:
+            self.change_password_le_2.setStyleSheet("border-color: crimson;")
+            self.change_password_le.setStyleSheet("border-color: #394453;")
+    
+    def changePassword(self):
+        """Changes password of user currently logged in
+        """
+        password_1 = self.change_password_le.text()
+        password_2 = self.change_password_le_2.text()
+        
+        #if no input is given in one or both password line edit
+        if not password_1 or not password_2:
+            QMessageBox.information(self, 'Error',"No input given in one or both fields")
+        #if passwords match
+        elif password_1 == password_2:
+            hashed_password = str(hashPassword(password_1))
+            query.prepare("UPDATE users SET user_password=? WHERE user_id=?")
+            query.addBindValue(hashed_password)
+            query.addBindValue(self.user_id)
+            query.exec_()
+            QMessageBox.information(self, 'Changed',"Password change successful.")
+            query.exec_(
+            f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'Changed password', 'users')""")
+            self.history_table_model.submitAll()
+            self.change_password_le.clear()
+            self.change_password_le_2.clear()
+            self.change_password_le.setStyleSheet("border-color: #394453;")
+            self.change_password_le_2.setStyleSheet("border-color: #394453;")
+            
+        #if don't passwords match
+        else:
+            QMessageBox.information(self, 'Error',"Passwords don't match!")
+            
     def handleButtons(self):
         """Connects buttons to functions that are invoked when the buttons are triggered"""
 
@@ -822,7 +905,16 @@ class MainApp(QMainWindow, main):
 
         self.category_lw.itemClicked.connect(self.categorySelected)
         self.client_record_tv.selectionModel().selectionChanged.connect(self.bookSelected)
-        self.show_password_cb.stateChanged.connect(self.showPassword)
+        self.show_password_cb.stateChanged.connect(
+            lambda: self.showPassword(self.password_le, self.password_le_2, self.show_password_cb.checkState()))
+        self.show_password_cb_2.stateChanged.connect(
+            lambda: self.showPassword(self.change_password_le, self.change_password_le_2, self.show_password_cb_2.checkState()))
+        
+        #settings connections
+        self.change_username_btn.clicked.connect(self.changeUsername)
+        self.change_password_le.textChanged.connect(self.confirmPassword_change)
+        self.change_password_le_2.textChanged.connect(self.confirmPassword_change)
+        self.change_password_btn.clicked.connect(self.changePassword)
 
     def handleLogout(self):
         self.close()
@@ -834,7 +926,8 @@ class MainApp(QMainWindow, main):
         event.accept()
 
     def checkPermissions(self, cb):
-        permissions = self.tab_permissions.findChildren(QCheckBox) + self.other_permissions.findChildren(QCheckBox)
+        permissions = self.tab_permissions.findChildren(
+            QCheckBox) + self.other_permissions.findChildren(QCheckBox)
         if cb.text() == 'Admin Permissions':
             for permission in permissions:
                 permission.setChecked(True)
@@ -857,12 +950,14 @@ class MainApp(QMainWindow, main):
             self.changeProperty(self.username_label_2, "class", None)
         else:
             self.username_label_2.setText(f'"{username}" is not a user.')
-            self.changeProperty(self.username_label_2, "class", "alert alert-danger")
+            self.changeProperty(self.username_label_2,
+                                "class", "alert alert-danger")
             self.load_permissions_btn.setEnabled(False)
 
     def loadUserPermssions(self):
         username = self.username_le_2.text().strip()
-        permissions = self.tab_permissions.findChildren(QCheckBox) + self.other_permissions.findChildren(QCheckBox)
+        permissions = self.tab_permissions.findChildren(
+            QCheckBox) + self.other_permissions.findChildren(QCheckBox)
 
         if username[-1] == "s":
             """Check if the last letter of the usernae is 's', if so then don't add 's' after
@@ -889,7 +984,8 @@ class MainApp(QMainWindow, main):
 
     def giveUserPermissions(self):
         username = self.username_label.text()
-        permissions = self.tab_permissions.findChildren(QCheckBox) + self.other_permissions.findChildren(QCheckBox)
+        permissions = self.tab_permissions.findChildren(
+            QCheckBox) + self.other_permissions.findChildren(QCheckBox)
         self.permission_gb.setTitle(f"User Permissions")
         query.prepare(
             "INSERT INTO user_permissions VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -911,13 +1007,14 @@ class MainApp(QMainWindow, main):
             self, 'Operation Successful',
             "Permissions applied successfully.\n\nChanges will take effect on user's next login.")
 
-    def showPassword(self, state):
+    @staticmethod
+    def showPassword(password_le, password_le_2, state):
         if state == Qt.Checked:
-            self.password_le.setEchoMode(QLineEdit.Normal)
-            self.password_le_2.setEchoMode(QLineEdit.Normal)
+            password_le.setEchoMode(QLineEdit.Normal)
+            password_le_2.setEchoMode(QLineEdit.Normal)
         else:
-            self.password_le.setEchoMode(QLineEdit.Password)
-            self.password_le_2.setEchoMode(QLineEdit.Password)
+            password_le.setEchoMode(QLineEdit.Password)
+            password_le_2.setEchoMode(QLineEdit.Password)
 
     def showUsers(self):
         self.users_table_model = QSqlTableModel()
@@ -962,7 +1059,7 @@ class MainApp(QMainWindow, main):
         self.username_le.setStyleSheet("border-color: #394453;")
         self.password_le.setStyleSheet("border-color: #394453;")
         self.password_le_2.setStyleSheet("border-color: #394453;")
-        
+
     def userSelected(self):
         row = self.users_tv.currentIndex().row()
         username = self.users_tv.currentIndex().sibling(row, 1).data()
@@ -999,20 +1096,24 @@ class MainApp(QMainWindow, main):
         """
         username = self.username_le.text().strip()
 
-        #if not input is given
+        # if not input is given
         if not username:
             self.username_taken_le.setText(f'"NO VALID INPUT GIVEN"')
-            self.changeProperty(self.username_taken_le, "class", "alert alert-danger")
-            self.username_le.setStyleSheet("border-color: crimson;") # set border color to red
-            self.create_user_btn.setEnabled(False) 
-        
-        #if username is already taken
+            self.changeProperty(self.username_taken_le,
+                                "class", "alert alert-danger")
+            self.username_le.setStyleSheet(
+                "border-color: crimson;")  # set border color to red
+            self.create_user_btn.setEnabled(False)
+
+        # if username is already taken
         elif username in self.usernames:
             self.username_taken_le.setText(f'"{username}" is already taken.')
-            self.changeProperty(self.username_taken_le, "class", "alert alert-warning")
-            self.username_le.setStyleSheet("border-color: orange;") # set border color to red
+            self.changeProperty(self.username_taken_le,
+                                "class", "alert alert-warning")
+            self.username_le.setStyleSheet(
+                "border-color: orange;")  # set border color to red
             self.create_user_btn.setEnabled(False)
-            
+
         else:
             self.username_taken_le.clear()
             self.changeProperty(self.username_taken_le, "class", None)
@@ -1020,32 +1121,35 @@ class MainApp(QMainWindow, main):
             self.confirmCreateUser()
 
     def confirmPassword(self):
-        """Checks if both passeord line edits text match. If not a response is given (red
+        """Checks if both passeord line edits in create user tab text match. If not a response is given (red
         border around the line edit and some explanation text) for both no entry and entry mismatch.
         Else, a different response is given (green border around the line edit and some explanation text)
         """
         password1 = self.password_le.text()
         password2 = self.password_le_2.text()
 
-        #if not input is given in both line edits
+        # if not input is given in both line edits
         if not password1 and not password2:
             self.conf_password_info_le.setText("NO INPUT GIVEN")
-            self.changeProperty(self.conf_password_info_le, "class", "alert alert-danger")
+            self.changeProperty(self.conf_password_info_le,
+                                "class", "alert alert-danger")
             self.password_le_2.setStyleSheet("border-color: crimson;")
             self.password_le.setStyleSheet("border-color: #394453;")
             self.create_user_btn.setEnabled(False)
 
-        #if both passwords match
+        # if both passwords match
         elif password1 == password2:
             self.conf_password_info_le.setText("Passwords match!")
-            self.changeProperty(self.conf_password_info_le, "class", "alert alert-success")
+            self.changeProperty(self.conf_password_info_le,
+                                "class", "alert alert-success")
             self.password_le.setStyleSheet("border-color: lime;")
             self.password_le_2.setStyleSheet("border-color: lime;")
             self.confirmCreateUser()
 
         else:
             self.conf_password_info_le.setText("Passwords do not match!")
-            self.changeProperty(self.conf_password_info_le, "class", "alert alert-danger")
+            self.changeProperty(self.conf_password_info_le,
+                                "class", "alert alert-danger")
             self.password_le_2.setStyleSheet("border-color: crimson;")
             self.password_le.setStyleSheet("border-color: #394453;")
             self.create_user_btn.setEnabled(False)
@@ -1084,7 +1188,8 @@ class MainApp(QMainWindow, main):
     def showBookSearchResults(self, data):
         self.edit = data
         self.edit_info_label.setText(f'"{data[0][1]}" found!')
-        self.changeProperty(self.edit_info_label, "class", "alert alert-success")
+        self.changeProperty(self.edit_info_label, "class",
+                            "alert alert-success")
         self.book_title_le_2.setText(data[0][1])
         self.category_combo_box_2.setCurrentIndex(
             self.category_combo_box_2.findText(data[0][2]))
@@ -1125,7 +1230,7 @@ class MainApp(QMainWindow, main):
                         1), query.value(2), query.value(3)]
                     data.append(tuple(row))
 
-                #if book is not in database, let the user know (returns false)
+                # if book is not in database, let the user know (returns false)
                 if not data:
                     QMessageBox.information(
                         self, 'Not Found', f'"{book_title}" not found.', QMessageBox.Ok, QMessageBox.Ok)
@@ -1137,7 +1242,8 @@ class MainApp(QMainWindow, main):
                     self.edit_extra_label.setText(
                         f'"{book_title}" did not appear in any category.')
                     self.edit_info_label.setText(f'"{book_title}" not found.')
-                    self.changeProperty(self.edit_info_label, "class", "alert alert-danger")
+                    self.changeProperty(
+                        self.edit_info_label, "class", "alert alert-danger")
                     return False
 
                 else:
@@ -1183,7 +1289,8 @@ class MainApp(QMainWindow, main):
             self.clear_book_entry(
                 self.book_title_le, self.category_combo_box, self.quantity_spin_box)
             # updates book title completer
-            self.book_title_model.setQuery("SELECT book_title FROM books") #update book title completer data
+            # update book title completer data
+            self.book_title_model.setQuery("SELECT book_title FROM books")
 
     def deleteBook(self, book_title: str, category: str):
 
@@ -1200,7 +1307,8 @@ class MainApp(QMainWindow, main):
                     f"""DELETE FROM books WHERE book_title='{book_title}' AND category='{category}'""")
                 self.edit_info_label.setText(
                     f'"{book_title}" deleted from "{category}" category.')
-                self.changeProperty(self.edit_info_label, "class", "alert alert-success")
+                self.changeProperty(self.edit_info_label,
+                                    "class", "alert alert-success")
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'DELETED "{book_title}, {category}"', 'books')""")
                 self.history_table_model.submitAll()
@@ -1208,9 +1316,10 @@ class MainApp(QMainWindow, main):
                     self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
                 self.edit = []
                 self.updateCategoryList([(None, book_title, None, None)])
-                self.book_table_model.submitAll()#update all books table
+                self.book_table_model.submitAll()  # update all books table
                 self.booksTableSort()
-                self.book_title_model.setQuery("SELECT book_title FROM books") #update book title completer data
+                # update book title completer data
+                self.book_title_model.setQuery("SELECT book_title FROM books")
         if found == 'Try different category':
             QMessageBox.information(
                 self, 'Book Not found', f'"{book_title}" is not in "{category}" category.\n\nTry different category.',
@@ -1241,7 +1350,7 @@ class MainApp(QMainWindow, main):
             self.changeProperty(self.edit_info_label, "class", None)
             self.edit_extra_label.clear()
             self.category_lw.clear()
-            
+
         if not self.edit:
             QMessageBox.information(
                 self, 'Search First',
@@ -1276,14 +1385,18 @@ class MainApp(QMainWindow, main):
             if query.lastError().isValid() is False:
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES('{self.username}', 'ADDED "{fname} {lname}, {class_}, {house}"', 'clients')""")
-                self.history_table_model.submitAll() 
+                self.history_table_model.submitAll()
 
             query.exec_(
                 f"""SELECT client_id FROM clients WHERE client_first_name = '{fname}' AND client_last_name = '{lname}' AND client_class = '{class_}' AND client_house = '{house}'""")
 
-            self.first_name_model.setQuery("SELECT client_first_name FROM clients") #updates clients' first name completer
-            self.last_name_model.setQuery("SELECT client_last_name FROM clients") #updates clients' last name completer
-            
+            # updates clients' first name completer
+            self.first_name_model.setQuery(
+                "SELECT client_first_name FROM clients")
+            # updates clients' last name completer
+            self.last_name_model.setQuery(
+                "SELECT client_last_name FROM clients")
+
             while query.next():
                 client_id = query.value(0)
                 return client_id
@@ -1477,17 +1590,20 @@ class MainApp(QMainWindow, main):
             if not data:
                 self.category_info_label.setText(
                     f'"{category}" category does not exist in library.')
-                self.changeProperty(self.category_info_label, "class", "alert alert-warning")
+                self.changeProperty(self.category_info_label,
+                                    "class", "alert alert-warning")
 
             else:
                 self.category_info_label.setText(
                     f'"{category}" category exists in library.')
-                self.changeProperty(self.category_info_label, "class", "alert alert-success")
+                self.changeProperty(self.category_info_label,
+                                    "class", "alert alert-success")
                 self.add_category_le.clear()
 
         else:
             self.category_info_label.setText("NO INPUT GIVEN!")
-            self.changeProperty(self.category_info_label, "class", "alert alert-danger")
+            self.changeProperty(self.category_info_label,
+                                "class", "alert alert-danger")
 
 
 if __name__ == '__main__':
@@ -1510,4 +1626,3 @@ if __name__ == '__main__':
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())
-    
