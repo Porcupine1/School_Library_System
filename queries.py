@@ -4,17 +4,18 @@ create_users_table_query = '''CREATE TABLE IF NOT EXISTS users (
                                                             UNIQUE,
                                 name        VARCHAR (30),
                                 user_password   VARCHAR  NOT NULL
-                            );
-                            '''
+                            );'''
+
 create_books_table_query = '''CREATE TABLE IF NOT EXISTS books (
                                 book_id    INTEGER  PRIMARY KEY AUTOINCREMENT,
                                 book_title VARCHAR NOT NULL,
-                                category   VARCHAR NOT NULL,
+                                category   VARCHAR NOT NULL
+                                                    DEFAULT Unknown,
                                 quantity   INTEGER NOT NULL,
                                 UNIQUE (book_title, category), 
                                 CONSTRAINT category FOREIGN KEY(category) REFERENCES categories (category)
-                            );
-                            '''
+                            );'''
+
 create_clients_table_query = '''CREATE TABLE IF NOT EXISTS clients (
                                     client_id   INTEGER PRIMARY KEY AUTOINCREMENT,
                                     client_first_name VARCHAR(30)    NOT NULL,
@@ -25,6 +26,7 @@ create_clients_table_query = '''CREATE TABLE IF NOT EXISTS clients (
                                     CONSTRAINT client_class FOREIGN KEY(client_class) REFERENCES classes (class),
                                     CONSTRAINT client_house FOREIGN KEY(client_house) REFERENCES houses (house)
                                     );'''
+
 create_client_records_table_query = '''CREATE TABLE IF NOT EXISTS client_records (
                                         client_id  INTEGER  NOT NULL,
                                         book_id    INTEGER REFERENCES books (book_id) 
@@ -35,6 +37,7 @@ create_client_records_table_query = '''CREATE TABLE IF NOT EXISTS client_records
                                         CONSTRAINT client FOREIGN KEY(client_id) REFERENCES clients (client_id),
                                         CONSTRAINT book FOREIGN KEY(book_id) REFERENCES books (book_id)
                             );'''
+
 create_transactions_table_query = '''CREATE TABLE IF NOT EXISTS transactions (
                                     client_id   INTEGER,
                                     book_id INTEGER,
@@ -46,8 +49,11 @@ create_transactions_table_query = '''CREATE TABLE IF NOT EXISTS transactions (
                                     CONSTRAINT book FOREIGN KEY(book_id) REFERENCES books (book_id),
                                     CONSTRAINT client FOREIGN KEY(client_id) REFERENCES clients (client_id),
                                     CONSTRAINT user FOREIGN KEY(user_id) REFERENCES Users (user_id));'''
+                                    
 create_categories_table_query = '''CREATE TABLE IF NOT EXISTS categories (
-                                category VARCHAR PRIMARY KEY);'''
+                                category VARCHAR PRIMARY KEY
+                                );'''
+
 create_client_record_view_query = '''CREATE VIEW IF NOT EXISTS client_record_vw AS
                                         SELECT  client_first_name AS FIRST_NAME,
                                                 client_last_name AS LAST_NAME,
@@ -62,7 +68,7 @@ create_client_record_view_query = '''CREATE VIEW IF NOT EXISTS client_record_vw 
                                                 clients.client_id = client_records.client_id
                                                 INNER JOIN
                                                 books ON client_records.book_id = books.book_id;'''
-                                                
+
 create_transaction_acc_view_query = '''CREATE VIEW IF NOT EXISTS transaction_acc_vw AS
                                         SELECT coalesce(sum(quantity), 0) AS QUANTITY,
                                         type AS TYPE, 
@@ -72,7 +78,6 @@ create_transaction_acc_view_query = '''CREATE VIEW IF NOT EXISTS transaction_acc
                                         WHERE date <= date('now', 'localtime') 
                                         GROUP BY date,
                                                 type;'''
-
 
 create_history_table_query = '''CREATE TABLE IF NOT EXISTS history (
                                 user_name   VARCHAR(30) NOT NULL,
@@ -101,13 +106,12 @@ create_user_permissions_table_query = '''CREATE TABLE IF NOT EXISTS user_permiss
                                             create_user      BOOLEAN NOT NULL,
                                             delete_user      BOOLEAN NOT NULL,
                                             give_permissions BOOLEAN NOT NULL,
-                                            CONSTRAINT user FOREIGN KEY(user_name)REFERENCES users (user_name) 
+                                            CONSTRAINT user FOREIGN KEY(user_name)REFERENCES users (user_name)
                                         );'''
 
 create_houses_table_query = '''CREATE TABLE IF NOT EXISTS houses (
                                     house VARCHAR UNIQUE ON CONFLICT IGNORE
-                                );
-                                '''
+                                );'''
 
 create_classes_table_query = '''CREATE TABLE IF NOT EXISTS classes (
                                     class VARCHAR UNIQUE ON CONFLICT IGNORE
