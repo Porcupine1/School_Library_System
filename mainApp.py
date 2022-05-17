@@ -39,6 +39,7 @@ def initializeDatabase() -> None:
         query.exec_(f"UPDATE dates SET date=DATE('2022-05-06',(-1+id)||' day')")
         query.exec_("CREATE UNIQUE index ux_dates_date ON dates (date)")
 
+    # Create database tables if they don't exist
     query.exec_(create_users_table_query)
     query.exec_(create_books_table_query)
     query.exec_(create_transactions_table_query)
@@ -117,16 +118,22 @@ def password_check(entered_password: str, db_password: bytes) -> bool:
 
 
 def btn_close_clicked(self):
+    """closes program
+    """
     self.close()
 
 
 def btn_max_clicked(self):
+    """Maximizes or restores down window
+    """
+    # if window is maximized, restore down
     if self.isMaximized():
         self.max_btn.setIcon(QIcon(QPixmap("./icons/maximize.png")))
         self.showNormal()
         self.title_bar_2.resize(self.widget_2.width(), 40)
         self.title_bar.move(self.title_bar_pos, 0)
 
+    # if window is restored down, maximize it
     else:
         QPushButton().setIcon(QIcon())
         self.title_bar.move(screen_width - 283, 0)
@@ -136,10 +143,14 @@ def btn_max_clicked(self):
 
 
 def btn_min_clicked(self):
+    """Minimizes window
+    """
     self.showMinimized()
 
 
 def centerWindow(self):
+    """Centres window on the screen
+    """
     self.move((screen_width - self.width()) // 2,
               (screen_height - self.height()) // 2)
 
@@ -160,18 +171,27 @@ class LoginWindow(QWidget, login):
         self.login_btn.clicked.connect(self.handleLogin)
         self.show_password_cb.stateChanged.connect(self.showPassword)
         self.label.setVisible(False)
-        for child in self.widget.findChildren((QLineEdit, QSpinBox, QComboBox)):
+        for child in self.widget.findChildren((QLineEdit, QPushButton)):
             shadow = QGraphicsDropShadowEffect(
                 blurRadius=10, xOffset=0, yOffset=4, color=QColor('black'))
             child.setGraphicsEffect(shadow)
 
     def showPassword(self, state):
+        """Hides when the check box is unchecked and shows password when it is checked
+        """
+        # if check box is checked
         if state == Qt.Checked:
             self.password_le.setEchoMode(QLineEdit.Normal)
+
+        # unchecked
         else:
             self.password_le.setEchoMode(QLineEdit.Password)
 
     def handleLogin(self):
+        """Checks for the user in the database the checks if the entered password is correct.
+        If the username does not exist or password is incorrect, a response is displayed.
+        If both username and password are correct, login window is closed and main window opens(Logged in)."""
+
         username = self.username_le.text()
         password = self.password_le.text()
 
@@ -183,20 +203,23 @@ class LoginWindow(QWidget, login):
             data.append((query.value(0)))
             data.append((query.value(1)))
         try:
+            # if passwords match
             if password_check(password, literal_eval(data[1])):
                 self.username_le.clear()
                 self.show_password_cb.setChecked(False)
                 self.label.setVisible(False)
                 self.main_window = MainApp(data[0], username)
-                self.close()
-                self.main_window.show()
+                self.close()  # close login window
+                self.main_window.show()  # show main window
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action]) VALUES('{username}', 'LOGGED IN')""")
             else:
-                self.label.setVisible(True)
+                self.label.setVisible(True)  # show error message
                 self.label.adjustSize()
+
+        # When entered username does not exist
         except IndexError:
-            self.label.setVisible(True)
+            self.label.setVisible(True)  # show error message
             self.label.adjustSize()
 
 
@@ -216,7 +239,7 @@ class MainApp(QMainWindow, main):
         self.handleButtons()
         self._initDrag()
         self.setMouseTracking(True)
-        self.edit = []  # Contains record of book to be edited
+        self.edit_book_data = []  # Contains record of book to be edited
         query.exec_(f"SELECT user_name FROM users")
         self.usernames = []  # List of existing user names
         while query.next():
@@ -237,7 +260,7 @@ class MainApp(QMainWindow, main):
         self.book_title_completer.setModel(self.book_title_model)
         self.book_title_completer.setCaseSensitivity(
             Qt.CaseInsensitive)  # makes title entries case insensitive
-        # serches by checking if entry is contained in any title
+        # searches by checking if entry is contained in any title
         self.book_title_completer.setFilterMode(Qt.MatchFlag.MatchContains)
 
         self.book_title_le_2.setCompleter(self.book_title_completer)
@@ -438,8 +461,8 @@ class MainApp(QMainWindow, main):
                 index += 1
 
     def initDashVals(self):
-        """Calculates the number of total books lent and retrieved all times and current
-        date, as well as the outstanding books: books that have not yet been retrieved
+        """Displays the number of total books lent and retrieved all times and current
+        date, as well as the unretrieved books and number od users.
         """
         query.exec_("SELECT sum(quantity) FROM transactions WHERE type='LEND'")
         if query.next():
@@ -478,7 +501,7 @@ class MainApp(QMainWindow, main):
         self.total_retrieved_val.setText(str(total_retrieved))
         self.lent_today_val.setText(str(lent_today))
         self.retrieved_today_val.setText(str(retrieved_today))
-        self.outstanding_val.setText(str(total_lent - total_retrieved))
+        self.unretrieved_val.setText(str(total_lent - total_retrieved))
         self.users_val.setText(str(users_val))
 
     @staticmethod
@@ -496,7 +519,8 @@ class MainApp(QMainWindow, main):
         label.setText(str(val))
 
     def setupCategoryComboBox(self):
-        """Loads categories from category table as items in the combo-box"""
+        """Loads categories from category table as items in the combo-box
+        """
         self.category_cb_model = QSqlTableModel()
         self.category_cb_model.setTable('categories')
         column = self.category_cb_model.fieldIndex('category')
@@ -545,7 +569,9 @@ class MainApp(QMainWindow, main):
             QSqlQuery("SELECT * FROM books ORDER BY category, book_title"))
 
     def setupBooksTableView(self):
-        """Loads and displays all books from books table, and sorts them first according to category the book-title"""
+        """Loads and displays all books from books table, and sorts them first according to category the book-title
+        """
+
         self.book_table_model = QSqlRelationalTableModel()
         self.book_table_model.setTable('books')
         self.book_table_model.setRelation(self.book_table_model.fieldIndex('category'), QSqlRelation(
@@ -633,7 +659,8 @@ class MainApp(QMainWindow, main):
                         AND RETURNED=FALSE"""))
 
     def showClientRecord(self, fname: str, lname: str, class_: str, house: str):
-        """Loads and displays books a client has not returned"""
+        """Loads and displays books a client has not returned
+        """
 
         self.client_info_label.setText(
             f"{fname}\t{lname}\t{class_}\t{house}")  # Displays client information
@@ -647,20 +674,23 @@ class MainApp(QMainWindow, main):
     @staticmethod
     def formatText(text: str) -> str:
         """Cleans user input by removing trailing whitespaces 
-        and capitalizes first letter of each word"""
+        and capitalizes first letter of each word
+
+        *NOT TO BE USED ON USERNAMES AND PASSWORDS"""
 
         return text.strip().title()
 
     @staticmethod
-    def clear_book_entry(title_le, category_cb, quantity_sb):
-        """Gives book input fields their default values"""
+    def clear_book_entry(title_le: QLineEdit, category_cb: QComboBox, quantity_sb: QSpinBox):
+        """Gives book input fields their default values
+        """
         title_le.clear()
         index = category_cb.findText("Unknown")
         category_cb.setCurrentIndex(index)
         quantity_sb.setValue(0)
 
     @staticmethod
-    def clear_client_entry(fname_le, lname_le, class_cb, house_cb):
+    def clear_client_entry(fname_le: QLineEdit, lname_le: QLineEdit, class_cb: QComboBox, house_cb: QComboBox):
         """Gives client input fields their default values"""
         fname_le.clear()
         lname_le.clear()
@@ -668,7 +698,7 @@ class MainApp(QMainWindow, main):
         house_cb.setCurrentIndex(-1)
 
     @staticmethod
-    def changeProperty(widget, property, value):
+    def changeProperty(widget, property: str, value: str):
         """Changes the value of a property of a object
         """
         widget.setProperty(property, value)
@@ -705,7 +735,9 @@ class MainApp(QMainWindow, main):
         """
         def appendTransDataToSeries(trans_data, series):
             """Traverses over transactions' dates, sets to a DateTime format
-            then adds each to the lent series"""
+            then adds each to the lent series.
+            """
+
             for i in range(len(trans_data[0])):
                 year, month, date_ = [int(data)
                                       for data in trans_data[0][i].split('-')]
@@ -775,32 +807,35 @@ class MainApp(QMainWindow, main):
         """Changes border color of change username line edit as a response to whether the username is taken.
         *Orange means taken
         *Lime means available"""
-        
+
         new_username = self.change_username_le.text().strip()
-        
+
         if not new_username:
             self.change_username_le.setStyleSheet("border-color: #394453;")
-        
+
         elif new_username in self.usernames:
-            self.change_username_le.setStyleSheet("border-color: orange;")  # set border color to red
+            self.change_username_le.setStyleSheet(
+                "border-color: orange;")  # set border color to red
 
         else:
             self.changeProperty(self.username_taken_l, "class", None)
             self.change_username_le.setStyleSheet("border-color: lime;")
-    
+
     def changeUsername(self):
         """Changes username of the user currently logged in
+
         *changes username label text to new username
+
         *changes change username line edit placeholder text to new username
         """
         new_username = self.change_username_le.text().strip()
         old_username = self.username
         if new_username:
-            #if inputted username is already taken
+            # if inputted username is already taken
             if new_username in self.usernames:
                 QMessageBox.information(
                     self, 'Error', f"'{new_username}' is already taken.\n\nCan't change username.")
-            #if inputted username is not already taken
+            # if inputted username is not already taken
             else:
                 query.exec_(
                     f"UPDATE users SET user_name='{new_username}' WHERE user_id={self.user_id}")
@@ -808,7 +843,8 @@ class MainApp(QMainWindow, main):
                 self.change_username_le.setPlaceholderText(new_username)
                 self.username_label_3.setText(new_username)
                 self.username = new_username
-                self.usernames[self.usernames.index(old_username)] = new_username
+                self.usernames[self.usernames.index(
+                    old_username)] = new_username
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES("{old_username}", "Changed user_name to '{self.username}'", "users")""")
                 self.history_table_model.submitAll()
@@ -837,7 +873,7 @@ class MainApp(QMainWindow, main):
         elif password1 == password2:
             self.change_password_le.setStyleSheet("border-color: lime;")
             self.change_password_le_2.setStyleSheet("border-color: lime;")
-            
+
         # if passwords don't match
         else:
             self.change_password_le_2.setStyleSheet("border-color: crimson;")
@@ -855,7 +891,7 @@ class MainApp(QMainWindow, main):
                 self, 'Error', "No input given in one or both fields")
         # if passwords match
         elif password_1 == password_2:
-            hashed_password = str(hashPassword(password_1)) #encrypt password
+            hashed_password = str(hashPassword(password_1))  # encrypt password
             query.prepare("UPDATE users SET user_password=? WHERE user_id=?")
             query.addBindValue(hashed_password)
             query.addBindValue(self.user_id)
@@ -871,7 +907,7 @@ class MainApp(QMainWindow, main):
         # if don't passwords match
         else:
             QMessageBox.information(self, 'Error', "Passwords don't match!")
-            
+
         self.change_password_le.clear()
         self.change_password_le_2.clear()
 
@@ -891,10 +927,12 @@ class MainApp(QMainWindow, main):
             self.history_table_model.submitAll()
         else:
             QMessageBox.information(self, 'Error', "No valid input given")
-            
+
         self.add_class_le.clear()
 
     def deleteClass(self):
+        """Deletes existing class that does not have a client in it that has not returned owing books
+        """
         class_name = self.delete_class_le.text().strip().upper()
 
         # if input is given
@@ -909,7 +947,8 @@ class MainApp(QMainWindow, main):
                 print(query.lastError().text())
                 clients = []
                 while query.next():
-                    clients.append(((query.value(0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
+                    clients.append(((query.value(
+                        0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
                 # if owing clients exist
                 print(clients)
                 if clients:
@@ -936,20 +975,22 @@ class MainApp(QMainWindow, main):
                         self, 'Deleted', "Class successfully deleted.")
                     query.exec_(
                         f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Deleted '{class_name}'", "classes")""")
-        
+
                     self.classes_cb_model.submitAll()
                     self.history_table_model.submitAll()
-                    
+
             else:
                 QMessageBox.information(
                     self, 'Error', f"{class_name} does not exists in classes.")
 
         else:
             QMessageBox.information(self, 'Error', "No valid input given")
-            
+
         self.delete_class_le.clear()
-        
+
     def changeClassName(self):
+        """Changes class name of existing class and updates classes of clients that belong to it to the new class name
+        """
         current_class_name = self.current_class_name.text().strip().upper()
         new_class_name = self.new_class_name.text().strip().upper()
 
@@ -969,14 +1010,17 @@ class MainApp(QMainWindow, main):
 
                 self.classes_cb_model.submitAll()
                 self.history_table_model.submitAll()
+
+            # if inputted class doesn't exist
             else:
                 QMessageBox.information(
                     self, 'Error', f"{current_class_name} does not exists in classes.")
 
+        # No valid input given
         else:
             QMessageBox.information(
                 self, 'Error', "No valid input given in one or both input fields.")
-            
+
         self.current_class_name.clear()
         self.new_class_name.clear()
 
@@ -999,6 +1043,9 @@ class MainApp(QMainWindow, main):
             QMessageBox.information(self, 'Error', "No valid input given")
 
     def deleteHouse(self):
+        """Deletes existing house that does not have a client in it that has not returned owing books
+        """
+
         house_name = self.delete_house_le.text().strip().upper()
 
         # if input is given
@@ -1013,7 +1060,8 @@ class MainApp(QMainWindow, main):
                 print(query.lastError().text())
                 clients = []
                 while query.next():
-                    clients.append(((query.value(0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
+                    clients.append(((query.value(
+                        0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
                 # if owing clients exist
                 print(clients)
                 if clients:
@@ -1033,25 +1081,28 @@ class MainApp(QMainWindow, main):
 
                 # if owing clients don't exist
                 else:
-                    query.exec_(f"DELETE FROM houses WHERE house='{house_name}'")
+                    query.exec_(
+                        f"DELETE FROM houses WHERE house='{house_name}'")
                     print('house: ', query.lastError().text())
                     QMessageBox.information(
                         self, 'Deleted', "House successfully deleted.")
                     query.exec_(
                         f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Deleted '{house_name}'", "houses")""")
-                    
+
                     self.houses_cb_model.submitAll()
                     self.history_table_model.submitAll()
             else:
                 QMessageBox.information(
                     self, 'Error', f"{house_name} does not exists in houses.")
-                
+
         else:
             QMessageBox.information(self, 'Error', "No valid input given")
 
         self.delete_house_le.clear()
-        
+
     def changeHouseName(self):
+        """Changes house name of existing house and updates houses of clients that belong to it to the new house name
+        """
         current_house_name = self.current_house_name.text().strip().upper()
         new_house_name = self.new_house_name.text().strip().upper()
 
@@ -1074,32 +1125,34 @@ class MainApp(QMainWindow, main):
             else:
                 QMessageBox.information(
                     self, 'Error', f"{current_house_name} does not exists in houses.")
-                
+
         else:
             QMessageBox.information(
                 self, 'Error', "No valid input given in one or both input fields.")
-            
+
         self.current_house_name.clear()
         self.new_house_name.clear()
 
     def handleButtons(self):
-        """Connects buttons to functions that are invoked when the buttons are triggered"""
-        ######## Close, Minimise, Maximize connections
+        """Connects buttons to functions that are invoked when the buttons are triggered
+        """
+
+        # Close, Minimise, Maximize connections
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
         self.min_btn.clicked.connect(lambda: btn_min_clicked(self))
         self.max_btn.clicked.connect(lambda: btn_max_clicked(self))
         ###################################
-        
-        ######## Permissions Group Box connections
+
+        # Permissions Group Box connections
         self.b_group = QButtonGroup()
         self.b_group.addButton(self.checkBox_21)
         self.b_group.addButton(self.checkBox_22)
         self.b_group.buttonClicked.connect(self.checkPermissions)
         ###################################
-        
-        self.logout_btn.clicked.connect(self.handleLogout) #logout connection
-        
-        ######## Main Tab Buttons' connections
+
+        self.logout_btn.clicked.connect(self.handleLogout)  # logout connection
+
+        # Main Tab Buttons' connections
         self.dashboard_btn.clicked.connect(self.open_dashboard_tab)
         self.books_btn.clicked.connect(self.open_books_tab)
         self.issue_book_btn.clicked.connect(self.open_issue_book_tab)
@@ -1108,7 +1161,7 @@ class MainApp(QMainWindow, main):
         self.settings_btn.clicked.connect(self.open_settings_tab)
         self.users_btn.clicked.connect(self.open_users_tab)
         ###################################
-        
+
         ############Books Tab connections START#############
         self.add_book_btn.clicked.connect(
             lambda: self.addBook(self.formatText(self.book_title_le.text()),
@@ -1133,7 +1186,7 @@ class MainApp(QMainWindow, main):
         self.category_lw.itemClicked.connect(self.categorySelected)
         self.client_record_tv.selectionModel().selectionChanged.connect(self.bookSelected)
         ############Books Tab connections END#############
-        
+
         ############Issue Books Tab connections START#############
         self.lend_book_btn.clicked.connect(
             lambda: self.lendBook(self.formatText(self.book_title_le_3.text()),
@@ -1148,7 +1201,7 @@ class MainApp(QMainWindow, main):
         self.retrieve_book_btn.clicked.connect(
             lambda: self.retrieveBook(self.book_title_category_label.text(), self.quantity_spin_box_4.value()))
         ############Issue Books Tab connections END#############
-        
+
         ############Users Tab connections START#############
         self.password_le_2.textChanged.connect(self.confirmPassword)
         self.password_le.textChanged.connect(self.confirmPassword)
@@ -1166,7 +1219,7 @@ class MainApp(QMainWindow, main):
         self.show_password_cb.stateChanged.connect(
             lambda: self.showPassword(self.password_le, self.password_le_2, self.show_password_cb.checkState()))
         ############Users Tab connections END#############
-         
+
         ############Settings Tab connections START#############
         # user connections
         self.change_username_le.textChanged.connect(
@@ -1192,25 +1245,45 @@ class MainApp(QMainWindow, main):
         ############Settings Tab connections END#############
 
     def handleLogout(self):
+        """closes main window and then shows login window
+        """
+
         self.close()
         login_window.show()
 
     def closeEvent(self, event):
+        """Closes main window and records log out in history table
+        """
+
         query.exec_(
             f"""INSERT INTO history(user_name, [action]) VALUES('{self.username}', 'LOGGED OUT')""")
         event.accept()
 
-    def checkPermissions(self, cb):
+    def checkPermissions(self, cb: QCheckBox):
+        """checks admin or standard permissions
+
+        Args:
+            cb (QCheckBox): admin or standard permissions checkbox
+        """
+
         permissions = self.tab_permissions.findChildren(
             QCheckBox) + self.other_permissions.findChildren(QCheckBox)
+
+        # if admin permissions checkbox is checked, check all permissions
         if cb.text() == 'Admin Permissions':
             for permission in permissions:
                 permission.setChecked(True)
+
+        # if standard permissions checkbox is checked
         elif cb.text() == 'Standard Permissions':
             for permission in permissions:
+
+                # if current permission is an admin permission, don't check it
                 if permission.text() in ['History', 'Users', 'Delete book', 'Create User', 'Delete User',
                                          'Give Permissions']:
                     permission.setChecked(False)
+
+                # if current permission is a standard permission, check it
                 else:
                     permission.setChecked(True)
 
@@ -1230,29 +1303,37 @@ class MainApp(QMainWindow, main):
             self.load_permissions_btn.setEnabled(False)
 
     def loadUserPermssions(self):
+        """Loads permissions of searched user and checks the check boxes respectively
+        """
         username = self.username_le_2.text().strip()
         permissions = self.tab_permissions.findChildren(
             QCheckBox) + self.other_permissions.findChildren(QCheckBox)
 
+        # show searched user's name
         self.permission_gb.setTitle(f"{username}'s permissions")
 
         query.exec_(
             f"""SELECT * FROM user_permissions WHERE user_name='{username}'""")
-        self.username_label.setText(username)
 
-        index = 1
+        index = 1  # does not start from zero becase it is the user's user_name
         while query.next():
             for permission in permissions:
+                # if searched user has permission
                 if query.value(index) == 1:
                     permission.setChecked(True)
+                # if searched user doesn't have permission
                 else:
                     permission.setChecked(False)
-                index += 1
+                index += 1  # next permission
+
         self.username_le_2.clear()
         self.give_permissions_btn.setEnabled(True)
         self.load_permissions_btn.setEnabled(False)
 
     def giveUserPermissions(self):
+        """Gives searched user permission respective of checked user permissions check boxes
+        """
+
         username = self.username_label.text()
         permissions = self.tab_permissions.findChildren(
             QCheckBox) + self.other_permissions.findChildren(QCheckBox)
@@ -1262,31 +1343,50 @@ class MainApp(QMainWindow, main):
         query.addBindValue(username)
 
         for permission in permissions:
+            # if respective user permsission check box is checked, give permission (set True)
             if permission.isChecked():
                 query.addBindValue(1)
+
+            # if respective user permsission check box is unchecked, remove permission (set False)
             else:
                 query.addBindValue(0)
+            # uncheck each permissions after
             permission.setChecked(False)
-        query.exec_()
+        query.exec_()  # commit query
         query.exec_(
             f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "EDITED '{username}' permissions.", "user_permissions")""")
         self.history_table_model.submitAll()
         self.username_label.clear()
-        self.give_permissions_btn.setEnabled(False)
+        self.give_permissions_btn.setEnabled(
+            False)  # disabled give_permissions_btn
         QMessageBox.information(
             self, 'Operation Successful',
             "Permissions applied successfully.\n\nChanges will take effect on user's next login.")
 
     @staticmethod
-    def showPassword(password_le, password_le_2, state):
+    def showPassword(password_le: QLineEdit, password_le_2: QLineEdit, state):
+        """hides both password is show passwordcheck box is unchecked and shows them if it is checked
+
+        Args:
+            password_le (QLineEdit): password line edit
+            password_le_2 (QLineEdit): confirm password lined edit
+            state (_type_): show_password check box state(checked or unchecked)
+        """
+        
+        #if checked, show
         if state == Qt.Checked:
             password_le.setEchoMode(QLineEdit.Normal)
             password_le_2.setEchoMode(QLineEdit.Normal)
+            
+        #if unchecked, hide
         else:
             password_le.setEchoMode(QLineEdit.Password)
             password_le_2.setEchoMode(QLineEdit.Password)
 
     def showUsers(self):
+        """loads all users and shows them in a table
+        """
+        
         self.users_table_model = QSqlTableModel()
         self.users_table_model.setTable('users')
         self.users_tv.setModel(self.users_table_model)
@@ -1298,6 +1398,8 @@ class MainApp(QMainWindow, main):
         self.users_tv.hideColumn(3)
 
     def createUser(self):
+        """Creates user, give them permissions and records the action in the history table
+        """
         name = self.formatText(self.fname_le_3.text()) + \
             " " + self.formatText(self.lname_le_3.text())
         username = self.username_le.text()
@@ -1313,12 +1415,14 @@ class MainApp(QMainWindow, main):
         self.users_table_model.submitAll()
         query.exec_(
             f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "ADDED '{name}, {username}'", "users")""")
+        self.history_table_model.submitAll()
         query.exec_(
             f"INSERT INTO user_permissions VALUES('{username}',1,1,1,1,0,1,0,1,1,0,1,1,1,0,0,0)")
         query.exec_(
             f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "GAVE '{username} Standard permissions'", "user_permissions")""")
-        self.usernames.append(username)
         self.history_table_model.submitAll()
+        self.usernames.append(username)
+        self.increase_dash_val(self.users_val, 1)
         self.fname_le_3.clear()
         self.lname_le_3.clear()
         self.username_le.clear()
@@ -1331,28 +1435,35 @@ class MainApp(QMainWindow, main):
         self.password_le_2.setStyleSheet("border-color: #394453;")
 
     def userSelected(self):
+        """shows the user name of te selected user in username_label line edit
+        """
+        
         row = self.users_tv.currentIndex().row()
         username = self.users_tv.currentIndex().sibling(row, 1).data()
         self.username_label.setText(username)
         self.delete_user_btn.setEnabled(True)
 
     def deleteUser(self):
+        """Removes permissions, deletes user and records the action in the history table
+        """
+        
         username = self.username_label.text()
         response = QMessageBox.warning(
             self, 'Delete User', f'Are you sure you want to delete "{username}?\n\nThis cannot be undone."',
             QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
 
         if response == QMessageBox.Yes:
-            query.exec_(f"DELETE FROM users WHERE user_name='{username}'")
-            self.users_table_model.submitAll()
-            query.exec_(
-                f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "DELETED '{username}'", "users")""")
             query.exec_(
                 f"DELETE FROM user_permissions WHERE user_name='{username}'")
             query.exec_(
                 f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "REMOVED '{username} permissions'", "user_permissions")""")
-            self.usernames.remove(username)
+            query.exec_(f"DELETE FROM users WHERE user_name='{username}'")
+            self.users_table_model.submitAll()
+            query.exec_(
+                f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "DELETED '{username}'", "users")""")
             self.history_table_model.submitAll()
+            self.usernames.remove(username)
+            self.decrease_dash_val(self.users_val, 1)            
             self.username_label.clear()
             self.delete_user_btn.setEnabled(False)
             QMessageBox.information(
@@ -1425,8 +1536,10 @@ class MainApp(QMainWindow, main):
             self.create_user_btn.setEnabled(False)
 
     def confirmCreateUser(self):
-        """Enables the create user button 
+        """Enables the create user button if both both password line edits are filled and match and inputted user name is filled and is 
+        not already taken
         """
+        
         username = self.username_le.text().strip()
         password1 = self.password_le.text()
         password2 = self.password_le_2.text()
@@ -1435,28 +1548,40 @@ class MainApp(QMainWindow, main):
             self.create_user_btn.setEnabled(True)
 
     def open_dashboard_tab(self):
+        #set dashboard tab current tab
         self.main_tab_widget.setCurrentIndex(0)
 
     def open_books_tab(self):
+        #set books tab current tab
         self.main_tab_widget.setCurrentIndex(1)
 
     def open_issue_book_tab(self):
+        #set issue book tab current tab
         self.main_tab_widget.setCurrentIndex(2)
 
     def open_report_tab(self):
+        #set report tab current tab
         self.main_tab_widget.setCurrentIndex(3)
 
     def open_history_tab(self):
+        #set history tab current tab
         self.main_tab_widget.setCurrentIndex(4)
 
     def open_settings_tab(self):
+        #set settings tab current tab
         self.main_tab_widget.setCurrentIndex(5)
 
     def open_users_tab(self):
+        #set users tab current tab
         self.main_tab_widget.setCurrentIndex(6)
 
-    def showBookSearchResults(self, data):
-        self.edit = data
+    def showBookSearchResults(self, data:list):
+        """Show details of searched book
+
+        Args:
+            data (list): [id, title, category, quantity]
+        """
+        self.edit_book_data = data
         self.edit_info_label.setText(f'"{data[0][1]}" found!')
         self.changeProperty(self.edit_info_label, "class",
                             "alert alert-success")
@@ -1522,35 +1647,44 @@ class MainApp(QMainWindow, main):
                     self.showBookSearchResults(data)
                     return ('Try different category', None)
 
-    def addBook(self, book_title, category, quantity):
-        """
-        Adds book and or category to the database if it does not exist.
+    def addBook(self, book_title: str, category: str, quantity: int):
+        """Adds book and or category to the database if it does not exist.
         """
 
-        if book_title == "" or category == "" or quantity == "":
+        #if input field is empty
+        if book_title == "" or category == "":
             QMessageBox.critical(
                 self, 'Invalid Entry', 'Book title is required!', QMessageBox.Ok, QMessageBox.Ok)
+            
+        #if all input fields are filled
         else:
-            res = self.addCategory(category, None)
+            result = self.addCategory(category, None)
             query.exec_(
                 f"INSERT INTO books(book_title, category, quantity) VALUES('{book_title}', '{category}', {quantity})")
 
             self.book_table_model.submitAll()
             self.booksTableSort()
+            
+            #if book already exists
             if query.lastError().isValid():
-                QMessageBox.information(
+                QMessageBox.warning(
                     self, 'Book exists', f'"{book_title}" already exists in "{category}" category', QMessageBox.Ok,
                     QMessageBox.Ok)
 
+            #if book doesn't exist
             else:
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "ADDED '{book_title}, {category}, {quantity}'", "books")""")
                 self.history_table_model.submitAll()
-                if res != 'exists':
+                
+                #if category didn't exists(now it does)
+                if result != 'exists':
                     QMessageBox.information(
                         self, 'Operation Successful',
                         f'"{book_title}" and "{category}" category were successfully added!',
                         QMessageBox.Ok, QMessageBox.Ok)
+                    
+                #if category already existed
                 else:
                     QMessageBox.information(
                         self, 'Operation Successful', f'"{book_title}" was successfully added!', QMessageBox.Ok,
@@ -1625,7 +1759,7 @@ class MainApp(QMainWindow, main):
                     self.history_table_model.submitAll()
                     self.clear_book_entry(
                         self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
-                    self.edit = []  # reset self.edit
+                    self.edit_book_data = []  # reset self.edit_book_data
                     self.updateCategoryList([(None, book_title, None, None)])
                     self.book_table_model.submitAll()  # update all books table
                     self.booksTableSort()  # sort the all books table
@@ -1637,22 +1771,27 @@ class MainApp(QMainWindow, main):
                 self, 'Book Not found', f'"{book_title}" is not in "{category}" category.\n\nTry different category.',
                 QMessageBox.Ok, QMessageBox.Ok)
 
-    def editBook(self, book_title, category, quantity):
-        def completeBookEdit(book_title, category, quantity):
-
+    def editBook(self, book_title: str, category: str, quantity: int):
+        """Edits book data of book data in self.edit_book_data with new data passed as parameters. 
+        a book has to be searched first to edit it.
+        """
+        
+        def completeBookEdit(book_title: str, category: str, quantity: int):
+            """Completes edit book function
+            """
             query.exec_(
-                f"UPDATE books SET book_title='{book_title}', category='{category}', quantity={quantity} WHERE book_id={int(self.edit[0][0])}")
+                f"UPDATE books SET book_title='{book_title}', category='{category}', quantity={quantity} WHERE book_id={int(self.edit_book_data[0][0])}")
+            self.book_table_model.submitAll()
+            self.booksTableSort()
             query.exec_(
                 f"""INSERT INTO history(user_name, [action], [table]) 
-                VALUES("{self.username}", "EDITED FROM '{self.edit[0][1]}, {self.edit[0][2]}, {self.edit[0][3]}' TO '{book_title}, {category}, {quantity}'", "books")""")
+                VALUES("{self.username}", "EDITED FROM '{self.edit_book_data[0][1]}, {self.edit_book_data[0][2]}, {self.edit_book_data[0][3]}' TO '{book_title}, {category}, {quantity}'", "books")""")
             self.history_table_model.submitAll()
             QMessageBox.information(
                 self, 'Changes Successful', 'Book successfully edited!', QMessageBox.Ok, QMessageBox.Ok)
 
-            self.book_table_model.submitAll()
-            self.booksTableSort()
             self.category_cb_model.submitAll()
-            self.edit = []
+            self.edit_book_data = []
             self.clear_book_entry(
                 self.book_title_le_2, self.category_combo_box_2, self.quantity_spin_box_2)
             index = self.category_combo_box.findText("Unknown")
@@ -1663,18 +1802,25 @@ class MainApp(QMainWindow, main):
             self.edit_extra_label.clear()
             self.category_lw.clear()
 
-        if not self.edit:
+        #if no book has been searched
+        if not self.edit_book_data:
             QMessageBox.information(
                 self, 'Search First',
                 'You have not searched for book.\n\nFirst search for book in library to obtain it\'s data before you can edit it.',
                 QMessageBox.Ok, QMessageBox.Ok)
-        elif self.edit == [(int(self.edit[0][0]), book_title, category, quantity)]:
+            
+        #if no changes have been made
+        elif self.edit_book_data == [(int(self.edit_book_data[0][0]), book_title, category, quantity)]:
             QMessageBox.information(
                 self, 'No Change Detected', 'You have not made any change to book',
                 QMessageBox.Ok, QMessageBox.Ok)
+            
+        #if book has been searched and changes have been made
         else:
-            if self.edit[0][2] != category:
+            if self.edit_book_data[0][2] != category:
                 found = self.searchBook(book_title, category)
+                
+                #if book with same title already exists in the inputted category
                 if found is True:
                     QMessageBox.information(
                         self, 'Exists', f'"{book_title}" already exists in "{category}".', QMessageBox.Ok,
@@ -1684,7 +1830,11 @@ class MainApp(QMainWindow, main):
             else:
                 completeBookEdit(book_title, category, quantity)
 
-    def addClient(self, fname, lname, class_, house):
+    def addClient(self, fname: str, lname: str, class_: str, house: str):
+        """creates client if they don't already exist and returns the client's id
+        """
+        
+        #if client input fields  are empty
         if fname == "" or lname == "" or class_ == "" or house == "":
             QMessageBox.information(
                 self, 'Invalid', 'Fill out all entries.', QMessageBox.Ok, QMessageBox.Ok)
@@ -1693,7 +1843,7 @@ class MainApp(QMainWindow, main):
             query.exec_(
                 f"""INSERT INTO clients(client_first_name, client_last_name, client_class, client_house) VALUES('{fname}', '{lname}', '{class_}', '{house}')""")
 
-            # if query is successful
+            # if query is successful(client didn't already exist)
             if query.lastError().isValid() is False:
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "ADDED '{fname} {lname}, {class_}, {house}'", "clients")""")
@@ -1713,11 +1863,20 @@ class MainApp(QMainWindow, main):
                 client_id = query.value(0)
                 return client_id
 
-    def retrieveBook(self, book, quantity):
+    def retrieveBook(self, book: str, quantity: int):
+        """Retrieves books from client
+
+        Args:
+            book (str): "book_title" | "category"
+            quantity (int): book quantity retrieved
+        """
+        
+        #if no book is selected
         if book == "":
             QMessageBox.information(self, 'Book Not Selected',
                                     'You have not selected a book to retrieve.\nFirst search for student, then select a book to retrieve.',
                                     QMessageBox.Ok, QMessageBox.Ok)
+        #if book is selected
         else:
             fname, lname, class_, house = self.client_info_label.text().split('\t')
             book_title, category = book.split(' | ')
@@ -1740,14 +1899,15 @@ class MainApp(QMainWindow, main):
                     returned=(case when quantity-{quantity}=0 then TRUE else FALSE END) 
                     WHERE client_id={client_id} AND book_id={book_id}""")
 
+            #if transaction has already been made today, only insert given quantity
             if self.today_transac_count > 0:
                 query.exec_(
                     f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id)
                     VALUES({client_id}, {book_id}, {quantity}, 'RETRIEVE', {self.user_id})""")
-                self.today_transac_count += 1
+                self.today_transac_count += 1 #increase today's transaction count
 
+            # If no transaction have been performed today, add an obligatory zero quantity transaction of the day
             else:
-                # If no transaction have been performed today, perform transaction and an obligatory zero quantity transaction of day
                 query.exec_(
                     f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id)
                     VALUES({client_id}, {book_id}, {quantity}, 'RETRIEVE', {self.user_id})""")
@@ -1761,8 +1921,9 @@ class MainApp(QMainWindow, main):
 
             self.increase_dash_val(self.retrieved_today_val, quantity)
             self.increase_dash_val(self.total_retrieved_val, quantity)
-            self.decrease_dash_val(self.outstanding_val, quantity)
+            self.decrease_dash_val(self.unretrieved_val, quantity)
             self.book_table_model.submitAll()
+            self.booksTableSort()
             self.setTransactionTableQuery()
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
@@ -1772,20 +1933,32 @@ class MainApp(QMainWindow, main):
             self.chart_view.close()
             self.plotTransactionGraph()  # Recreate graph
 
-    def lendBook(self, book_title, category, quantity):
-        def completeLendBook(book_id, quantity):
+    def lendBook(self, book_title: str, category: str, quantity: int):
+        """Lends book to client. If client doesn't exist, they are created. if client is already owing that book, it added to the owing quantity.if the client has borrowed the book before client's recrds is set to returned=0(False) and quantity is updated
+
+        Args:
+            book_title (str): book title
+            category (str): category
+            quantity (int): quantity
+        """
+        def completeLendBook(book_id: int, quantity: int):
+            """Completes lend book function
+            """
             client_id = self.addClient(self.formatText(self.fname_le.text()), self.formatText(self.lname_le.text()),
                                        self.class_combo_box.currentText(
             ), self.house_combo_box.currentText())
-
+            
+            #if clients now exists(didn't exists and now added), record transaction
             if client_id:
                 query.exec_(
                     f"""INSERT INTO client_records(client_id, book_id, quantity, returned) VALUES({client_id}, {book_id}, {quantity}, FALSE)""")
 
+                #if client has borrowed the same book before
                 if query.lastError().isValid():
                     query.exec_(
                         f"""UPDATE client_records SET quantity=quantity+{quantity}, returned=FALSE WHERE client_id={client_id} AND book_id={book_id}""")
-
+                    
+                #if transaction has already been made today, only insert given quantity
                 if self.today_transac_count > 0:
                     query.exec_(
                         f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id) 
@@ -1793,7 +1966,7 @@ class MainApp(QMainWindow, main):
                     self.today_transac_count += 1
 
                 else:
-                    # If no transaction have been performed today, perform transaction and an obligatory zero quantity transaction of day
+                    # If no transaction have been performed today, add obligatory zero quantity transaction of day
                     query.exec_(
                         f"""INSERT INTO transactions(client_id, book_id, quantity, type, user_id) 
                         VALUES({client_id}, {book_id}, {quantity}, 'LEND', {self.user_id})""")
@@ -1806,10 +1979,10 @@ class MainApp(QMainWindow, main):
                     f"""UPDATE books SET quantity=quantity-{quantity} WHERE book_id={book_id}""")
                 self.increase_dash_val(self.lent_today_val, quantity)
                 self.increase_dash_val(self.total_lent_val, quantity)
-                self.increase_dash_val(self.outstanding_val, quantity)
+                self.increase_dash_val(self.unretrieved_val, quantity)
                 self.book_table_model.submitAll()
-                self.setTransactionTableQuery()
                 self.booksTableSort()
+                self.setTransactionTableQuery()
                 self.clear_book_entry(
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
                 self.clear_client_entry(
@@ -1866,12 +2039,14 @@ class MainApp(QMainWindow, main):
             self.category_combo_box_2.setCurrentIndex(index)
             self.category_combo_box_3.setCurrentIndex(index)
 
+            #if category already exists
             if query.lastError().isValid():
                 if label is not None:
                     label.setText(
                         f'"{category}" category already exists in library.')
                     self.changeProperty(label, "class", "alert alert-warning")
                 return 'exists'
+            
             else:
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "ADDED '{category}'", "categories")""")
@@ -1902,6 +2077,7 @@ class MainApp(QMainWindow, main):
             while query.next():
                 data.append(query.value(0))
 
+            #if category does not exist
             if not data:
                 self.category_info_label.setText(
                     f'"{category}" category does not exist in library.')
