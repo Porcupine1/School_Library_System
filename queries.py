@@ -49,7 +49,7 @@ create_transactions_table_query = '''CREATE TABLE IF NOT EXISTS transactions (
                                     CONSTRAINT book FOREIGN KEY(book_id) REFERENCES books (book_id),
                                     CONSTRAINT client FOREIGN KEY(client_id) REFERENCES clients (client_id),
                                     CONSTRAINT user FOREIGN KEY(user_id) REFERENCES Users (user_id));'''
-                                    
+
 create_categories_table_query = '''CREATE TABLE IF NOT EXISTS categories (
                                 category VARCHAR PRIMARY KEY
                                 );'''
@@ -93,19 +93,27 @@ create_user_permissions_table_query = '''CREATE TABLE IF NOT EXISTS user_permiss
                                             dashboard_tab    BOOLEAN NOT NULL,
                                             books_tab        BOOLEAN NOT NULL,
                                             issue_book_tab   BOOLEAN NOT NULL,
-                                            report_tab       BOOLEAN NOT NULL,
+                                            reports_tab       BOOLEAN NOT NULL,
                                             history_tab      BOOLEAN NOT NULL,
                                             settings_tab     BOOLEAN NOT NULL,
                                             users_tab        BOOLEAN NOT NULL,
-                                            add_book         BOOLEAN NOT NULL,
-                                            edit_book        BOOLEAN NOT NULL,
-                                            delete_book      BOOLEAN NOT NULL,
-                                            add_category     BOOLEAN NOT NULL,
-                                            lend_book        BOOLEAN NOT NULL,
-                                            retrieve_book    BOOLEAN NOT NULL,
-                                            create_user      BOOLEAN NOT NULL,
-                                            delete_user      BOOLEAN NOT NULL,
-                                            give_permissions BOOLEAN NOT NULL,
+                                            books_tab__add_book         BOOLEAN NOT NULL,
+                                            books_tab__edit_book        BOOLEAN NOT NULL,
+                                            books_tab__delete_book      BOOLEAN NOT NULL,
+                                            books_tab__add_category     BOOLEAN NOT NULL,
+                                            issue_book_tab__lend_book        BOOLEAN NOT NULL,
+                                            issue_book_tab__retrieve_book    BOOLEAN NOT NULL,
+                                            history_tab__users_history   BOOLEAN NOT NULL,
+                                            history_tab__transactions_history    BOOLEAN NOT NULL,
+                                            settings_tab__add_class        BOOLEAN NOT NULL,
+                                            settings_tab__delete_class        BOOLEAN NOT NULL,
+                                            settings_tab__change_class_name        BOOLEAN NOT NULL,
+                                            settings_tab__add_house        BOOLEAN NOT NULL,
+                                            settings_tab__delete_house        BOOLEAN NOT NULL,
+                                            settings_tab__change_house_name        BOOLEAN NOT NULL,
+                                            users_tab__create_user      BOOLEAN NOT NULL,
+                                            users_tab__delete_user      BOOLEAN NOT NULL,
+                                            users_tab__give_permissions BOOLEAN NOT NULL,
                                             CONSTRAINT user FOREIGN KEY(user_name)REFERENCES users (user_name)
                                         );'''
 
