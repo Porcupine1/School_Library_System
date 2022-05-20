@@ -389,6 +389,11 @@ class MainApp(QMainWindow, main):
         self.handlePermissions()
         self.username_label_3.setText(self.username)
         centerWindow(self)
+        #make dashboard tab default current tab
+        self.dashboard_btn.setProperty('class', 'current_tab_btn')
+        self.dashboard_btn.style().unpolish(self.dashboard_btn)
+        self.dashboard_btn.style().polish(self.dashboard_btn)
+        self.dashboard_btn.update()
         self.title_bar_pos = 917
         self.setMaximumSize(screen_width, screen_height)
         self.setupHouseComboBox()

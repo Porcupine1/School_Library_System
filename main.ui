@@ -717,7 +717,7 @@
           <bool>false</bool>
          </property>
          <property name="currentIndex">
-          <number>7</number>
+          <number>0</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -3580,7 +3580,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="lend_book_tab">
               <attribute name="title">
@@ -5594,7 +5594,7 @@
            <item>
             <widget class="QTabWidget" name="history_tab_widget">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="users_history_tab">
               <attribute name="title">
@@ -6883,7 +6883,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="all_users_tab">
               <attribute name="title">
