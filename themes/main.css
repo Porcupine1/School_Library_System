@@ -44,7 +44,6 @@ QSpinBox {
 .btn-primary {
     color: #fff;
     background-color: #00FFF5;
-    border-color: #00FFF5;
 }
 
 .btn-primary:hover {
@@ -56,23 +55,20 @@ QSpinBox {
     outline: 0;
 }
 
-.btn-outline-primary {
-    color: #0d6efd;
-    border-color: #0d6efd
-}
-
-.btn-outline-primary:hover {
-    color: #fff;
-    background-color: #0d6efd;
-    border-color: #0d6efd
-}
-
 #main_tabs QPushButton {
     border: 0px;
     border-radius: 5px;
     text-align: left;
     padding: 10px;
-    background-color: #393E46;
+}
+
+.main_tabs{
+    background-color:#282b31;
+}
+
+.current_tab_btn{
+    background-color:#00ADB5;
+    color: #222831;
 }
 
 #title_bar,
@@ -96,7 +92,7 @@ QSpinBox {
 }
 
 #main_tabs QPushButton:hover {
-    background-color: rgba(128, 128, 128, 0.603);
+    background-color: rgba(0, 172, 181, 0.659);
 }
 
 .dash_holder {

@@ -3,4 +3,6 @@
 }
 #login_btn{
     color: #222831;
+    border: 0px;
+    border-radius: 5px;
 }
