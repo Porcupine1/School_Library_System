@@ -164,6 +164,7 @@ class LoginWindow(QWidget, login):
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)
+        self.setWindowTitle('Library login')
         centerWindow(self)
         initializeDatabase()
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -230,6 +231,7 @@ class MainApp(QMainWindow, main):
         QWidget.__init__(self)
         self.setupUi(self)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowTitle('Library')
         self.user_id = user_id
         self.username = username
         self.searched_user = None
@@ -1228,6 +1230,9 @@ class MainApp(QMainWindow, main):
     def handleButtons(self):
         """Connects buttons to functions that are invoked when the buttons are triggered
         """
+        #About
+        
+        self.about_btn.clicked.connect(self.showAbout)
 
         # Close, Minimise, Maximize connections
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
@@ -1337,6 +1342,12 @@ class MainApp(QMainWindow, main):
         self.change_house_name_btn.clicked.connect(self.changeHouseName)
         ############Settings Tab connections END#############
 
+    def showAbout(self):
+        QMessageBox.about(self, 'About', '''<p style='color:deepskyblue; font-weight: bold'>HILLCREST LIBRARY MANAGEMENT SYSTEM</p>
+                                            <p>By:\t <a style='text-decoration: none;'href='https://github.com/Porcupine1'>Thomas Ngulube</a></p>
+                                            <p>Project GitHub repo: <a style='text-decoration: none;'href='https://github.com/Porcupine1/School_Library_System'> Source Code</a> version 1.0</p>
+                                            <p>Blog: <a style='text-decoration: none;'href='https://thomastechjournals.wordpress.com/Porcupine1'>thomastechjournals</a></p>''')
+    
     def handleLogout(self):
         """closes main window and then shows login window
         """
@@ -2249,6 +2260,7 @@ if __name__ == '__main__':
     main_style = main_style.read()
     login_style = login_style.read()
     app.setStyleSheet(main_style + login_style)
+    app.setWindowIcon(QIcon("./icons/app_icon.png"))
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())
