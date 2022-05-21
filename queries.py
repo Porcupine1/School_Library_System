@@ -118,9 +118,9 @@ create_user_permissions_table_query = '''CREATE TABLE IF NOT EXISTS user_permiss
                                         );'''
 
 create_houses_table_query = '''CREATE TABLE IF NOT EXISTS houses (
-                                    house VARCHAR UNIQUE ON CONFLICT IGNORE
+                                    house VARCHAR UNIQUE ON CONFLICT FAIL
                                 );'''
 
 create_classes_table_query = '''CREATE TABLE IF NOT EXISTS classes (
-                                    class VARCHAR UNIQUE ON CONFLICT IGNORE
+                                    class VARCHAR UNIQUE ON CONFLICT FAIL
                                 );'''
