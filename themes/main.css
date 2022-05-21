@@ -12,7 +12,7 @@ QSpinBox {
     padding-left: 10px;
 }
 
-#edit_extra_label{
+#edit_extra_label {
     padding-left: 10px;
 }
 
@@ -62,12 +62,12 @@ QSpinBox {
     padding: 10px;
 }
 
-.main_tabs{
-    background-color:#282b31;
+.main_tabs {
+    background-color: #282b31;
 }
 
-.current_tab_btn{
-    background-color:#00ADB5;
+.current_tab_btn {
+    background-color: #00ADB5;
     color: #222831;
 }
 
@@ -143,11 +143,11 @@ QTabBar::tab:selected {
     padding: 5px;
 }
 
-.settings_header{
+.settings_header {
     font-size: 20px;
 }
 
-QFrame[frameShape="4"]{
+QFrame[frameShape="4"] {
     background-color: #00FFF5;
     border: 0px;
 }
