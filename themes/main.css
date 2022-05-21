@@ -113,7 +113,8 @@ QSpinBox {
 #books_tab_widget::pane,
 #books_tab_widget_2::pane,
 #history_tab_widget::pane,
-#users_tab_widget::pane {
+#users_tab_widget::pane,
+#report_tab_widget::pane {
     border: 0px;
     top: -1px;
     background-color: #303946;

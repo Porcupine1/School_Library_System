@@ -57,7 +57,7 @@ def initializeDatabase() -> None:
     # check for classes in classes table
     query.exec_('SELECT COUNT(*) FROM classes')
     # if no class in classes table, insert default ones from classes.txt
-    if not query.next():
+    if query.next() and query.value(0) == 0:
         with open('classes.txt') as fh:
             classes = fh.readlines()
             for class_ in classes:
@@ -68,7 +68,7 @@ def initializeDatabase() -> None:
     # check for houses in houses table
     query.exec_('SELECT COUNT(*) FROM houses')
     # if no house in houses table, insert default ones from houses.txt
-    if not query.next():
+    if query.next() and query.value(0) == 0:
         with open('houses.txt') as fh:
             houses = fh.readlines()
             for house in houses:
@@ -408,6 +408,7 @@ class MainApp(QMainWindow, main):
         self.setupCategoryComboBox()
         self.setupBooksTableView()
         self.setupClientRecordView()
+        self.setupAllClientRecordsView()
         self.showUsers()
         self.showHistory()
         self.plotTransactionGraph()
@@ -483,6 +484,13 @@ class MainApp(QMainWindow, main):
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
                 child.setText(0, child_text.replace('_', ' ').title())
                 child.setCheckState(0, Qt.Unchecked)
+                
+        #Table header shadow
+        table_headers = self.findChildren(QHeaderView)
+        for header in table_headers:
+            shadow = QGraphicsDropShadowEffect(
+                blurRadius=15, xOffset=0, yOffset=5, color=QColor('black'))
+            header.setGraphicsEffect(shadow)
 
     def handlePermissions(self):
         """Checks user's permissions to appropriately to alter what is accessible by the user.
@@ -691,7 +699,16 @@ class MainApp(QMainWindow, main):
         self.client_record_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         for column_hidden in (0, 1, 2, 3):
             self.client_record_tv.hideColumn(column_hidden)
-
+            
+    def setupAllClientRecordsView(self):
+        """Creates table to load clients' records."""
+        self.client_record_table_model = QSqlTableModel()
+        self.client_record_table_model.setTable('client_record_vw')
+        self.client_record_tv_2.setModel(self.client_record_table_model)
+        self.client_record_tv_2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.client_record_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
+        self.client_record_tv_2.hideColumn(7)
+        
     def updateCategoryList(self, data: list):
         """Updates the list of categories of book searched by user
 
@@ -853,7 +870,7 @@ class MainApp(QMainWindow, main):
 
         self.chart_view = QChartView(self.chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
-        self.report_layout.addWidget(self.chart_view)
+        self.graph_layout.addWidget(self.chart_view)
 
     def categorySelected(self):
         """Searches for a book of the category selected. User can only select 
@@ -2117,6 +2134,7 @@ class MainApp(QMainWindow, main):
             self.decrease_dash_val(self.unretrieved_val, quantity)
             self.book_table_model.submitAll()
             self.booksTableSort()
+            self.client_record_table_model.setQuery("SELECT * FROM client_record_vw WHERE returned=0")
             self.setTransactionTableQuery()
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
@@ -2177,6 +2195,7 @@ class MainApp(QMainWindow, main):
                 self.book_table_model.submitAll()
                 self.booksTableSort()
                 self.setTransactionTableQuery()
+                self.client_record_table_model.setQuery('SELECT * FROM client_record_vw WHERE returned=0')
                 self.clear_book_entry(
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
                 self.clear_client_entry(
