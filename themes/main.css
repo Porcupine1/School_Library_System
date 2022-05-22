@@ -80,15 +80,15 @@ QSpinBox {
 }
 
 #close_btn:hover {
-    background-color: red;
+    background-color: crimson;
 }
 
 #min_btn:hover {
-    background-color: rgb(0, 148, 0);
+    background-color: #006469;
 }
 
 #max_btn:hover {
-    background-color: rgb(0, 148, 0);
+    background-color: #006469;
 }
 
 #main_tabs QPushButton:hover {
