@@ -6392,86 +6392,6 @@
              </property>
             </spacer>
            </item>
-           <item row="5" column="4" colspan="3">
-            <widget class="QLineEdit" name="delete_class_le">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>120</green>
-                   <blue>215</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="5">
             <widget class="QLabel" name="label_11">
              <property name="palette">
@@ -6660,86 +6580,6 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="4" colspan="3">
-            <widget class="QLineEdit" name="delete_house_le">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>120</green>
-                   <blue>215</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="3">
             <spacer name="horizontalSpacer_19">
              <property name="orientation">
@@ -6854,86 +6694,6 @@
              </property>
              <property name="text">
               <string>Change Class Name</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="4">
-            <widget class="QLineEdit" name="current_class_name">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>120</green>
-                   <blue>215</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
              </property>
             </widget>
            </item>
@@ -7452,86 +7212,6 @@
              <property name="icon">
               <iconset resource="icons.qrc">
                <normaloff>:/icons/icons/delete.png</normaloff>:/icons/icons/delete.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="10" column="4">
-            <widget class="QLineEdit" name="current_house_name">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>255</green>
-                   <blue>245</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="Highlight">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>120</green>
-                   <blue>215</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-                <colorrole role="HighlightedText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>34</red>
-                   <green>40</green>
-                   <blue>49</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
              </property>
             </widget>
            </item>
@@ -8165,6 +7845,70 @@
              </property>
              <property name="class" stdset="0">
               <string>settings_header</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="4" colspan="3">
+            <widget class="QComboBox" name="delete_class_cb">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="4">
+            <widget class="QComboBox" name="current_class_name_cb">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="4" colspan="3">
+            <widget class="QComboBox" name="delete_house_cb">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="4">
+            <widget class="QComboBox" name="current_house_name_cb">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -11799,10 +11543,7 @@
   <tabstop>history_tab_widget</tabstop>
   <tabstop>history_tv</tabstop>
   <tabstop>add_category_btn</tabstop>
-  <tabstop>delete_class_le</tabstop>
   <tabstop>fname_le</tabstop>
-  <tabstop>delete_house_le</tabstop>
-  <tabstop>current_class_name</tabstop>
   <tabstop>add_house_le</tabstop>
   <tabstop>category_combo_box_3</tabstop>
   <tabstop>books_tab_widget_2</tabstop>
@@ -11811,7 +11552,6 @@
   <tabstop>add_house_btn</tabstop>
   <tabstop>change_class_name_btn</tabstop>
   <tabstop>delete_house_btn</tabstop>
-  <tabstop>current_house_name</tabstop>
   <tabstop>delete_class_btn</tabstop>
   <tabstop>quantity_spin_box_3</tabstop>
   <tabstop>book_title_le_3</tabstop>
