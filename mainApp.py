@@ -21,6 +21,16 @@ from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
 from queries import *
 
 
+basedir = os.path.dirname(__file__)
+
+try:
+    from ctypes import windll  # Only exists on Windows.
+    myappid = 'thomasjournals.Library.1.0'
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except ImportError:
+    pass
+
+
 def initializeDatabase() -> None:
     """
     * Creates tables  (users, books, transactions, categories) if database was did not exist.\n
@@ -129,7 +139,7 @@ def btn_max_clicked(self):
     """
     # if window is maximized, restore down
     if self.isMaximized():
-        self.max_btn.setIcon(QIcon(QPixmap("./icons/maximize.png")))
+        self.max_btn.setIcon(QIcon(QPixmap(os.path.join(basedir, "icons/maximize.png"))))
         self.showNormal()
         self.title_bar_2.resize(self.widget_2.width(), 40)
         self.title_bar.move(self.title_bar_pos, 0)
@@ -139,7 +149,7 @@ def btn_max_clicked(self):
         QPushButton().setIcon(QIcon())
         self.title_bar.move(screen_width - 283, 0)
         self.title_bar_2.resize(screen_width - 178, 40)
-        self.max_btn.setIcon(QIcon(QPixmap("./icons/restore_down.png")))
+        self.max_btn.setIcon(QIcon(QPixmap(os.path.join(basedir, "icons/restore_down.png"))))
         self.showMaximized()
 
 
@@ -478,7 +488,7 @@ class MainApp(QMainWindow, main):
                                 Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
             # remove the last four characters (_tab)
             parent.setIcon(
-                0, QIcon(QPixmap(f"./icons/{parent_text[:-4]}.png")))
+                0, QIcon(QPixmap(os.path.join(basedir, f"icons/{parent_text[:-4]}.png"))))
             for child_text in children_text:
                 child = QTreeWidgetItem(parent)
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
@@ -660,8 +670,8 @@ class MainApp(QMainWindow, main):
         self.book_table_model.setRelation(self.book_table_model.fieldIndex('category'), QSqlRelation(
             'categories', 'category', 'category'))
         self.all_books_table_view.setModel(self.book_table_model)
-        self.all_books_table_view.horizontalHeader(
-        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.all_books_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.all_books_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.book_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.all_books_table_view.hideColumn(0)
         self.booksTableSort()
@@ -686,8 +696,8 @@ class MainApp(QMainWindow, main):
         self.transactions_table_model = QSqlTableModel()
         self.transactions_table_view.setModel(self.transactions_table_model)
         self.setTransactionTableQuery()
-        self.transactions_table_view.horizontalHeader(
-        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.transactions_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.transactions_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.transactions_table_model.setEditStrategy(
             QSqlTableModel.OnManualSubmit)
 
@@ -697,16 +707,18 @@ class MainApp(QMainWindow, main):
         self.client_record_table_model.setTable('client_record_vw')
         self.client_record_tv.setModel(self.client_record_table_model)
         self.client_record_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.client_record_tv.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         for column_hidden in (0, 1, 2, 3):
             self.client_record_tv.hideColumn(column_hidden)
             
     def setupAllClientRecordsView(self):
         """Creates table to load clients' records."""
-        self.client_record_table_model = QSqlTableModel()
-        self.client_record_table_model.setTable('client_record_vw')
-        self.client_record_tv_2.setModel(self.client_record_table_model)
+        self.clients_records_table_model = QSqlTableModel()
+        self.clients_records_table_model.setTable('client_record_vw')
+        self.client_record_tv_2.setModel(self.clients_records_table_model)
         self.client_record_tv_2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.client_record_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
+        self.client_record_tv_2.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.clients_records_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
         self.client_record_tv_2.hideColumn(7)
         
     def updateCategoryList(self, data: list):
@@ -732,8 +744,8 @@ class MainApp(QMainWindow, main):
         self.history_table_model = QSqlTableModel()
         self.history_table_model.setTable('history')
         self.history_tv.setModel(self.history_table_model)
-        self.history_tv.horizontalHeader(
-        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.history_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.history_tv.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         column = self.history_table_model.fieldIndex('datetime')
         self.history_table_model.setSort(column, Qt.DescendingOrder)
         self.history_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
@@ -1391,7 +1403,7 @@ class MainApp(QMainWindow, main):
         QMessageBox.about(self, 'About', '''<p style='color:#13589e; font-size: 14px; font-weight: bold'>HILLCREST LIBRARY MANAGEMENT SYSTEM</p>
                                             <p>By:\t <a style='text-decoration: none;'href='https://github.com/Porcupine1'>Thomas Ngulube</a></p>
                                             <p>Project GitHub repo: <a style='text-decoration: none;'href='https://github.com/Porcupine1/School_Library_System'> Source Code</a> version 1.0</p>
-                                            <p>Blog: <a style='text-decoration: none;'href='https://thomastechjournals.wordpress.com/Porcupine1'>thomastechjournals</a></p>''')
+                                            <p>Blog: <a style='text-decoration: none;'href='https://thomasngulube.wordpress.com'>thomasngulube.wordpress.com</a></p>''')
     
     def handleLogout(self):
         """closes main window and then shows login window
@@ -1551,8 +1563,8 @@ class MainApp(QMainWindow, main):
         self.users_table_model = QSqlTableModel()
         self.users_table_model.setTable('users')
         self.users_tv.setModel(self.users_table_model)
-        self.users_tv.horizontalHeader(
-        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.users_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.users_tv.verticalalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.users_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.users_table_model.select()
         self.users_tv.hideColumn(0)
@@ -2134,7 +2146,7 @@ class MainApp(QMainWindow, main):
             self.decrease_dash_val(self.unretrieved_val, quantity)
             self.book_table_model.submitAll()
             self.booksTableSort()
-            self.client_record_table_model.setQuery("SELECT * FROM client_record_vw WHERE returned=0")
+            self.clients_records_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
             self.setTransactionTableQuery()
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
@@ -2195,7 +2207,7 @@ class MainApp(QMainWindow, main):
                 self.book_table_model.submitAll()
                 self.booksTableSort()
                 self.setTransactionTableQuery()
-                self.client_record_table_model.setQuery('SELECT * FROM client_record_vw WHERE returned=0')
+                self.clients_records_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
                 self.clear_book_entry(
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
                 self.clear_client_entry(
@@ -2235,6 +2247,7 @@ class MainApp(QMainWindow, main):
                                                     <p>Do you want to get all of them?</p>""",
                                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                 if response == QMessageBox.Yes:
+                    print("collect all")
                     quantity = int(data['quantity'])
                     completeLendBook(int(data['book_id']), quantity)
 
@@ -2314,7 +2327,7 @@ class MainApp(QMainWindow, main):
 
 if __name__ == '__main__':
     database = QSqlDatabase.addDatabase("QSQLITE")
-    database.setDatabaseName("Library.db")
+    database.setDatabaseName(os.path.join(basedir, "Library.db"))
 
     if not database.open():
         print("Unable to open data source file.")
@@ -2324,12 +2337,12 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     screen_width = QDesktopWidget().screenGeometry().width()
     screen_height = QDesktopWidget().screenGeometry().height()
-    main_style = open('themes/main.css', 'r')
-    login_style = open('themes/login.css', 'r')
+    main_style = open(os.path.join(basedir, 'themes/main.css'), 'r')
+    login_style = open(os.path.join(basedir, 'themes/login.css'), 'r')
     main_style = main_style.read()
     login_style = login_style.read()
     app.setStyleSheet(main_style + login_style)
-    app.setWindowIcon(QIcon("./icons/app_icon.png"))
+    app.setWindowIcon(QIcon(os.path.join(basedir, "icons/app_icon.png")))
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())

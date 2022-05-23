@@ -4956,6 +4956,9 @@
                  <attribute name="horizontalHeaderStretchLastSection">
                   <bool>false</bool>
                  </attribute>
+                 <attribute name="verticalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
                 </widget>
                </item>
                <item row="4" column="1">
@@ -6190,7 +6193,7 @@
                   </palette>
                  </property>
                  <property name="sizeAdjustPolicy">
-                  <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+                  <enum>QAbstractScrollArea::AdjustToContents</enum>
                  </property>
                  <property name="editTriggers">
                   <set>QAbstractItemView::NoEditTriggers</set>
