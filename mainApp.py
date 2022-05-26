@@ -15,7 +15,7 @@ from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
 from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QHeaderView, QLabel, QLineEdit, QMainWindow,
                              QMessageBox, QPushButton, QWidget, QCompleter, QCheckBox,
-                             QTreeWidgetItemIterator, QTreeWidgetItem, QGraphicsDropShadowEffect, 
+                             QTreeWidgetItemIterator, QTreeWidgetItem, QGraphicsDropShadowEffect,
                              QFrame, QSpinBox, QComboBox)
 from threading import Timer
 
@@ -140,7 +140,8 @@ def btn_max_clicked(self):
     """
     # if window is maximized, restore down
     if self.isMaximized():
-        self.max_btn.setIcon(QIcon(QPixmap(os.path.join(basedir, "icons/maximize.png"))))
+        self.max_btn.setIcon(
+            QIcon(QPixmap(os.path.join(basedir, "icons/maximize.png"))))
         self.showNormal()
         self.title_bar_2.resize(self.widget_2.width(), 40)
         self.title_bar.move(self.title_bar_pos, 0)
@@ -150,7 +151,8 @@ def btn_max_clicked(self):
         QPushButton().setIcon(QIcon())
         self.title_bar.move(screen_width - 283, 0)
         self.title_bar_2.resize(screen_width - 178, 40)
-        self.max_btn.setIcon(QIcon(QPixmap(os.path.join(basedir, "icons/restore_down.png"))))
+        self.max_btn.setIcon(
+            QIcon(QPixmap(os.path.join(basedir, "icons/restore_down.png"))))
         self.showMaximized()
 
 
@@ -402,7 +404,7 @@ class MainApp(QMainWindow, main):
         self.handlePermissions()
         self.username_label_3.setText(self.username)
         centerWindow(self)
-        #make dashboard tab default current tab
+        # make dashboard tab default current tab
         self.dashboard_btn.setProperty('class', 'current_tab_btn')
         self.dashboard_btn.style().unpolish(self.dashboard_btn)
         self.dashboard_btn.style().polish(self.dashboard_btn)
@@ -499,8 +501,8 @@ class MainApp(QMainWindow, main):
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
                 child.setText(0, child_text.replace('_', ' ').title())
                 child.setCheckState(0, Qt.Unchecked)
-                
-        #Table header shadow
+
+        # Table header shadow
         table_headers = self.findChildren(QHeaderView)
         for header in table_headers:
             shadow = QGraphicsDropShadowEffect(
@@ -512,13 +514,20 @@ class MainApp(QMainWindow, main):
         """
 
         permission_affectees = [(self.dashboard_btn, self.dashboard_tab), (self.books_btn, self.books_tab), self.add_book_tab,
-                                self.edit_book_btn, self.delete_book_btn, self.add_category_btn, (self.issue_book_btn, self.issue_book_tab),
-                                self.lend_book_tab, self.retrieve_book_btn, (self.report_btn, self.report_tab), (self.history_btn, self.history_tab),
-                                self.users_history_tab, self.transactions_history_tab, (self.settings_btn, self.settings_tab), 
-                                (self.add_class_btn, self.add_class_le, self.add_class_label), (self.delete_class_btn, self.delete_class_cb, self.deleted_class_label),
-                                (self.change_class_name_btn, (self.new_class_name, self.current_class_name_cb), self.change_class_name_label),
-                                (self.add_house_btn, self.add_house_le, self.add_house_label), (self.delete_house_btn, self.delete_house_cb, self.delete_house_label),
-                                (self.change_house_name_btn, (self.new_house_name, self.current_house_name_cb), self.change_house_labe), (self.users_btn, self.users_tab),
+                                self.edit_book_btn, self.delete_book_btn, self.add_category_btn, (
+                                    self.issue_book_btn, self.issue_book_tab),
+                                self.lend_book_tab, self.retrieve_book_btn, (
+                                    self.report_btn, self.report_tab), (self.history_btn, self.history_tab),
+                                self.users_history_tab, self.transactions_history_tab, (
+                                    self.settings_btn, self.settings_tab),
+                                (self.add_class_btn, self.add_class_le, self.add_class_label), (
+                                    self.delete_class_btn, self.delete_class_cb, self.deleted_class_label),
+                                (self.change_class_name_btn, (self.new_class_name,
+                                 self.current_class_name_cb), self.change_class_name_label),
+                                (self.add_house_btn, self.add_house_le, self.add_house_label), (
+                                    self.delete_house_btn, self.delete_house_cb, self.delete_house_label),
+                                (self.change_house_name_btn, (self.new_house_name, self.current_house_name_cb),
+                                 self.change_house_labe), (self.users_btn, self.users_tab),
                                 self.create_user_tab, self.delete_user_btn, self.permissions_tab]
 
         query.exec_(
@@ -539,22 +548,26 @@ class MainApp(QMainWindow, main):
                         try:
                             permission_affectee.setEnabled(False)
                         except:
-                            label_index = len(permission_affectee) - 1 #last element is a label, this stores the index
+                            # last element is a label, this stores the index
+                            label_index = len(permission_affectee) - 1
                             for index_, widget in enumerate(permission_affectee):
                                 if index_ == label_index:
-                                    widget.setStyleSheet("color: grey") #change color of label
+                                    # change color of label
+                                    widget.setStyleSheet("color: grey")
                                 else:
-                                    #when a tuple is encountered
+                                    # when a tuple is encountered
                                     try:
                                         widget.setEnabled(False)
-                                        #if widget is a line edit
+                                        # if widget is a line edit
                                         if isinstance(widget, QLineEdit) or isinstance(widget, QComboBox):
-                                            widget.setStyleSheet("background-color: grey; border-color: grey")
-                                            
+                                            widget.setStyleSheet(
+                                                "background-color: grey; border-color: grey")
+
                                     except:
                                         for each in widget:
                                             each.setEnabled(False)
-                                            each.setStyleSheet("background-color: grey; border-color: grey")
+                                            each.setStyleSheet(
+                                                "background-color: grey; border-color: grey")
 
                 index += 1
 
@@ -648,7 +661,7 @@ class MainApp(QMainWindow, main):
         self.class_combo_box_2.setModel(self.classes_cb_model)
         self.delete_class_cb.setModel(self.classes_cb_model)
         self.current_class_name_cb.setModel(self.classes_cb_model)
-        
+
     def updateClassComboBoxes(self):
         """submits manual changes and set combobox current index to -1
         """
@@ -671,7 +684,7 @@ class MainApp(QMainWindow, main):
         self.house_combo_box_2.setModel(self.houses_cb_model)
         self.delete_house_cb.setModel(self.houses_cb_model)
         self.current_house_name_cb.setModel(self.houses_cb_model)
-        
+
     def updateHouseComboBoxes(self):
         """submits manual changes and set combobox current index to -1
         """
@@ -697,8 +710,10 @@ class MainApp(QMainWindow, main):
         self.book_table_model.setRelation(self.book_table_model.fieldIndex('category'), QSqlRelation(
             'categories', 'category', 'category'))
         self.all_books_table_view.setModel(self.book_table_model)
-        self.all_books_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.all_books_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.all_books_table_view.horizontalHeader(
+        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.all_books_table_view.verticalHeader(
+        ).setSectionResizeMode(QHeaderView.ResizeToContents)
         self.book_table_model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.all_books_table_view.hideColumn(0)
         self.booksTableSort()
@@ -723,8 +738,10 @@ class MainApp(QMainWindow, main):
         self.transactions_table_model = QSqlTableModel()
         self.transactions_table_view.setModel(self.transactions_table_model)
         self.setTransactionTableQuery()
-        self.transactions_table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.transactions_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.transactions_table_view.horizontalHeader(
+        ).setSectionResizeMode(QHeaderView.Stretch)
+        self.transactions_table_view.verticalHeader(
+        ).setSectionResizeMode(QHeaderView.ResizeToContents)
         self.transactions_table_model.setEditStrategy(
             QSqlTableModel.OnManualSubmit)
 
@@ -734,20 +751,23 @@ class MainApp(QMainWindow, main):
         self.client_record_table_model.setTable('client_record_vw')
         self.client_record_tv.setModel(self.client_record_table_model)
         self.client_record_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.client_record_tv.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.client_record_tv.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
         for column_hidden in (0, 1, 2, 3):
             self.client_record_tv.hideColumn(column_hidden)
-            
+
     def setupAllClientRecordsView(self):
         """Creates table to load clients' records."""
         self.clients_records_table_model = QSqlTableModel()
         self.clients_records_table_model.setTable('client_record_vw')
         self.client_record_tv_2.setModel(self.clients_records_table_model)
         self.client_record_tv_2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.client_record_tv_2.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.clients_records_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
+        self.client_record_tv_2.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self.clients_records_table_model.setQuery(
+            QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
         self.client_record_tv_2.hideColumn(7)
-        
+
     def updateCategoryList(self, data: list):
         """Updates the list of categories of book searched by user
 
@@ -792,15 +812,19 @@ class MainApp(QMainWindow, main):
     def showClientRecord(self, fname: str, lname: str, class_: str, house: str):
         """Loads and displays books a client has not returned
         """
+        if fname == "" or lname == "" or class_ == "" or house == "":
+            QMessageBox.warning(
+                self, 'Invalid', "<p style='color:#842029; font-size: 13px;'>Fill out all entries.</p>", QMessageBox.Ok, QMessageBox.Ok)
 
-        self.client_info_label.setText(
-            f"{fname}\t{lname}\t{class_}\t{house}")  # Displays client information
+        else:
+            self.client_info_label.setText(
+                f"{fname}\t{lname}\t{class_}\t{house}")  # Displays client information
 
-        for column_hidden in (0, 1, 2, 3):
-            self.client_record_tv.setColumnHidden(
-                column_hidden, False)  # Hides unnecessary columns
+            for column_hidden in (0, 1, 2, 3):
+                self.client_record_tv.setColumnHidden(
+                    column_hidden, False)  # Hides unnecessary columns
 
-        self.setClientRecordTableQuery(fname, lname, class_, house)
+            self.setClientRecordTableQuery(fname, lname, class_, house)
 
     @staticmethod
     def formatText(text: str) -> str:
@@ -950,7 +974,6 @@ class MainApp(QMainWindow, main):
                 "border-color: orange;")  # set border color to red
 
         else:
-            self.changeProperty(self.username_taken_l, "class", None)
             self.change_username_le.setStyleSheet("border-color: lime;")
 
     def changeUsername(self):
@@ -972,20 +995,25 @@ class MainApp(QMainWindow, main):
             else:
                 query.exec_(
                     f"UPDATE users SET user_name='{new_username}' WHERE user_id={self.user_id}")
+                self.username = new_username
+                query.exec_(
+                    f"""INSERT INTO history(user_name, [action], [table]) VALUES("{old_username}", "Changed username to '{self.username}'", "users")""")
+                query.exec_(
+                    f"UPDATE user_permissions SET user_name='{new_username}' WHERE user_name='{old_username}'")
+                query.exec_(
+                    f"""INSERT INTO history(user_name, [action], [table]) VALUES("{old_username}", "Changed username to '{self.username}'", "user_permissions")""")
 
                 self.change_username_le.setPlaceholderText(new_username)
                 self.username_label_3.setText(new_username)
-                self.username = new_username
                 self.usernames[self.usernames.index(
                     old_username)] = new_username
-                query.exec_(
-                    f"""INSERT INTO history(user_name, [action], [table]) VALUES("{old_username}", "Changed user_name to '{self.username}'", "users")""")
                 self.history_table_model.submitAll()
 
                 QMessageBox.information(
                     self, 'Changed', "<p style='color:#2020e6; font-size: 13px;'>Successfully Changed username.</p>")
         else:
-            QMessageBox.warning(self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
+            QMessageBox.warning(
+                self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
 
         self.change_username_le.clear()
         self.change_username_le.setStyleSheet("border-color: #394453;")
@@ -1039,7 +1067,8 @@ class MainApp(QMainWindow, main):
 
         # if don't passwords match
         else:
-            QMessageBox.warning(self, 'Error', "<p style='color:#842029; font-size: 13px;'>Passwords don't match!</p>")
+            QMessageBox.warning(
+                self, 'Error', "<p style='color:#842029; font-size: 13px;'>Passwords don't match!</p>")
 
         self.change_password_le.clear()
         self.change_password_le_2.clear()
@@ -1052,20 +1081,22 @@ class MainApp(QMainWindow, main):
         # if input is given
         if class_name:
             query.exec_(f"INSERT INTO classes VALUES('{class_name}')")
-            #if class already exists
+            # if class already exists
             if query.lastError().isValid():
-                    QMessageBox.critical(
-                        self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change class name.</p>
+                QMessageBox.critical(
+                    self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change class name.</p>
                                             <p><span style='color:#13589e'>{class_name}</span> already exists.</p>""")
             else:
-                QMessageBox.information(self, 'Added', "<p style='color:#2020e6; font-size: 13px;'>Class successfully added.</p>")
+                QMessageBox.information(
+                    self, 'Added', "<p style='color:#2020e6; font-size: 13px;'>Class successfully added.</p>")
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Added '{class_name}'", "classes")""")
 
                 self.updateClassComboBoxes()
                 self.history_table_model.submitAll()
         else:
-            QMessageBox.warning(self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
+            QMessageBox.warning(
+                self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
 
         self.add_class_le.clear()
 
@@ -1076,35 +1107,35 @@ class MainApp(QMainWindow, main):
 
         # if input is given
         if class_name:
-            
+
             # check if any client from inputted class has not returned books
             query.exec_(
                 f"SELECT FIRST_NAME, LAST_NAME, CLASS, HOUSE from client_record_vw WHERE class='{class_name}' AND returned=0")
             print(query.lastError().text())
             clients = []
             while query.next():
-                    clients.append(((query.value(
-                        0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
+                clients.append(((query.value(
+                    0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
             # if owing clients exist
             print(clients)
             if clients:
-                    num_left = len(clients) - 2
-                    if num_left > 0:
-                        # only display two clients of many that haven't returned the book
-                        QMessageBox.information(
-                            self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
+                num_left = len(clients) - 2
+                if num_left > 0:
+                    # only display two clients of many that haven't returned the book
+                    QMessageBox.information(
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
                                                 <p style='color:#13589e'>{', '.join(clients[:2])} and {num_left} more.</p>
                                                 <p>Can't delete this class.</p>""")
-                    elif num_left == 0:
-                        # display the two clients that haven't returned the book
-                        QMessageBox.information(
-                            self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
+                elif num_left == 0:
+                    # display the two clients that haven't returned the book
+                    QMessageBox.information(
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
                                                 <p style='color:#13589e'>{' and '.join(clients)}.</p>
                                                 <p>Can't delete this class.</p>""")
-                    else:
-                        # display the client that hasn't returned the book
-                        QMessageBox.information(
-                            self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing client from <span style='color:#13589e'>{class_name}</span> has unreturned books:</p>
+                else:
+                    # display the client that hasn't returned the book
+                    QMessageBox.information(
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing client from <span style='color:#13589e'>{class_name}</span> has unreturned books:</p>
                                                 <p style='color:#13589e'>{''.join(clients)}.</p>
                                                 <p>Can't delete this class.</p>""")
 
@@ -1122,7 +1153,8 @@ class MainApp(QMainWindow, main):
                 self.history_table_model.submitAll()
 
         else:
-            QMessageBox.warning(self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
+            QMessageBox.warning(
+                self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
 
         self.delete_class_cb.setCurrentIndex(-1)
 
@@ -1134,27 +1166,27 @@ class MainApp(QMainWindow, main):
 
         # if input fields are filled out
         if new_class_name and current_class_name:
-            
+
             query.exec_(
                 f"UPDATE classes SET class='{new_class_name}' WHERE class='{current_class_name}'")
             print(query.lastError().text())
 
             # if class unique constraint error(class already exists)
             if query.lastError().isValid():
-                    QMessageBox.critical(
-                        self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change house name.</p>
+                QMessageBox.critical(
+                    self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change house name.</p>
                                             <p><span style='color:#13589e'>{new_class_name}</span> already exists.</p>""")
             else:
-                    # manual cascade on update
-                    query.exec_(
-                        f"UPDATE clients SET client_class='{new_class_name}' WHERE client_class='{current_class_name}'")
-                    QMessageBox.information(
-                        self, 'Changed', "<p style='color:#2020e6; font-size: 13px;'>Class name successfully changed.</p>")
-                    query.exec_(
-                        f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Changed '{current_class_name}' to '{new_class_name}'", "classes")""")
+                # manual cascade on update
+                query.exec_(
+                    f"UPDATE clients SET client_class='{new_class_name}' WHERE client_class='{current_class_name}'")
+                QMessageBox.information(
+                    self, 'Changed', "<p style='color:#2020e6; font-size: 13px;'>Class name successfully changed.</p>")
+                query.exec_(
+                    f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Changed '{current_class_name}' to '{new_class_name}'", "classes")""")
 
-                    self.updateClassComboBoxes()
-                    self.history_table_model.submitAll()
+                self.updateClassComboBoxes()
+                self.history_table_model.submitAll()
 
         # No valid input given
         else:
@@ -1173,19 +1205,21 @@ class MainApp(QMainWindow, main):
         if house_name:
             query.exec_(f"INSERT INTO houses VALUES('{house_name}')")
             if query.lastError().isValid():
-                    QMessageBox.critical(
-                        self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change house name.</p>
+                QMessageBox.critical(
+                    self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change house name.</p>
                                             <p><span style='color:#13589e'>{house_name}</span> already exists.</p>""")
             else:
-                QMessageBox.information(self, 'Added', "<p style='color:#2020e6; font-size: 13px;'>House successfully added.</p>")
+                QMessageBox.information(
+                    self, 'Added', "<p style='color:#2020e6; font-size: 13px;'>House successfully added.</p>")
                 query.exec_(
                     f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Added '{house_name}'", "houses")""")
 
                 self.updateHouseComboBoxes()
                 self.history_table_model.submitAll()
-                
+
         else:
-            QMessageBox.warning(self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
+            QMessageBox.warning(
+                self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
         self.add_house_le.clear()
 
     def deleteHouse(self):
@@ -1204,7 +1238,7 @@ class MainApp(QMainWindow, main):
             while query.next():
                 clients.append(((query.value(
                     0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
-                
+
             # if owing clients exist
             print(clients)
             if clients:
@@ -1240,9 +1274,10 @@ class MainApp(QMainWindow, main):
 
                 self.updateHouseComboBoxes()
                 self.history_table_model.submitAll()
-            
+
         else:
-            QMessageBox.warning(self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given</p>")
+            QMessageBox.warning(
+                self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given</p>")
 
         self.delete_house_cb.setCurrentIndex(-1)
 
@@ -1260,21 +1295,21 @@ class MainApp(QMainWindow, main):
 
             # if unique constraint error
             if query.lastError().isValid():
-                    QMessageBox.critical(
-                        self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change house name.</p>
+                QMessageBox.critical(
+                    self, 'Error', f"""<p style='color:crimson; font-size: 13px;'>Failed to change house name.</p>
                                             <p><span style='color:#13589e'>{new_house_name}</span> already exists.</p>""")
             else:
-                    # manual cascade on update
-                    query.exec_(
-                        f"UPDATE clients SET client_house='{new_house_name}' WHERE client_house='{current_house_name}'")
-                    QMessageBox.information(
-                        self, 'Changed', "<p style='color:#2020e6; font-size: 13px;'>House name successfully changed.</p>")
-                    query.exec_(
-                        f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Changed '{current_house_name}' to '{new_house_name}'", "houses")""")
+                # manual cascade on update
+                query.exec_(
+                    f"UPDATE clients SET client_house='{new_house_name}' WHERE client_house='{current_house_name}'")
+                QMessageBox.information(
+                    self, 'Changed', "<p style='color:#2020e6; font-size: 13px;'>House name successfully changed.</p>")
+                query.exec_(
+                    f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "Changed '{current_house_name}' to '{new_house_name}'", "houses")""")
 
-                    self.updateHouseComboBoxes()
-                    self.history_table_model.submitAll()
-            
+                self.updateHouseComboBoxes()
+                self.history_table_model.submitAll()
+
         else:
             QMessageBox.warning(
                 self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
@@ -1285,8 +1320,8 @@ class MainApp(QMainWindow, main):
     def handleButtons(self):
         """Connects buttons to functions that are invoked when the buttons are triggered
         """
-        #About
-        
+        # About
+
         self.about_btn.clicked.connect(self.showAbout)
 
         # Close, Minimise, Maximize connections
@@ -1402,7 +1437,7 @@ class MainApp(QMainWindow, main):
                                             <p>By:\t <a style='text-decoration: none;'href='https://github.com/Porcupine1'>Thomas Ngulube</a></p>
                                             <p>Project GitHub repo: <a style='text-decoration: none;'href='https://github.com/Porcupine1/School_Library_System'> Source Code</a> version 1.0</p>
                                             <p>Blog: <a style='text-decoration: none;'href='https://thomasngulube.wordpress.com'>thomasngulube.wordpress.com</a></p>''')
-    
+
     def handleLogout(self):
         """closes main window and then shows login window
         """
@@ -1729,51 +1764,51 @@ class MainApp(QMainWindow, main):
         prev.style().unpolish(prev)
         prev.style().polish(prev)
         prev.update()
-        
+
         current.setProperty('class', 'current_tab_btn')
         current.style().unpolish(current)
         current.style().polish(current)
         current.update()
-    
+
     def open_dashboard_tab(self):
         # set dashboard tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.dashboard_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.dashboard_btn)
         self.main_tab_widget.setCurrentIndex(0)
         self.current_tab_btn = self.dashboard_btn
 
     def open_books_tab(self):
         # set books tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.books_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.books_btn)
         self.main_tab_widget.setCurrentIndex(1)
         self.current_tab_btn = self.books_btn
 
     def open_issue_book_tab(self):
         # set issue book tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.issue_book_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.issue_book_btn)
         self.main_tab_widget.setCurrentIndex(2)
         self.current_tab_btn = self.issue_book_btn
 
     def open_report_tab(self):
         # set report tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.report_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.report_btn)
         self.main_tab_widget.setCurrentIndex(3)
         self.current_tab_btn = self.report_btn
 
     def open_history_tab(self):
         # set history tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.history_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.history_btn)
         self.main_tab_widget.setCurrentIndex(4)
         self.current_tab_btn = self.history_btn
 
     def open_settings_tab(self):
         # set settings tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.settings_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.settings_btn)
         self.main_tab_widget.setCurrentIndex(5)
         self.current_tab_btn = self.settings_btn
 
     def open_users_tab(self):
         # set users tab current tab
-        self.styleCurrentTabBtn(self.current_tab_btn,self.users_btn)
+        self.styleCurrentTabBtn(self.current_tab_btn, self.users_btn)
         self.main_tab_widget.setCurrentIndex(6)
         self.current_tab_btn = self.users_btn
 
@@ -1783,10 +1818,10 @@ class MainApp(QMainWindow, main):
         Args:
             data (list): [id, title, category, quantity]
         """
-        
+
         timer = Timer
-        timer.daemon = True #interupt program cleanly by finishing main thread
-        
+        timer.daemon = True  # interupt program cleanly by finishing main thread
+
         self.edit_book_data = data
         self.edit_info_label.setText(f'"{data[0][1]}" found!')
         self.changeProperty(self.edit_info_label, "class",
@@ -1800,7 +1835,7 @@ class MainApp(QMainWindow, main):
         self.edit_extra_label.setText(
             f'"{data[0][1]}" appeared in the following categories:')
         self.updateCategoryList(data)
-    
+
     def vanishResponse(self, label: QLabel):
         """vanishes labbel response
 
@@ -1809,7 +1844,7 @@ class MainApp(QMainWindow, main):
         """
         label.clear()
         self.changeProperty(label, 'class', None)
-    
+
     def searchBook(self, book_title: str, category=None):
         """
         Checks if no book title input is given. If yes an error message is displayed.
@@ -1827,8 +1862,8 @@ class MainApp(QMainWindow, main):
                 f"SELECT * FROM books WHERE book_title = '{book_title}' AND category = '{category}'")
 
             timer = Timer
-            timer.daemon = True #interupt program cleanly by finishing main thread
-        
+            timer.daemon = True  # interupt program cleanly by finishing main thread
+
             data = []
             if query.next():
                 row = [query.value(0), query.value(
@@ -1849,7 +1884,7 @@ class MainApp(QMainWindow, main):
                 # if book is not in database, let the user know (returns false)
                 if not data:
                     QMessageBox.warning(
-                        self, 'Not Found', 
+                        self, 'Not Found',
                         f"<p style='color:#842029; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> not found.</p>",
                         QMessageBox.Ok, QMessageBox.Ok)
                     self.edit_extra_label.clear()
@@ -1862,7 +1897,8 @@ class MainApp(QMainWindow, main):
                     self.edit_info_label.setText(f'"{book_title}" not found.')
                     self.changeProperty(
                         self.edit_info_label, "class", "alert alert-danger")
-                    timer(5.0, self.vanishResponse, [self.edit_info_label]).start()
+                    timer(5.0, self.vanishResponse, [
+                          self.edit_info_label]).start()
                     return (False, None)
 
                 else:
@@ -1911,13 +1947,14 @@ class MainApp(QMainWindow, main):
                 # if category already existed
                 else:
                     QMessageBox.information(
-                        self, 'Operation Successful', f"<p style='color:#2020e6; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> was successfully added!</p>", 
+                        self, 'Operation Successful', f"<p style='color:#2020e6; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> was successfully added!</p>",
                         QMessageBox.Ok, QMessageBox.Ok)
             self.clear_book_entry(
                 self.book_title_le, self.category_combo_box, self.quantity_spin_box)
             # updates book title completer
             # update book title completer data
-            self.book_title_model.setQuery("SELECT DISTINCT book_title FROM books")
+            self.book_title_model.setQuery(
+                "SELECT DISTINCT book_title FROM books")
 
     def deleteBook(self, book_title: str, category: str):
         """Deletes book from database if no client is owing any quantity/number of the book
@@ -1927,10 +1964,10 @@ class MainApp(QMainWindow, main):
         found, book_id = self.searchBook(book_title, category)
 
         timer = Timer
-        timer.daemon = True #interupt program cleanly by finishing main thread
-        
+        timer.daemon = True  # interupt program cleanly by finishing main thread
+
         # if book is found
-        if found:
+        if found is True:
             # check if client/s has/have not returned it
             query.exec_(
                 f"SELECT client_id FROM client_records WHERE book_id={book_id} AND returned=0")
@@ -1990,7 +2027,8 @@ class MainApp(QMainWindow, main):
                         f'"{book_title}" deleted from "{category}" category.')
                     self.changeProperty(self.edit_info_label,
                                         "class", "alert alert-success")
-                    timer(5.0, self.vanishResponse, [self.edit_info_label]).start()
+                    timer(5.0, self.vanishResponse, [
+                          self.edit_info_label]).start()
                     query.exec_(
                         f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "DELETED '{book_title}, {category}'", "books")""")
                     self.history_table_model.submitAll()
@@ -2003,12 +2041,12 @@ class MainApp(QMainWindow, main):
                     # update book title completer data
                     self.book_title_model.setQuery(
                         "SELECT DISTINCT book_title FROM books")
-        if found == 'Try different category':
+        elif found == 'Try different category':
             QMessageBox.warning(
-                self, 'Book Not found', 
+                self, 'Book Not found',
                 f"""<p style='color:#842029; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> is not in <span style='color:#13589e'>{category}</span> category.</p>
                     <p>Try different category.</p>""",
-                    QMessageBox.Ok, QMessageBox.Ok)
+                QMessageBox.Ok, QMessageBox.Ok)
 
     def editBook(self, book_title: str, category: str, quantity: int):
         """Edits book data of book data in self.edit_book_data with new data passed as parameters. 
@@ -2063,7 +2101,7 @@ class MainApp(QMainWindow, main):
                 # if book with same title already exists in the inputted category
                 if found is True:
                     QMessageBox.information(
-                        self, 'Exists', 
+                        self, 'Exists',
                         f"<p style='color:#2020e6; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> already exists in <span style='color:#13589e'>{category}</span></p>",
                         QMessageBox.Ok, QMessageBox.Ok)
                 else:
@@ -2160,14 +2198,16 @@ class MainApp(QMainWindow, main):
 
             query.exec_(
                 f"""UPDATE books SET quantity=quantity+{quantity} WHERE book_id={book_id}""")
-            QMessageBox.information(self, 'Retrieved', "<p style='color:#2020e6; font-size: 13px;'>Book retrieved.</p>")
+            QMessageBox.information(
+                self, 'Retrieved', "<p style='color:#2020e6; font-size: 13px;'>Book retrieved.</p>")
 
             self.increase_dash_val(self.retrieved_today_val, quantity)
             self.increase_dash_val(self.total_retrieved_val, quantity)
             self.decrease_dash_val(self.unretrieved_val, quantity)
             self.book_table_model.submitAll()
             self.booksTableSort()
-            self.clients_records_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
+            self.clients_records_table_model.setQuery(
+                QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
             self.setTransactionTableQuery()
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
@@ -2221,14 +2261,16 @@ class MainApp(QMainWindow, main):
 
                 query.exec_(
                     f"""UPDATE books SET quantity=quantity-{quantity} WHERE book_id={book_id}""")
-                QMessageBox.information(self, 'Lent', "<p style='color:#2020e6; font-size: 13px;'>Book lent</p>")
+                QMessageBox.information(
+                    self, 'Lent', "<p style='color:#2020e6; font-size: 13px;'>Book lent</p>")
                 self.increase_dash_val(self.lent_today_val, quantity)
                 self.increase_dash_val(self.total_lent_val, quantity)
                 self.increase_dash_val(self.unretrieved_val, quantity)
                 self.book_table_model.submitAll()
                 self.booksTableSort()
                 self.setTransactionTableQuery()
-                self.clients_records_table_model.setQuery(QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
+                self.clients_records_table_model.setQuery(
+                    QSqlQuery('SELECT * FROM client_record_vw WHERE returned=0'))
                 self.clear_book_entry(
                     self.book_title_le_3, self.category_combo_box_3, self.quantity_spin_box_3)
                 self.clear_client_entry(
@@ -2239,48 +2281,52 @@ class MainApp(QMainWindow, main):
                 self.chart_view.close()
                 self.plotTransactionGraph()  # Recreate graph
 
-        query.exec_(
-            f"""SELECT * FROM books WHERE book_title='{book_title}' AND category='{category}'""")
-        data = {}
-        while query.next():
-            data['book_id'] = int(query.value(0))
-            data['quantity'] = int(query.value(3))
-        if not data:
+        if book_title == "":
             QMessageBox.warning(
-                self, 'Not Found',
-                f"""<p style='color:#842029; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> is not in <span style='color:#13589e'>{category}</span> category.</p>
-                    <p>Make sure you have spelled them correctly or search using the Edit/Delete tab.</p>""",
-                QMessageBox.Ok, QMessageBox.Ok)
-
-        elif data['quantity'] == 0:
-            QMessageBox.information(
-                self, 'Out Of Book',
-                f'Out of "{book_title}" in "{category}" category. Try search for it in different category using the Edit/Delete tab.',
-                QMessageBox.Ok, QMessageBox.Ok)
+                self, 'Invalid Entry', "<p style='color:#842029; font-size: 13px;'>Book title is required!</p>", QMessageBox.Ok, QMessageBox.Ok)
         else:
-            if data['quantity'] < quantity:
-                if data['quantity'] == 1:
-                    quantity_words = ['is', 'book']
-                else:
-                    quantity_words = ['are', 'books']
-                response = QMessageBox.question(self, 'Not Enough Books',
-                                                f"""<p style='color:#2020e6; font-size: 13px;'>There {quantity_words[0]} only {data["quantity"]} {quantity_words[1]} titled <span style='color:#13589e'>{book_title}</span> in <span style='color:#13589e'>{category}</span> category left.</p>
-                                                    <p>Do you want to get all of them?</p>""",
-                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-                if response == QMessageBox.Yes:
-                    print("collect all")
-                    quantity = int(data['quantity'])
-                    completeLendBook(int(data['book_id']), quantity)
+            query.exec_(
+                f"""SELECT * FROM books WHERE book_title='{book_title}' AND category='{category}'""")
+            data = {}
+            while query.next():
+                data['book_id'] = int(query.value(0))
+                data['quantity'] = int(query.value(3))
+            if not data:
+                QMessageBox.warning(
+                    self, 'Not Found',
+                    f"""<p style='color:#842029; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> is not in <span style='color:#13589e'>{category}</span> category.</p>
+                        <p>Make sure you have spelled them correctly or search using the Edit/Delete tab.</p>""",
+                    QMessageBox.Ok, QMessageBox.Ok)
 
+            elif data['quantity'] == 0:
+                QMessageBox.information(
+                    self, 'Out Of Book',
+                    f'Out of "{book_title}" in "{category}" category. Try search for it in different category using the Edit/Delete tab.',
+                    QMessageBox.Ok, QMessageBox.Ok)
             else:
-                completeLendBook(data['book_id'], quantity)
+                if data['quantity'] < quantity:
+                    if data['quantity'] == 1:
+                        quantity_words = ['is', 'book']
+                    else:
+                        quantity_words = ['are', 'books']
+                    response = QMessageBox.question(self, 'Not Enough Books',
+                                                    f"""<p style='color:#2020e6; font-size: 13px;'>There {quantity_words[0]} only {data["quantity"]} {quantity_words[1]} titled <span style='color:#13589e'>{book_title}</span> in <span style='color:#13589e'>{category}</span> category left.</p>
+                                                        <p>Do you want to get all of them?</p>""",
+                                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                    if response == QMessageBox.Yes:
+                        print("collect all")
+                        quantity = int(data['quantity'])
+                        completeLendBook(int(data['book_id']), quantity)
+
+                else:
+                    completeLendBook(data['book_id'], quantity)
 
     def addCategory(self, category: str, label: QLabel or None) -> str or None:
         """
         Adds category to database if it does not exist.
         """
         timer = Timer
-        timer.daemon = True #interupt program cleanly by finishing main thread
+        timer.daemon = True  # interupt program cleanly by finishing main thread
         if category:
             query.exec_(
                 f"INSERT INTO categories VALUES('{category}')")
@@ -2296,7 +2342,7 @@ class MainApp(QMainWindow, main):
                     label.setText(
                         f'"{category}" category already exists in library.')
                     self.changeProperty(label, "class", "alert alert-warning")
-                    timer(5.0, self.vanishResponse,[label]).start()
+                    timer(5.0, self.vanishResponse, [label]).start()
                 return 'exists'
 
             else:
@@ -2308,14 +2354,14 @@ class MainApp(QMainWindow, main):
                 label.setText(
                     f'"{category}" category successfully added to library.')
                 self.changeProperty(label, "class", "alert alert-success")
-                timer(5.0, self.vanishResponse,[label]).start()
+                timer(5.0, self.vanishResponse, [label]).start()
                 self.add_category_le.clear()
 
         else:
             if label is not None:
                 label.setText("NO INPUT GIVEN!")
                 self.changeProperty(label, "class", "alert alert-danger")
-                timer(5.0, self.vanishResponse,[label]).start()
+                timer(5.0, self.vanishResponse, [label]).start()
         query.clear()
 
     def searchCategory(self, category: str) -> None:
@@ -2324,7 +2370,7 @@ class MainApp(QMainWindow, main):
 
         """
         timer = Timer
-        timer.daemon = True #interupt program cleanly by finishing main thread
+        timer.daemon = True  # interupt program cleanly by finishing main thread
         if category:
             query.exec_(
                 f"SELECT * FROM categories WHERE category = '{category}'")
@@ -2339,7 +2385,8 @@ class MainApp(QMainWindow, main):
                     f'"{category}" category does not exist in library.')
                 self.changeProperty(self.category_info_label,
                                     "class", "alert alert-warning")
-                timer(5.0, self.vanishResponse,[self.category_info_label]).start()
+                timer(5.0, self.vanishResponse, [
+                      self.category_info_label]).start()
 
             else:
                 self.category_info_label.setText(
@@ -2347,14 +2394,15 @@ class MainApp(QMainWindow, main):
                 self.changeProperty(self.category_info_label,
                                     "class", "alert alert-success")
                 self.add_category_le.clear()
-                timer(5.0, self.vanishResponse,[self.category_info_label]).start()
+                timer(5.0, self.vanishResponse, [
+                      self.category_info_label]).start()
 
         else:
             self.category_info_label.setText("NO INPUT GIVEN!")
             self.changeProperty(self.category_info_label,
                                 "class", "alert alert-danger")
-            timer(5.0, self.vanishResponse,[self.category_info_label]).start()
-            
+            timer(5.0, self.vanishResponse, [self.category_info_label]).start()
+
 
 if __name__ == '__main__':
     database = QSqlDatabase.addDatabase("QSQLITE")
