@@ -798,7 +798,7 @@
           <bool>false</bool>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -2006,7 +2006,7 @@
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="all_books_tab">
               <attribute name="title">
@@ -3706,7 +3706,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="lend_book_tab">
               <attribute name="title">
@@ -5770,7 +5770,7 @@
            <item>
             <widget class="QTabWidget" name="report_tab_widget">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="graph_tab">
               <attribute name="title">
@@ -6065,7 +6065,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="users_history_tab">
               <attribute name="title">
@@ -7986,7 +7986,7 @@
               </palette>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="all_users_tab">
               <attribute name="title">
@@ -10470,7 +10470,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap>media/banana.png</pixmap>
+              <pixmap>C:/Users/thoma/.designer/backup/media/banana.png</pixmap>
              </property>
              <property name="scaledContents">
               <bool>false</bool>
@@ -11508,78 +11508,85 @@
   <tabstop>main_tab_widget</tabstop>
   <tabstop>books_tab_widget</tabstop>
   <tabstop>all_books_table_view</tabstop>
+  <tabstop>book_title_le</tabstop>
+  <tabstop>category_combo_box</tabstop>
+  <tabstop>quantity_spin_box</tabstop>
+  <tabstop>add_book_btn</tabstop>
   <tabstop>book_title_le_2</tabstop>
   <tabstop>category_combo_box_2</tabstop>
   <tabstop>quantity_spin_box_2</tabstop>
+  <tabstop>category_lw</tabstop>
   <tabstop>search_book_btn</tabstop>
+  <tabstop>edit_book_btn</tabstop>
+  <tabstop>delete_book_btn</tabstop>
+  <tabstop>add_category_le</tabstop>
+  <tabstop>search_category_btn</tabstop>
+  <tabstop>add_category_btn</tabstop>
+  <tabstop>books_tab_widget_2</tabstop>
+  <tabstop>book_title_le_3</tabstop>
+  <tabstop>category_combo_box_3</tabstop>
+  <tabstop>quantity_spin_box_3</tabstop>
+  <tabstop>fname_le</tabstop>
+  <tabstop>lname_le</tabstop>
+  <tabstop>class_combo_box</tabstop>
+  <tabstop>house_combo_box</tabstop>
+  <tabstop>lend_book_btn</tabstop>
   <tabstop>fname_le_2</tabstop>
   <tabstop>lname_le_2</tabstop>
   <tabstop>class_combo_box_2</tabstop>
   <tabstop>house_combo_box_2</tabstop>
   <tabstop>client_search_btn</tabstop>
   <tabstop>clear_btn</tabstop>
-  <tabstop>client_record_tv</tabstop>
   <tabstop>quantity_spin_box_4</tabstop>
   <tabstop>retrieve_book_btn</tabstop>
+  <tabstop>client_record_tv</tabstop>
+  <tabstop>report_tab_widget</tabstop>
+  <tabstop>client_record_tv_2</tabstop>
+  <tabstop>history_tab_widget</tabstop>
+  <tabstop>history_tv</tabstop>
   <tabstop>transactions_table_view</tabstop>
   <tabstop>change_username_le</tabstop>
+  <tabstop>change_username_btn</tabstop>
   <tabstop>change_password_le</tabstop>
   <tabstop>change_password_le_2</tabstop>
-  <tabstop>show_password_cb_2</tabstop>
-  <tabstop>change_username_btn</tabstop>
   <tabstop>change_password_btn</tabstop>
+  <tabstop>show_password_cb_2</tabstop>
+  <tabstop>add_class_le</tabstop>
+  <tabstop>add_class_btn</tabstop>
+  <tabstop>delete_class_cb</tabstop>
+  <tabstop>delete_class_btn</tabstop>
+  <tabstop>current_class_name_cb</tabstop>
+  <tabstop>new_class_name</tabstop>
+  <tabstop>change_class_name_btn</tabstop>
+  <tabstop>add_house_le</tabstop>
+  <tabstop>add_house_btn</tabstop>
+  <tabstop>delete_house_cb</tabstop>
+  <tabstop>delete_house_btn</tabstop>
+  <tabstop>current_house_name_cb</tabstop>
+  <tabstop>new_house_name</tabstop>
+  <tabstop>change_house_name_btn</tabstop>
   <tabstop>users_tab_widget</tabstop>
+  <tabstop>delete_user_btn</tabstop>
   <tabstop>users_tv</tabstop>
+  <tabstop>fname_le_3</tabstop>
+  <tabstop>lname_le_3</tabstop>
+  <tabstop>username_le</tabstop>
+  <tabstop>password_le</tabstop>
+  <tabstop>password_le_2</tabstop>
+  <tabstop>show_password_cb</tabstop>
+  <tabstop>create_user_btn</tabstop>
   <tabstop>username_le_2</tabstop>
   <tabstop>load_permissions_btn</tabstop>
-  <tabstop>permissions_tree_widget</tabstop>
   <tabstop>checkBox_21</tabstop>
   <tabstop>checkBox_22</tabstop>
   <tabstop>checkBox</tabstop>
+  <tabstop>permissions_tree_widget</tabstop>
   <tabstop>give_permissions_btn</tabstop>
-  <tabstop>quantity_spin_box</tabstop>
-  <tabstop>add_category_le</tabstop>
-  <tabstop>search_category_btn</tabstop>
-  <tabstop>history_tab_widget</tabstop>
-  <tabstop>history_tv</tabstop>
-  <tabstop>add_category_btn</tabstop>
-  <tabstop>fname_le</tabstop>
-  <tabstop>add_house_le</tabstop>
-  <tabstop>category_combo_box_3</tabstop>
-  <tabstop>books_tab_widget_2</tabstop>
-  <tabstop>new_class_name</tabstop>
-  <tabstop>add_class_btn</tabstop>
-  <tabstop>add_house_btn</tabstop>
-  <tabstop>change_class_name_btn</tabstop>
-  <tabstop>delete_house_btn</tabstop>
-  <tabstop>delete_class_btn</tabstop>
-  <tabstop>quantity_spin_box_3</tabstop>
-  <tabstop>book_title_le_3</tabstop>
-  <tabstop>new_house_name</tabstop>
-  <tabstop>change_house_name_btn</tabstop>
-  <tabstop>lend_book_btn</tabstop>
-  <tabstop>add_class_le</tabstop>
-  <tabstop>class_combo_box</tabstop>
-  <tabstop>house_combo_box</tabstop>
-  <tabstop>delete_user_btn</tabstop>
-  <tabstop>show_password_cb</tabstop>
-  <tabstop>password_le_2</tabstop>
-  <tabstop>lname_le_3</tabstop>
-  <tabstop>password_le</tabstop>
-  <tabstop>create_user_btn</tabstop>
-  <tabstop>username_le</tabstop>
-  <tabstop>fname_le_3</tabstop>
-  <tabstop>category_combo_box</tabstop>
-  <tabstop>category_lw</tabstop>
-  <tabstop>lname_le</tabstop>
-  <tabstop>delete_book_btn</tabstop>
-  <tabstop>book_title_le</tabstop>
-  <tabstop>add_book_btn</tabstop>
-  <tabstop>min_btn</tabstop>
-  <tabstop>close_btn</tabstop>
-  <tabstop>max_btn</tabstop>
+  <tabstop>about_btn</tabstop>
   <tabstop>logout_btn</tabstop>
-  <tabstop>edit_book_btn</tabstop>
+  <tabstop>min_btn</tabstop>
+  <tabstop>max_btn</tabstop>
+  <tabstop>close_btn</tabstop>
  </tabstops>
  <resources>
   <include location="icons.qrc"/>
@@ -11599,6 +11606,7 @@
   <include location="icons.qrc"/>
   <include location="icons.qrc"/>
   <include location="icons.qrc"/>
+  <include location="C:/Users/thoma/.designer/backup/icons.qrc"/>
  </resources>
  <connections/>
 </ui>

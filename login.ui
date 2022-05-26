@@ -403,6 +403,14 @@
   <zorder>widget</zorder>
   <zorder>label_2</zorder>
  </widget>
+ <tabstops>
+  <tabstop>username_le</tabstop>
+  <tabstop>password_le</tabstop>
+  <tabstop>show_password_cb</tabstop>
+  <tabstop>login_btn</tabstop>
+  <tabstop>close_btn</tabstop>
+  <tabstop>min_btn</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>
