@@ -1111,13 +1111,12 @@ class MainApp(QMainWindow, main):
             # check if any client from inputted class has not returned books
             query.exec_(
                 f"SELECT FIRST_NAME, LAST_NAME, CLASS, HOUSE from client_record_vw WHERE class='{class_name}' AND returned=0")
-            print(query.lastError().text())
+            
             clients = []
             while query.next():
                 clients.append(((query.value(
                     0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
             # if owing clients exist
-            print(clients)
             if clients:
                 num_left = len(clients) - 2
                 if num_left > 0:
@@ -1143,7 +1142,7 @@ class MainApp(QMainWindow, main):
             else:
                 query.exec_(
                     f"DELETE FROM classes WHERE class='{class_name}'")
-                print('class: ', query.lastError().text())
+                
                 QMessageBox.information(
                     self, 'Deleted', "<p style='color:#2020e6; font-size: 13px;'>Class successfully deleted.</p>")
                 query.exec_(
@@ -1169,7 +1168,6 @@ class MainApp(QMainWindow, main):
 
             query.exec_(
                 f"UPDATE classes SET class='{new_class_name}' WHERE class='{current_class_name}'")
-            print(query.lastError().text())
 
             # if class unique constraint error(class already exists)
             if query.lastError().isValid():
@@ -1233,14 +1231,13 @@ class MainApp(QMainWindow, main):
             # check if any client from inputted house has not returned books
             query.exec_(
                 f"SELECT FIRST_NAME, LAST_NAME, CLASS, HOUSE from client_record_vw WHERE house='{house_name}' AND returned=0")
-            print(query.lastError().text())
+            
             clients = []
             while query.next():
                 clients.append(((query.value(
                     0) + ' ' + query.value(1) + ' ' + query.value(2) + ' ' + query.value(3))))
 
             # if owing clients exist
-            print(clients)
             if clients:
                 num_left = len(clients) - 2
                 if num_left > 0:
@@ -1266,7 +1263,7 @@ class MainApp(QMainWindow, main):
             else:
                 query.exec_(
                     f"DELETE FROM houses WHERE house='{house_name}'")
-                print('house: ', query.lastError().text())
+               
                 QMessageBox.information(
                     self, 'Deleted', "<p style='color:#2020e6; font-size: 13px;'>House successfully deleted.</p>")
                 query.exec_(
@@ -1974,7 +1971,7 @@ class MainApp(QMainWindow, main):
             client_ids = []
             while query.next():
                 client_ids.append(query.value(0))
-            print(client_ids)
+           
             # if has not been returned by one or more clients
             if client_ids:
                 data = []
@@ -2022,7 +2019,7 @@ class MainApp(QMainWindow, main):
                 if response == QMessageBox.Yes:
                     query.exec_(
                         f"""DELETE FROM books WHERE book_title='{book_title}' AND category='{category}'""")
-                    print(query.lastError().text())
+                   
                     self.edit_info_label.setText(
                         f'"{book_title}" deleted from "{category}" category.')
                     self.changeProperty(self.edit_info_label,
@@ -2314,7 +2311,7 @@ class MainApp(QMainWindow, main):
                                                         <p>Do you want to get all of them?</p>""",
                                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                     if response == QMessageBox.Yes:
-                        print("collect all")
+                       
                         quantity = int(data['quantity'])
                         completeLendBook(int(data['book_id']), quantity)
 
@@ -2337,7 +2334,9 @@ class MainApp(QMainWindow, main):
             self.category_combo_box_3.setCurrentIndex(index)
 
             # if category already exists
+            
             if query.lastError().isValid():
+                QMessageBox.information(self, 'err', query.lastError().text())
                 if label is not None:
                     label.setText(
                         f'"{category}" category already exists in library.')
@@ -2406,7 +2405,10 @@ class MainApp(QMainWindow, main):
 
 if __name__ == '__main__':
     database = QSqlDatabase.addDatabase("QSQLITE")
-    database.setDatabaseName(os.path.join(basedir, "Library.db"))
+    db_dir = os.getenv('LOCALAPPDATA') + '\\thomasngulube' #database directory
+    if not os.path.isdir(db_dir): #if database directory does not exist, create it
+        os.mkdir(db_dir)
+    database.setDatabaseName(os.path.join(db_dir, "Library.db"))
 
     if not database.open():
         print("Unable to open data source file.")
