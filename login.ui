@@ -154,9 +154,6 @@
     <property name="text">
      <string>Login</string>
     </property>
-    <property name="class" stdset="0">
-     <string>btn btn-primary</string>
-    </property>
    </widget>
    <widget class="QLineEdit" name="password_le">
     <property name="geometry">

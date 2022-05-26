@@ -41,20 +41,6 @@ QSpinBox {
     border-color: #ffeeba;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #00FFF5;
-}
-
-.btn-primary:hover {
-    color: #fff;
-    background-color: #00c4bd;
-}
-
-.btn:focus {
-    outline: 0;
-}
-
 #main_tabs QPushButton {
     border: 0px;
     border-radius: 5px;
@@ -94,6 +80,12 @@ QSpinBox {
 #main_tabs QPushButton:hover {
     background-color: rgba(0, 172, 181, 0.659);
 }
+
+#main_tabs QPushButton:focus {
+    background-color: rgba(0, 172, 181, 0.659);
+    outline: 0px;
+}
+
 
 .dash_holder {
     background-color: #303946;

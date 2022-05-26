@@ -2,7 +2,18 @@
     background-color: #222831;
 }
 #login_btn{
+    background-color: #00FFF5;
     color: #222831;
     border: 0px;
     border-radius: 5px;
+}
+
+#login_btn:focus{
+    background-color: #00c4bd;
+    outline: 0;
+}
+
+#login_btn:hover {
+    color: #fff;
+    background-color: #00c4bd;
 }
