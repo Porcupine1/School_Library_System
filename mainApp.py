@@ -8,7 +8,7 @@ from ast import literal_eval
 from PyQt5 import uic
 from PyQt5.QtChart import (QChart,
                            QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
-from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt, QRegularExpression
+from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt, QRegularExpression, QTimer
 from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon, QColor
 from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
                          QSqlRelationalTableModel, QSqlTableModel, QSqlQueryModel)
@@ -17,7 +17,6 @@ from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
                              QMessageBox, QPushButton, QWidget, QCompleter, QCheckBox,
                              QTreeWidgetItemIterator, QTreeWidgetItem, QGraphicsDropShadowEffect,
                              QFrame, QSpinBox, QComboBox)
-from threading import Timer
 
 from queries import *
 
@@ -253,7 +252,7 @@ class MainApp(QMainWindow, main):
         self.widget_2.installEventFilter(self)
         self.main_tab_widget.installEventFilter(self)
         self.main_tabs.installEventFilter(self)
-        self.handleButtons()
+        self.handleSignals()
         self._initDrag()
         self.setMouseTracking(True)
         self.edit_book_data = []  # Contains record of book to be edited
@@ -640,13 +639,24 @@ class MainApp(QMainWindow, main):
         self.category_cb_model.select()
         self.category_combo_box.setModel(self.category_cb_model)
         self.category_combo_box_2.setModel(self.category_cb_model)
-        self.category_combo_box_3.setModel(self.category_cb_model)
 
         # Give default values
         index = self.category_combo_box.findText("Unknown")
         self.category_combo_box.setCurrentIndex(index)
         self.category_combo_box_2.setCurrentIndex(index)
         self.category_combo_box_3.setCurrentIndex(index)
+
+    def predictCategory(self):
+        """Predicts book category in category combo box from book title given.
+        
+        It also clears the combo box before prediction
+        """
+        book_title = self.formatText(self.book_title_le_3.text())
+        self.category_combo_box_3.clear()
+        query.exec_(f"SELECT category FROM books where book_title='{book_title}'")
+        
+        while query.next():
+            self.category_combo_box_3.addItem(query.value(0))
 
     def setupClassComboBox(self):
         """Loads houses from houses table as items in the combo-box
@@ -1314,7 +1324,7 @@ class MainApp(QMainWindow, main):
         self.current_house_name_cb.setCurrentIndex(-1)
         self.new_house_name.clear()
 
-    def handleButtons(self):
+    def handleSignals(self):
         """Connects buttons to functions that are invoked when the buttons are triggered
         """
         # About
@@ -1373,6 +1383,7 @@ class MainApp(QMainWindow, main):
         ############Books Tab connections END#############
 
         ############Issue Books Tab connections START#############
+        self.book_title_le_3.editingFinished.connect(self.predictCategory)
         self.lend_book_btn.clicked.connect(
             lambda: self.lendBook(self.formatText(self.book_title_le_3.text()),
                                   self.formatText(
@@ -1816,14 +1827,15 @@ class MainApp(QMainWindow, main):
             data (list): [id, title, category, quantity]
         """
 
-        timer = Timer
-        timer.daemon = True  # interupt program cleanly by finishing main thread
+        timer = QTimer(self)
+        timer.timeout.connect(lambda: self.vanishResponse(self.edit_info_label))
+        timer.setSingleShot(True)
 
         self.edit_book_data = data
         self.edit_info_label.setText(f'"{data[0][1]}" found!')
         self.changeProperty(self.edit_info_label, "class",
                             "alert alert-success")
-        timer(5.0, self.vanishResponse, [self.edit_info_label]).start()
+        timer.start(5000)
         self.book_title_le_2.setText(data[0][1])
         self.category_combo_box_2.setCurrentIndex(
             self.category_combo_box_2.findText(data[0][2]))
@@ -1858,8 +1870,9 @@ class MainApp(QMainWindow, main):
             query.exec_(
                 f"SELECT * FROM books WHERE book_title = '{book_title}' AND category = '{category}'")
 
-            timer = Timer
-            timer.daemon = True  # interupt program cleanly by finishing main thread
+            timer = QTimer(self)
+            timer.timeout.connect(lambda: self.vanishResponse(self.edit_info_label))
+            timer.setSingleShot(True)
 
             data = []
             if query.next():
@@ -1894,8 +1907,7 @@ class MainApp(QMainWindow, main):
                     self.edit_info_label.setText(f'"{book_title}" not found.')
                     self.changeProperty(
                         self.edit_info_label, "class", "alert alert-danger")
-                    timer(5.0, self.vanishResponse, [
-                          self.edit_info_label]).start()
+                    timer.start(5000)
                     return (False, None)
 
                 else:
@@ -1960,8 +1972,10 @@ class MainApp(QMainWindow, main):
         # check if book exists in specified catgory
         found, book_id = self.searchBook(book_title, category)
 
-        timer = Timer
-        timer.daemon = True  # interupt program cleanly by finishing main thread
+        timer = QTimer(self)
+        timer.timeout.connect(lambda: self.vanishResponse(self.edit_info_label))
+        timer.setSingleShot(True)
+
 
         # if book is found
         if found is True:
@@ -2004,7 +2018,7 @@ class MainApp(QMainWindow, main):
                 self.edit_info_label.setText('Delete failed')
                 self.changeProperty(self.edit_info_label,
                                     "class", "alert alert-danger")
-                timer(5.0, self.vanishResponse, [self.edit_info_label]).start()
+                timer.start(5000)
 
             # if has been returned
             else:
@@ -2024,8 +2038,7 @@ class MainApp(QMainWindow, main):
                         f'"{book_title}" deleted from "{category}" category.')
                     self.changeProperty(self.edit_info_label,
                                         "class", "alert alert-success")
-                    timer(5.0, self.vanishResponse, [
-                          self.edit_info_label]).start()
+                    timer.start(5000)
                     query.exec_(
                         f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "DELETED '{book_title}, {category}'", "books")""")
                     self.history_table_model.submitAll()
@@ -2322,8 +2335,10 @@ class MainApp(QMainWindow, main):
         """
         Adds category to database if it does not exist.
         """
-        timer = Timer
-        timer.daemon = True  # interupt program cleanly by finishing main thread
+        timer = QTimer(self)
+        timer.timeout.connect(lambda: self.vanishResponse(label))
+        timer.setSingleShot(True)
+
         if category:
             query.exec_(
                 f"INSERT INTO categories VALUES('{category}')")
@@ -2334,14 +2349,12 @@ class MainApp(QMainWindow, main):
             self.category_combo_box_3.setCurrentIndex(index)
 
             # if category already exists
-            
             if query.lastError().isValid():
-                QMessageBox.information(self, 'err', query.lastError().text())
                 if label is not None:
                     label.setText(
                         f'"{category}" category already exists in library.')
                     self.changeProperty(label, "class", "alert alert-warning")
-                    timer(5.0, self.vanishResponse, [label]).start()
+                    timer.start(5000)
                 return 'exists'
 
             else:
@@ -2353,14 +2366,14 @@ class MainApp(QMainWindow, main):
                 label.setText(
                     f'"{category}" category successfully added to library.')
                 self.changeProperty(label, "class", "alert alert-success")
-                timer(5.0, self.vanishResponse, [label]).start()
+                timer.start(5000)
                 self.add_category_le.clear()
 
         else:
             if label is not None:
                 label.setText("NO INPUT GIVEN!")
                 self.changeProperty(label, "class", "alert alert-danger")
-                timer(5.0, self.vanishResponse, [label]).start()
+                timer.start(5000)
         query.clear()
 
     def searchCategory(self, category: str) -> None:
@@ -2368,8 +2381,9 @@ class MainApp(QMainWindow, main):
         Checks if category already exists.
 
         """
-        timer = Timer
-        timer.daemon = True  # interupt program cleanly by finishing main thread
+        timer = QTimer(self)
+        timer.timeout.connect(lambda: self.vanishResponse(self.category_info_label))
+        timer.setSingleShot(True)
         if category:
             query.exec_(
                 f"SELECT * FROM categories WHERE category = '{category}'")
@@ -2384,8 +2398,7 @@ class MainApp(QMainWindow, main):
                     f'"{category}" category does not exist in library.')
                 self.changeProperty(self.category_info_label,
                                     "class", "alert alert-warning")
-                timer(5.0, self.vanishResponse, [
-                      self.category_info_label]).start()
+                timer.start(5000)
 
             else:
                 self.category_info_label.setText(
@@ -2393,15 +2406,13 @@ class MainApp(QMainWindow, main):
                 self.changeProperty(self.category_info_label,
                                     "class", "alert alert-success")
                 self.add_category_le.clear()
-                timer(5.0, self.vanishResponse, [
-                      self.category_info_label]).start()
+                timer.start(5000)
 
         else:
             self.category_info_label.setText("NO INPUT GIVEN!")
             self.changeProperty(self.category_info_label,
                                 "class", "alert alert-danger")
-            timer(5.0, self.vanishResponse, [self.category_info_label]).start()
-
+            timer.start(5000)
 
 if __name__ == '__main__':
     database = QSqlDatabase.addDatabase("QSQLITE")
