@@ -739,7 +739,8 @@ class MainApp(QMainWindow, main):
                                                     datetime
                                                     from transactions INNER JOIN clients ON transactions.client_id == clients.client_id
                                                     INNER JOIN books ON books.book_id == transactions.book_id
-                                                    INNER JOIN users ON users.user_id == transactions.user_id'''))
+                                                    INNER JOIN users ON users.user_id == transactions.user_id
+                                                    ORDER BY datetime DESC'''))
 
     def setupTransactionsTableView(self):
         """Creates a table with all user transactions
@@ -900,6 +901,9 @@ class MainApp(QMainWindow, main):
         """
         self.chart = QChart()
         self.chart.setTheme(2)  # Dark Theme
+        self.chart.setTitle("<p style='font-size: 14px;'>Transaction Summary</p>")
+        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart.legend().setAlignment(Qt.AlignRight)
         
         self.chart_view.setChart(self.chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
@@ -918,6 +922,7 @@ class MainApp(QMainWindow, main):
         self.chart.addSeries(self.r_series)
         
         self.axis_x = QDateTimeAxis()
+        self.axis_x.setTitleText("Date (dd MMM)")
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
         self.l_series.attachAxis(self.axis_x)
         self.r_series.attachAxis(self.axis_x)
@@ -925,6 +930,7 @@ class MainApp(QMainWindow, main):
         self.axis_x.setFormat('dd MMM')
 
         self.axis_y = QValueAxis()
+        self.axis_y.setTitleText("Book Quantity")
         self.chart.addAxis(self.axis_y, Qt.AlignLeft)
         self.l_series.attachAxis(self.axis_y)
         self.r_series.attachAxis(self.axis_y)
