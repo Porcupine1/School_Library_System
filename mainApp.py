@@ -6,8 +6,7 @@ import sys
 from ast import literal_eval
 
 from PyQt5 import uic
-from PyQt5.QtChart import (QChart,
-                           QChartView, QDateTimeAxis, QLineSeries, QValueAxis)
+from PyQt5.QtChart import (QChart, QDateTimeAxis, QLineSeries, QValueAxis)
 from PyQt5.QtCore import QDate, QDateTime, QPoint, Qt, QRegularExpression, QTimer
 from PyQt5.QtGui import QEnterEvent, QPainter, QPixmap, QIcon, QColor
 from PyQt5.QtSql import (QSqlDatabase, QSqlQuery, QSqlRelation,
@@ -240,7 +239,7 @@ class LoginWindow(QWidget, login):
 class MainApp(QMainWindow, main):
 
     def __init__(self, user_id, username):
-        QWidget.__init__(self)
+        super(QMainWindow, self).__init__()
         self.setupUi(self)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('Library')
@@ -878,72 +877,91 @@ class MainApp(QMainWindow, main):
             list[list, list]: [[[lent_quantities], [lent_dates]], [[retrieved_quantities], [retrieved_dates]]]
         """
         query.exec_("SELECT * FROM transaction_acc_vw")
-        lend_xy = [[], []]
-        retrieve_xy = [[], []]
+        lent_trans = [[], []]
+        retrieved_trans = [[], []]
         while query.next():
             if query.value(1) == 'RETRIEVE':
-                retrieve_xy[0].append(query.value(2))
-                retrieve_xy[1].append(query.value(0))
+                retrieved_trans[0].append(query.value(2))
+                retrieved_trans[1].append(query.value(0))
             elif query.value(1) == 'LEND':
-                lend_xy[0].append(query.value(2))
-                lend_xy[1].append(query.value(0))
+                lent_trans[0].append(query.value(2))
+                lent_trans[1].append(query.value(0))
             else:
-                retrieve_xy[0].append(query.value(2))
-                retrieve_xy[1].append(query.value(0))
-                lend_xy[0].append(query.value(2))
-                lend_xy[1].append(query.value(0))
+                retrieved_trans[0].append(query.value(2))
+                retrieved_trans[1].append(query.value(0))
+                lent_trans[0].append(query.value(2))
+                lent_trans[1].append(query.value(0))
 
-        return lend_xy, retrieve_xy
+        return lent_trans, retrieved_trans
 
     def plotTransactionGraph(self):
         """Creates transactions graph and populates it with
         data from the loadTransactionData function.
         """
-        def appendTransDataToSeries(trans_data, series):
-            """Traverses over transactions' dates, sets to a DateTime format
-            then adds each to the lent series.
-            """
-
-            for i in range(len(trans_data[0])):
-                year, month, date_ = [int(data)
-                                      for data in trans_data[0][i].split('-')]
-                date = QDateTime()
-                date.setDate(QDate(year, month, date_))
-                series.append(date.toMSecsSinceEpoch(), trans_data[1][i])
-
+        self.chart = QChart()
+        self.chart.setTheme(2)  # Dark Theme
+        
+        self.chart_view.setChart(self.chart)
+        self.chart_view.setRenderHint(QPainter.Antialiasing)
+        
         # Gets transactions from database by type
         lent_trans, retrieved_trans = self.loadTransactionData()
-        l_series = QLineSeries()
-        r_series = QLineSeries()
-        l_series.setName('Lent')
-        r_series.setName('Retrieved')
-
-        appendTransDataToSeries(lent_trans, l_series)
-        appendTransDataToSeries(retrieved_trans, r_series)
-
-        self.chart = QChart()
-        self.chart.addSeries(l_series)
-        self.chart.addSeries(r_series)
-        self.chart.setTheme(2)  # Dark Theme
-
+        self.l_series = QLineSeries()
+        self.r_series = QLineSeries()
+        self.l_series.setName('Lent')
+        self.r_series.setName('Retrieved')
+        
+        self.updateGraph(lent_trans, self.l_series)
+        self.updateGraph(retrieved_trans, self.r_series)
+        
+        self.chart.addSeries(self.l_series)
+        self.chart.addSeries(self.r_series)
+        
         self.axis_x = QDateTimeAxis()
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
-        l_series.attachAxis(self.axis_x)
-        r_series.attachAxis(self.axis_x)
+        self.l_series.attachAxis(self.axis_x)
+        self.r_series.attachAxis(self.axis_x)
         self.axis_x.setTickCount(10)
         self.axis_x.setFormat('dd MMM')
 
         self.axis_y = QValueAxis()
         self.chart.addAxis(self.axis_y, Qt.AlignLeft)
-        l_series.attachAxis(self.axis_y)
-        r_series.attachAxis(self.axis_y)
+        self.l_series.attachAxis(self.axis_y)
+        self.r_series.attachAxis(self.axis_y)
         self.axis_y.setTickType(0)
         self.axis_y.setMax(max(max(lent_trans[1]), max(retrieved_trans[1]))+2)
         self.axis_y.setTickInterval(4)
+        
+        
+        
+    def updateGraph(self, trans_data, series):
+            """Traverses over transaction data, sets date to a DateTime format
+            then adds each to the transaction series.
+            if today's data point already exists, the y value is increased
+            """
+            last_index = series.count()-1
+            today = datetime.today().date()
+            year, month, date = str(today).split('-')
+            todate = QDateTime()
+            todate.setDate(QDate(int(year), int(month), int(date)))
+            
+            for i in range(len(trans_data[0])):
+                #if current data point and last data point have today's date 
+                if trans_data[0][i] == str(today) and series.at(last_index).x() == todate.toMSecsSinceEpoch():
+                    old_x = series.at(last_index).x()
+                    old_y = series.at(last_index).y()
+                    series.replace(old_x, old_y, old_x, old_y+trans_data[1][i]) #increase it's y value
 
-        self.chart_view = QChartView(self.chart)
-        self.chart_view.setRenderHint(QPainter.Antialiasing)
-        self.graph_layout.addWidget(self.chart_view)
+                else:
+                    year_, month_, date_ = [int(data)
+                                        for data in trans_data[0][i].split('-')]
+                    date = QDateTime()
+                    date.setDate(QDate(year_, month_, date_))
+                    series.append(date.toMSecsSinceEpoch(), trans_data[1][i])
+                    last_index += 1
+            
+            
+
 
     def categorySelected(self):
         """Searches for a book of the category selected. User can only select 
@@ -1322,16 +1340,15 @@ class MainApp(QMainWindow, main):
                 self, 'Error', "<p style='color:#842029; font-size: 13px;'>No valid input given.</p>")
 
         self.current_house_name_cb.setCurrentIndex(-1)
-        self.new_house_name.clear()
-
+        self.new_house_name.clear()     
+ 
     def handleSignals(self):
         """Connects buttons to functions that are invoked when the buttons are triggered
         """
         # About
-
         self.about_btn.clicked.connect(self.showAbout)
 
-        # Close, Minimise, Maximize connections
+        # Close, Minimize, Maximize connections
         self.close_btn.clicked.connect(lambda: btn_close_clicked(self))
         self.min_btn.clicked.connect(lambda: btn_min_clicked(self))
         self.max_btn.clicked.connect(lambda: btn_max_clicked(self))
@@ -1634,6 +1651,7 @@ class MainApp(QMainWindow, main):
             f"INSERT INTO user_permissions VALUES('{username}',2,1,2,0,0,2,2,2,2,2,1,0,2,1,2,0,0,2,0,0,0,0,0,0)")
         query.exec_(
             f"""INSERT INTO history(user_name, [action], [table]) VALUES("{self.username}", "GAVE '{username} Standard permissions'", "user_permissions")""")
+        QMessageBox.information(self, 'Successful', "<p style='color:#2020e6; font-size: 13px;'>User created.</p>")
         self.history_table_model.submitAll()
         self.usernames.append(username)
         self.increase_dash_val(self.users_val, 1)
@@ -2222,10 +2240,8 @@ class MainApp(QMainWindow, main):
             self.book_title_category_label.clear()
             self.quantity_spin_box_4.setValue(0)
             self.setClientRecordTableQuery(fname, lname, class_, house)
-            # close chart
-            self.chart.close()
-            self.chart_view.close()
-            self.plotTransactionGraph()  # Recreate graph
+            
+            self.updateGraph([[str(datetime.today().date())], [quantity]],self.r_series)  # update graph
 
     def lendBook(self, book_title: str, category: str, quantity: int):
         """Lends book to client. If client doesn't exist, they are created. if client is already owing that book, it added to the owing quantity.if the client has borrowed the book before client's recrds is set to returned=0(False) and quantity is updated
@@ -2286,10 +2302,7 @@ class MainApp(QMainWindow, main):
                 self.clear_client_entry(
                     self.fname_le, self.lname_le, self.class_combo_box, self.house_combo_box)
 
-                # close chart
-                self.chart.close()
-                self.chart_view.close()
-                self.plotTransactionGraph()  # Recreate graph
+                self.updateGraph([[str(datetime.today().date())], [quantity]],self.l_series)  # update graph
 
         if book_title == "":
             QMessageBox.warning(
