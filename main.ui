@@ -221,6 +221,9 @@
               <kerning>true</kerning>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Dashboard tab</string>
+            </property>
             <property name="styleSheet">
              <string notr="true"/>
             </property>
@@ -290,6 +293,9 @@
               <strikeout>false</strikeout>
               <kerning>true</kerning>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Books tab</string>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -361,6 +367,9 @@
               <kerning>true</kerning>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Issue Books tab</string>
+            </property>
             <property name="styleSheet">
              <string notr="true"/>
             </property>
@@ -430,6 +439,9 @@
               <strikeout>false</strikeout>
               <kerning>true</kerning>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Report tab</string>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -504,6 +516,9 @@
               <kerning>true</kerning>
              </font>
             </property>
+            <property name="toolTip">
+             <string>History tab</string>
+            </property>
             <property name="styleSheet">
              <string notr="true"/>
             </property>
@@ -574,6 +589,9 @@
               <kerning>true</kerning>
              </font>
             </property>
+            <property name="toolTip">
+             <string>Setting tab</string>
+            </property>
             <property name="styleSheet">
              <string notr="true"/>
             </property>
@@ -643,6 +661,9 @@
               <strikeout>false</strikeout>
               <kerning>true</kerning>
              </font>
+            </property>
+            <property name="toolTip">
+             <string>Users tab</string>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -2588,6 +2609,9 @@
                  <height>50</height>
                 </rect>
                </property>
+               <property name="toolTip">
+                <string>Add book</string>
+               </property>
                <property name="text">
                 <string>Add</string>
                </property>
@@ -2605,6 +2629,9 @@
                  <width>120</width>
                  <height>50</height>
                 </rect>
+               </property>
+               <property name="toolTip">
+                <string>Edit searched book</string>
                </property>
                <property name="text">
                 <string>Edit</string>
@@ -2668,6 +2695,9 @@
                  <width>120</width>
                  <height>50</height>
                 </rect>
+               </property>
+               <property name="toolTip">
+                <string>Search for a book</string>
                </property>
                <property name="text">
                 <string>Search</string>
@@ -2822,6 +2852,9 @@
                   </colorrole>
                  </disabled>
                 </palette>
+               </property>
+               <property name="toolTip">
+                <string>Delete book</string>
                </property>
                <property name="text">
                 <string>Delete</string>
@@ -3548,6 +3581,9 @@
                  <height>50</height>
                 </rect>
                </property>
+               <property name="toolTip">
+                <string>Search for a category</string>
+               </property>
                <property name="text">
                 <string>Search</string>
                </property>
@@ -3560,6 +3596,9 @@
                  <width>150</width>
                  <height>50</height>
                 </rect>
+               </property>
+               <property name="toolTip">
+                <string>Add category</string>
                </property>
                <property name="text">
                 <string>Add</string>
@@ -4076,6 +4115,9 @@
                    <width>400</width>
                    <height>50</height>
                   </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Lend books</string>
                  </property>
                  <property name="text">
                   <string>Lend</string>
@@ -5076,6 +5118,9 @@
                    <height>40</height>
                   </size>
                  </property>
+                 <property name="toolTip">
+                  <string>Search for cleint records</string>
+                 </property>
                  <property name="text">
                   <string>Search</string>
                  </property>
@@ -5301,6 +5346,9 @@
                      <width>0</width>
                      <height>0</height>
                     </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Retrieve books</string>
                    </property>
                    <property name="text">
                     <string>Retrieve</string>
@@ -5628,6 +5676,9 @@
                    <width>16777215</width>
                    <height>40</height>
                   </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Clear inputs</string>
                  </property>
                  <property name="text">
                   <string>Clear</string>
@@ -6732,6 +6783,9 @@
                <height>40</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Add house</string>
+             </property>
              <property name="text">
               <string>Add</string>
              </property>
@@ -6789,6 +6843,9 @@
                <height>40</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Save change</string>
+             </property>
              <property name="text">
               <string>Save</string>
              </property>
@@ -6801,6 +6858,9 @@
                <width>0</width>
                <height>40</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Deleted class</string>
              </property>
              <property name="text">
               <string>Delete</string>
@@ -6881,6 +6941,9 @@
                <width>0</width>
                <height>40</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Save change</string>
              </property>
              <property name="text">
               <string>Save</string>
@@ -7037,6 +7100,9 @@
                <width>0</width>
                <height>40</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Add class</string>
              </property>
              <property name="text">
               <string>Add</string>
@@ -7627,6 +7693,9 @@
                <height>40</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Save change</string>
+             </property>
              <property name="text">
               <string>Save</string>
              </property>
@@ -7683,6 +7752,9 @@
                <width>0</width>
                <height>40</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Save change</string>
              </property>
              <property name="text">
               <string>Save</string>
@@ -8066,6 +8138,9 @@
                <width>0</width>
                <height>40</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Delete house</string>
              </property>
              <property name="text">
               <string>Delete</string>
@@ -8517,9 +8592,6 @@
                  <property name="frameShadow">
                   <enum>QFrame::Plain</enum>
                  </property>
-                 <property name="sizeAdjustPolicy">
-                  <enum>QAbstractScrollArea::AdjustToContents</enum>
-                 </property>
                  <property name="editTriggers">
                   <set>QAbstractItemView::NoEditTriggers</set>
                  </property>
@@ -8863,6 +8935,9 @@
                       <width>16777215</width>
                       <height>50</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Delete selected user</string>
                     </property>
                     <property name="text">
                      <string>Delete User</string>
@@ -9491,6 +9566,9 @@
                     </colorrole>
                    </disabled>
                   </palette>
+                 </property>
+                 <property name="toolTip">
+                  <string>Create a user</string>
                  </property>
                  <property name="text">
                   <string>Create User</string>
@@ -10170,6 +10248,9 @@
                       <height>40</height>
                      </size>
                     </property>
+                    <property name="toolTip">
+                     <string>Search user's permissions</string>
+                    </property>
                     <property name="text">
                      <string>Search</string>
                     </property>
@@ -10479,6 +10560,9 @@
                      <width>0</width>
                      <height>50</height>
                     </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Apply changes</string>
                    </property>
                    <property name="text">
                     <string>Apply</string>
@@ -11405,6 +11489,9 @@
                <height>23</height>
               </rect>
              </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;About&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="text">
               <string>About</string>
              </property>
@@ -11748,6 +11835,9 @@
                </colorrole>
               </disabled>
              </palette>
+            </property>
+            <property name="toolTip">
+             <string>Logout</string>
             </property>
             <property name="text">
              <string>Logout</string>
