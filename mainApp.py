@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (QApplication, QButtonGroup, QDesktopWidget,
 from queries import *
 
 
-basedir = os.path.dirname(__file__)
+base_dir = os.path.dirname(__file__)
 
 try:
     from ctypes import windll  # Only exists on Windows.
@@ -139,7 +139,7 @@ def btn_max_clicked(self):
     # if window is maximized, restore down
     if self.isMaximized():
         self.max_btn.setIcon(
-            QIcon(QPixmap(os.path.join(basedir, "icons/maximize.png"))))
+            QIcon(QPixmap(os.path.join(base_dir, "icons/maximize.png"))))
         self.showNormal()
         self.title_bar_2.resize(self.widget_2.width(), 40)
         self.title_bar.move(self.title_bar_pos, 0)
@@ -150,7 +150,7 @@ def btn_max_clicked(self):
         self.title_bar.move(screen_width - 283, 0)
         self.title_bar_2.resize(screen_width - 178, 40)
         self.max_btn.setIcon(
-            QIcon(QPixmap(os.path.join(basedir, "icons/restore_down.png"))))
+            QIcon(QPixmap(os.path.join(base_dir, "icons/restore_down.png"))))
         self.showMaximized()
 
 
@@ -493,7 +493,7 @@ class MainApp(QMainWindow, main):
                                 Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
             # remove the last four characters (_tab)
             parent.setIcon(
-                0, QIcon(QPixmap(os.path.join(basedir, f"icons/{parent_text[:-4]}.png"))))
+                0, QIcon(QPixmap(os.path.join(base_dir, f"icons/{parent_text[:-4]}.png"))))
             for child_text in children_text:
                 child = QTreeWidgetItem(parent)
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
@@ -2435,10 +2435,16 @@ class MainApp(QMainWindow, main):
 
 if __name__ == '__main__':
     database = QSqlDatabase.addDatabase("QSQLITE")
+    """For packaged windows app. This creates the database in 'C:/Users/[USERNAME]/AppData/Local/thomasngulube' to
+    prevent it from being read-only if it were stored in the installation folder
+    
     db_dir = os.getenv('LOCALAPPDATA') + '\\thomasngulube' #database directory
     if not os.path.isdir(db_dir): #if database directory does not exist, create it
         os.mkdir(db_dir)
-    database.setDatabaseName(os.path.join(db_dir, "Library.db"))
+    database.setDatabaseName(os.path.join(db_dir, 'Library.db'))"""
+    
+    #Creates database in current directory
+    database.setDatabaseName(os.path.join(base_dir, "Library.db"))
 
     if not database.open():
         print("Unable to open data source file.")
@@ -2448,12 +2454,12 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     screen_width = QDesktopWidget().screenGeometry().width()
     screen_height = QDesktopWidget().screenGeometry().height()
-    main_style = open(os.path.join(basedir, 'themes/main.css'), 'r')
-    login_style = open(os.path.join(basedir, 'themes/login.css'), 'r')
+    main_style = open(os.path.join(base_dir, 'themes/main.css'), 'r')
+    login_style = open(os.path.join(base_dir, 'themes/login.css'), 'r')
     main_style = main_style.read()
     login_style = login_style.read()
     app.setStyleSheet(main_style + login_style)
-    app.setWindowIcon(QIcon(os.path.join(basedir, "icons/app_icon.png")))
+    app.setWindowIcon(QIcon(os.path.join(base_dir, "icons/app_icon.png")))
     login_window = LoginWindow()
     login_window.show()
     sys.exit(app.exec_())
