@@ -9,6 +9,11 @@
 
 If you have any trouble setting it up or any suggestions to improve this project feel free to let me know.
 
+## Default login credentials
+
+**username** : admin
+**password** : admin
+
 ## Login Window
 
 ![Login Window](./media/Login.PNG "Login Window")
