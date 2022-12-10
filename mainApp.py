@@ -461,7 +461,7 @@ class MainApp(QMainWindow, main):
             child.setGraphicsEffect(shadow)
 
         # permissions tree
-        # get alltable column names (permissions)
+        # get all table column names (permissions)
         query.exec_("SELECT name FROM PRAGMA_TABLE_INFO('user_permissions')")
         permissions = []
         while query.next():
@@ -479,22 +479,23 @@ class MainApp(QMainWindow, main):
                 # parent permission only
                 dic_permissions[permission] = []
 
-        for parent_text, children_text in dic_permissions.items():
+        for parent_name, children_names in dic_permissions.items():
             parent = QTreeWidgetItem(self.permissions_tree_widget)
-            parent.setText(0, parent_text.replace('_', ' ').title())
+            parent.setText(0, parent_name.replace('_', ' ').title())
 
             # if permission has no children
-            if len(children_text) == 0:
+            if len(children_names) == 0:
                 parent.setFlags(parent.flags() | Qt.ItemIsUserCheckable)
                 parent.setCheckState(0, Qt.Unchecked)
             # if permission has children, give tristate
             else:
                 parent.setFlags(parent.flags() |
                                 Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
+                
             # remove the last four characters (_tab)
             parent.setIcon(
-                0, QIcon(QPixmap(os.path.join(base_dir, f"icons/{parent_text[:-4]}.png"))))
-            for child_text in children_text:
+                0, QIcon(QPixmap(os.path.join(base_dir, f"icons/{parent_name[:-4]}.png"))))
+            for child_text in children_names:
                 child = QTreeWidgetItem(parent)
                 child.setFlags(child.flags() | Qt.ItemIsUserCheckable)
                 child.setText(0, child_text.replace('_', ' ').title())
@@ -763,7 +764,7 @@ class MainApp(QMainWindow, main):
         self.client_record_tv.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.client_record_tv.verticalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
-        for column_hidden in (0, 1, 2, 3):
+        for column_hidden in (0, 1, 2, 3, 7):
             self.client_record_tv.hideColumn(column_hidden)
 
     def setupAllClientRecordsView(self):
@@ -830,9 +831,9 @@ class MainApp(QMainWindow, main):
             self.client_info_label.setText(
                 f"{fname}\t{lname}\t{class_}\t{house}")  # Displays client information
 
-            for column_hidden in (0, 1, 2, 3):
+            for column_hidden in (0, 1, 2):
                 self.client_record_tv.setColumnHidden(
-                    column_hidden, False)  # Hides unnecessary columns
+                    column_hidden, False)  # Displays necessary columns
 
             self.setClientRecordTableQuery(fname, lname, class_, house)
 
@@ -1156,19 +1157,19 @@ class MainApp(QMainWindow, main):
                 if num_left > 0:
                     # only display two clients of many that haven't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
                                                 <p style='color:#13589e'>{', '.join(clients[:2])} and {num_left} more.</p>
                                                 <p>Can't delete this class.</p>""")
                 elif num_left == 0:
                     # display the two clients that haven't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following clients from <span style='color:#13589e'>{class_name}</span> have unreturned books:</p>
                                                 <p style='color:#13589e'>{' and '.join(clients)}.</p>
                                                 <p>Can't delete this class.</p>""")
                 else:
                     # display the client that hasn't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing client from <span style='color:#13589e'>{class_name}</span> has unreturned books:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following client from <span style='color:#13589e'>{class_name}</span> has unreturned books:</p>
                                                 <p style='color:#13589e'>{''.join(clients)}.</p>
                                                 <p>Can't delete this class.</p>""")
 
@@ -1277,19 +1278,19 @@ class MainApp(QMainWindow, main):
                 if num_left > 0:
                     # only display two clients of many that haven't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{house_name}</span> have unreturned books:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following clients from <span style='color:#13589e'>{house_name}</span> have unreturned books:</p>
                                             <p style='color:#13589e'>{', '.join(clients[:2])} and {num_left} more.</p>
                                             <p>Can't delete this class.</p>""")
                 elif num_left == 0:
                     # display the two clients that haven't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients from <span style='color:#13589e'>{house_name}</span> have unreturned books:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following clients from <span style='color:#13589e'>{house_name}</span> have unreturned books:</p>
                                             <p style='color:#13589e'>{' and '.join(clients)}.</p>
                                             <p>Can't delete this class.</p>""")
                 else:
                     # display the client that hasn't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing client from <span style='color:#13589e'>{house_name}</span> has unreturned books:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following client from <span style='color:#13589e'>{house_name}</span> has unreturned books:</p>
                                             <p style='color:#13589e'>{''.join(clients)}.</p>
                                             <p>Can't delete this class.</p>""")
 
@@ -1432,7 +1433,7 @@ class MainApp(QMainWindow, main):
             lambda: self.clear_client_entry(
                 self.fname_le_2, self.lname_le_2, self.class_combo_box_2, self.house_combo_box_2)
         )
-        self.load_permissions_btn.clicked.connect(self.loadUserPermssions)
+        self.load_permissions_btn.clicked.connect(self.loadUserPermissions)
         self.give_permissions_btn.clicked.connect(self.giveUserPermissions)
         self.username_le_2.textChanged.connect(self.enablePermissionSearch)
         self.show_password_cb.stateChanged.connect(
@@ -1536,7 +1537,7 @@ class MainApp(QMainWindow, main):
                                 "class", "alert alert-danger")
             self.load_permissions_btn.setEnabled(False)
 
-    def loadUserPermssions(self):
+    def loadUserPermissions(self):
         """Loads permissions of searched user and checks the check boxes respectively
         """
         self.searched_user = self.username_le_2.text().strip()
@@ -1740,7 +1741,7 @@ class MainApp(QMainWindow, main):
             self.confirmCreateUser()
 
     def confirmPassword(self):
-        """Checks if both passeord line edits in create user tab text match. If not a response is given (red
+        """Checks if both password line edits in create user tab text match. If not a response is given (red
         border around the line edit and some explanation text) for both no entry and entry mismatch.
         Else, a different response is given (green border around the line edit and some explanation text)
         """
@@ -1870,7 +1871,7 @@ class MainApp(QMainWindow, main):
         self.updateCategoryList(data)
 
     def vanishResponse(self, label: QLabel):
-        """vanishes labbel response
+        """vanishes label response
 
         Args:
             label (QLabel): response label
@@ -1883,7 +1884,7 @@ class MainApp(QMainWindow, main):
         Checks if no book title input is given. If yes an error message is displayed.
         Else, it checks for book title in inputted category and returns (True, book_id) if yes.
         Else, it checks if it is at all in any category (in the database) if yes, returns
-        ('Try different category', None) (leting the user know that it appeared in another category).
+        ('Try different category', None) (letting the user know that it appeared in another category).
         Else, returns (False, None) (it is not in the database)
         """
         if book_title == "":
@@ -1974,7 +1975,7 @@ class MainApp(QMainWindow, main):
                 if result != 'exists':
                     QMessageBox.information(
                         self, 'Operation Successful',
-                        f"<p style='color:#842029; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> and <span style='color:#13589e'>{category}</span> category were successfully added!</p>",
+                        f"<p style='color:#2020e6; font-size: 13px;'><span style='color:#13589e'>{book_title}</span> and <span style='color:#13589e'>{category}</span> category were successfully added!</p>",
                         QMessageBox.Ok, QMessageBox.Ok)
 
                 # if category already existed
@@ -1993,7 +1994,7 @@ class MainApp(QMainWindow, main):
         """Deletes book from database if no client is owing any quantity/number of the book
         """
 
-        # check if book exists in specified catgory
+        # check if book exists in specified category
         found, book_id = self.searchBook(book_title, category)
 
         timer = QTimer(self)
@@ -2023,19 +2024,19 @@ class MainApp(QMainWindow, main):
                 if num_left > 0:
                     # only display two clients of many that haven't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients have not returned this book:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following clients have not returned this book:</p>
                                             <p style='color:#13589e'>{', '.join(data[:2])} and {num_left} more.</p>
                                             <p>Can't delete this book.</p>""")
                 elif num_left == 0:
                     # display the two clients that haven't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing clients have not returned this book:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following clients have not returned this book:</p>
                                             <p style='color:#13589e'>{' and '.join(data)}.</p>
                                             <p>Can't delete this book.</p>""")
                 else:
                     # display the client that hasn't returned the book
                     QMessageBox.information(
-                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The follwing client has not returned this book:</p>
+                        self, 'Error', f"""<p style='color:#2020e6; font-size: 13px;'>The following client has not returned this book:</p>
                                             <p style='color:#13589e'>{''.join(data)}.</p>
                                             <p>Can't delete this book.</p>""")
 
@@ -2247,10 +2248,10 @@ class MainApp(QMainWindow, main):
             self.quantity_spin_box_4.setValue(0)
             self.setClientRecordTableQuery(fname, lname, class_, house)
             
-            self.updateGraph([[str(datetime.today().date())], [quantity]],self.r_series)  # update graph
+            #self.updateGraph([[str(datetime.today().date())], [quantity]],self.r_series)  # update graph
 
     def lendBook(self, book_title: str, category: str, quantity: int):
-        """Lends book to client. If client doesn't exist, they are created. if client is already owing that book, it added to the owing quantity.if the client has borrowed the book before client's recrds is set to returned=0(False) and quantity is updated
+        """Lends book to client. If client doesn't exist, they are created. if client is already owing that book, it added to the owing quantity.if the client has borrowed the book before client's records is set to returned=0(False) and quantity is updated
 
         Args:
             book_title (str): book title
