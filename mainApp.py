@@ -2248,7 +2248,7 @@ class MainApp(QMainWindow, main):
             self.quantity_spin_box_4.setValue(0)
             self.setClientRecordTableQuery(fname, lname, class_, house)
             
-            #self.updateGraph([[str(datetime.today().date())], [quantity]],self.r_series)  # update graph
+            self.updateGraph([[str(datetime.today().date())], [quantity]],self.r_series)  # update graph
 
     def lendBook(self, book_title: str, category: str, quantity: int):
         """Lends book to client. If client doesn't exist, they are created. if client is already owing that book, it added to the owing quantity.if the client has borrowed the book before client's records is set to returned=0(False) and quantity is updated
